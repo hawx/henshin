@@ -1,13 +1,60 @@
 # Henshin
 
-So this will be a static site generator, similar in idea to Jekyll. But the whole point of this is that it won't have the problems Jekyll has because it will be new! Features it needs are:
-- Ability to (re-)generate only changed files, will probably use a dotfile `.updates` or something to keep track of times and stuff.
-- Better defaults so that I can just create a site from a set of text files without creating templates.
-- Tags and categories should be better implemented and easier to use.
-- Archive pages should be __easy__
-- Shouldn’t be coupled as tightly to the file naming.
-- Should be able to add an option that shows how file names are parsed
-- A plugin system would be nice, so that other parsers for markup languages, sass, coffeescript, etc, could be easily added.
+Henshin is a new static site generator, yeah another one. I wasn't going to release it yet but then I saw [awestruct](http://awestruct.org/) and thought I may as well now. Oh and this was totally inspired by the amazing [jekyll](http://github.com/mojombo/jekyll) (in case you hadn't guessed).
+
+
+## Main Features
+
+- Generates posts, etc.
+- More control with settings (see below)
+- A plugin system (not great at the moment, still working on how best to implement it)
+
+## Future Goals
+
+- Ability to regenerate only files that have changed
+- Easy tag, category and archive pages
+- Default templates so you can just type `henshin` with any folder of text files and create a quick site
+
+
+## How To
+
+Install by typing `(sudo) gem install henshin`
+
+Then create a folder for your site, in this you'll probably want to create two folders `layouts` and `posts`, to put in your layouts and posts.
+
+Next create an `index.html` file and your kind of done, unless of course you want some content.
+
+### YAML Frontmatter & Options.yaml
+
+You can create an optional `options.yaml` file at the root of your site, here are the options so far:
+
+    title: [title of your site]
+    description: [description for your site]
+    author: [your name]
+    
+    layout: [the default layout to use]
+    
+    post_name: [the way the post name is parsed]
+      eg. '{title-with-dashes}.{extension}
+      
+        you can use:
+          {title}
+          {title-with-dashes}
+          {date}
+          {date-time}
+          {extension}
+          
+    permalink: [the way you want the permalink to look]
+      eg. '/{year}/{month}/{date}-{title}/index.html
+        these are the only options at the moment for permalink
+      
+    plugins: [array of plugins to 
+    
+
+### Plugins
+
+The only plugins at the moment are the ones included (liquid, maruku, sass and pygments) of which only liquid and maruku work at the moment. In the future you will be able to add your own plugins, probably in a plugins folder. If you want to make your own just look at the others, it's pretty simple to work out!
+
 
 ## Note on Patches/Pull Requests
 

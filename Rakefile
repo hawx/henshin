@@ -5,11 +5,11 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "henshin"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Henshin is a static site generator}
+    gem.description = %Q{Henshin is a static site generator, with a plugin system and more}
     gem.email = "m@hawx.me"
     gem.homepage = "http://github.com/hawx/henshin"
-    gem.authors = ["Joshua Hawxwell"]
+    gem.authors = ["hawx"]
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     gem.add_development_dependency "yard", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings

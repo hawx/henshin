@@ -43,23 +43,65 @@
     
     <div id="content"><div id='filecontents'><h1 id='henshin'>Henshin</h1>
 
-<p>So this will be a static site generator, similar in idea to Jekyll. But the whole point of this is that it won&#8217;t have the problems Jekyll has because it will be new! Features it needs are:</p>
+<p>Henshin is a new static site generator, yeah another one. I wasn&#8217;t going to release it yet but then I saw <a href='http://awestruct.org/'>awestruct</a> and thought I may as well now. Oh and this was totally inspired by the amazing <a href='http://github.com/mojombo/jekyll'>jekyll</a> (in case you hadn&#8217;t guessed).</p>
+
+<h2 id='main_features'>Main Features</h2>
 
 <ul>
-<li>Ability to (re-)generate only changed files, will probably use a dotfile <code>.updates</code> or something to keep track of times and stuff.</li>
+<li>Generates posts, etc.</li>
 
-<li>Better defaults so that I can just create a site from a set of text files without creating templates.</li>
+<li>More control with settings (see below)</li>
 
-<li>Tags and categories should be better implemented and easier to use.</li>
-
-<li>Archive pages should be <strong>easy</strong></li>
-
-<li>Shouldn’t be coupled as tightly to the file naming.</li>
-
-<li>Should be able to add an option that shows how file names are parsed</li>
-
-<li>A plugin system would be nice, so that other parsers for markup languages, sass, coffeescript, etc, could be easily added.</li>
+<li>A plugin system (not great at the moment, still working on how best to implement it)</li>
 </ul>
+
+<h2 id='future_goals'>Future Goals</h2>
+
+<ul>
+<li>Ability to regenerate only files that have changed</li>
+
+<li>Easy tag, category and archive pages</li>
+
+<li>Default templates so you can just type <code>henshin</code> with any folder of text files and create a quick site</li>
+</ul>
+
+<h2 id='how_to'>How To</h2>
+
+<p>Install by typing <code>(sudo) gem install henshin</code></p>
+
+<p>Then create a folder for your site, in this you&#8217;ll probably want to create two folders <code>layouts</code> and <code>posts</code>, to put in your layouts and posts.</p>
+
+<p>Next create an <code>index.html</code> file and your kind of done, unless of course you want some content.</p>
+
+<h3 id='yaml_frontmatter__optionsyaml'>YAML Frontmatter &amp; Options.yaml</h3>
+
+<p>You can create an optional <code>options.yaml</code> file at the root of your site, here are the options so far:</p>
+
+<pre class="code">title: [title of your site]
+description: [description for your site]
+author: [your name]
+
+layout: [the default layout to use]
+
+post_name: [the way the post name is parsed]
+  eg. '{title-with-dashes}.{extension}
+  
+    you can use:
+      {title}
+      {title-with-dashes}
+      {date}
+      {date-time}
+      {extension}
+      
+permalink: [the way you want the permalink to look]
+  eg. '/{year}/{month}/{date}-{title}/index.html
+    these are the only options at the moment for permalink
+  
+plugins: [array of plugins to </pre>
+
+<h3 id='plugins'>Plugins</h3>
+
+<p>The only plugins at the moment are the ones included (liquid, maruku, sass and pygments) of which only liquid and maruku work at the moment. In the future you will be able to add your own plugins, probably in a plugins folder. If you want to make your own just look at the others, it&#8217;s pretty simple to work out!</p>
 
 <h2 id='note_on_patchespull_requests'>Note on Patches/Pull Requests</h2>
 
@@ -80,7 +122,7 @@
 <p>Copyright (c) 2010 Joshua Hawxwell. See LICENSE for details.</p></div></div>
     
     <div id="footer">
-  Generated on Wed May 19 14:23:11 2010 by 
+  Generated on Wed May 19 14:45:02 2010 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool">yard</a>
   0.5.4 (ruby-1.9.1).
 </div>
