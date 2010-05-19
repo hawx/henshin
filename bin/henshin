@@ -3,9 +3,16 @@
 require File.dirname(__FILE__) + '/../lib/henshin'
 require 'optparse'
 
+banner = <<EOS
+Usage: henshin
+       henshin [path to source]
+       henshin [path to source]:[path to write]
+EOS
+
+
 override = {}
 opts = OptionParser.new do |opts|
-
+  opts.banner = banner
 end
 opts.parse!
 

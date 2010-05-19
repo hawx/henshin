@@ -24,6 +24,8 @@ Then create a folder for your site, in this you'll probably want to create two f
 
 Next create an `index.html` file and your kind of done, unless of course you want some content.
 
+Build the site by running `henshin` from the command line. Help available with `henshin -h`
+
 ### YAML Frontmatter & Options.yaml
 
 You can create an optional `options.yaml` file at the root of your site, here are the options so far:
