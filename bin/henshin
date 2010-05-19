@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require File.dirname(__FILE__) + '/../lib/henshin'
+require 'optparse'
+
+override = {}
+opts = OptionParser.new do |opts|
+
+end
+opts.parse!
+
+if ARGV[0]
+  override[:root] = ARGV[0].split(':')[0]
+  override[:target] = ARGV[0].split(':')[1] if ARGV[0].split(':')[1]
+end
+
+
+config = Henshin.configure(override)
+site = Henshin::Site.new(config)
+
+site.read
+site.process
+site.render
+site.write

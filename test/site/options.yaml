@@ -1,0 +1,11 @@
+title: Test Site
+description: This is a site to test this site generator!
+time_zone: GMT
+author: Joshua Hawxwell
+
+layout: post
+
+exclude: ['']
+post_name: '{title-with-dashes}.{extension}'
+permalink: '/{year}/{month}/{date}-{title}/index.html'
+plugins: [maruku, sass, pygments, liquid]

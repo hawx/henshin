@@ -1,0 +1,24 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8" />  
+    <title></title>  
+    <link rel="stylesheet" href="" type="text/css" />  
+  </head>  
+  <body>
+  
+  <header>
+    <h1>{{ post.title }}</h1>
+    <time>{{ post.date }}</time>
+    <ul>
+      <li>tags</li>
+      <li>should</li>
+      <li>be loopable</li>
+    </ul>
+  </header>
+  
+  {{ yield }}
+  
+  <span>Copyright &copy; {{ post.author }}</span>
+  </body>  
+</html> 
