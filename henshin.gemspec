@@ -172,6 +172,7 @@ Gem::Specification.new do |s|
      "doc/js/jquery.js",
      "doc/method_list.html",
      "doc/top-level-namespace.html",
+     "henshin.gemspec",
      "lib/henshin.rb",
      "lib/henshin/ext.rb",
      "lib/henshin/gen.rb",
