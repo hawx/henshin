@@ -5,6 +5,15 @@ module Henshin
     #   class MyPlugin < NoName::StandardPlugin
     #
     # or it can inherit a subclass from below
+    
+    # This is quite useful if a dummy plugin is needed
+    
+    attr_accessor :extensions, :config
+    
+    def initialize
+      @extensions = []
+      @config = {}
+    end
   end
   
   class HTMLGenerator < StandardPlugin

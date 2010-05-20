@@ -53,14 +53,13 @@ module Henshin
           @renderer = plugin
         end
       end
+      @renderer ||= StandardPlugin.new
       
-      if @renderer
-        unless @renderer.config[:ignore_layouts]
-          # do the layout
-          config[:plugins].each do |plugin|
-            if plugin.is_a?( LayoutParser )
-              @content = plugin.generate( @layout, self.payload )
-            end
+      unless @renderer.config[:ignore_layouts]
+        # do the layout
+        config[:plugins].each do |plugin|
+          if plugin.is_a?( LayoutParser )
+            @content = plugin.generate( @layout, self.payload )
           end
         end
       end
@@ -94,8 +93,6 @@ module Henshin
         # files should have different extension
         write_path.gsub!(".#{@extension}", ".#{render_type}")
       end
-      
-      p write_path
       
       FileUtils.mkdir_p File.join( write_path.directory )
       file = File.new( File.join( write_path ), "w" )
