@@ -55,17 +55,20 @@ module Henshin
       items = Dir.glob(path)
       items = items.select {|i| !i.include?(config[:root] + '/_site')}
       
-      gens = items.select {|i| config[:extensions].include?(i.extension)}
-      gens -= @posts.collect {|i| i.path}
-      gens -= @layouts.collect {|k, v| v}
+      items -= ["#{config[:root]}/options.yaml"]
+      items -= @posts.collect {|i| i.path}
+      items -= @layouts.collect {|k, v| v}
       
+      gens = items.select {|i| config[:extensions].include?(i.extension)}
+      gens = gens.select {|i| File.open(i, "r").read(3) == "---"}
+
       gens.each do |g|
         @gens << Gen.new(g, self)
       end
       
-      static = items - @gens
+      static = items - @gens.collect {|i| i.path}
       static.each do |s|
-        #@statics << Static.new(s, self)
+        @statics << Static.new(s, self)
       end
     end
     
@@ -75,7 +78,6 @@ module Henshin
     def process
       @posts.each {|p| p.process}
       @gens.each {|g| g.process}
-      #@static.each {|s| s.process}
     end
     
     # Creates the data to be sent to the layout engine
@@ -95,7 +97,6 @@ module Henshin
     def render
       @posts.each {|p| p.render}
       @gens.each {|g| g.render}
-      #@static.each {|s| s.render}
     end
     
     
@@ -104,7 +105,7 @@ module Henshin
     def write
       @posts.each {|p| p.write}
       @gens.each {|g| g.write}
-      #@static.each {|s| s.write}
+      @statics.each {|s| s.write}
     end
   
   end

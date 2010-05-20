@@ -10,7 +10,7 @@ require 'henshin/site'
 
 require 'henshin/gen'
 require 'henshin/post'
-#require 'henshin/page'
+require 'henshin/static'
 
 require 'henshin/ext'
 
