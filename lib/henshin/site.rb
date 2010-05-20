@@ -59,8 +59,14 @@ module Henshin
       items -= @posts.collect {|i| i.path}
       items -= @layouts.collect {|k, v| v}
       
-      gens = items.select {|i| config[:extensions].include?(i.extension)}
-      gens = gens.select {|i| File.open(i, "r").read(3) == "---"}
+      gens = items.select {|i| config[:extensions].include?(i.extension) }
+      gens = gens.select do |i|
+        if i.extension == "html"
+          File.open(i, "r").read(3) == "---"
+        else
+          true
+        end
+      end
 
       gens.each do |g|
         @gens << Gen.new(g, self)

@@ -3,10 +3,13 @@ require 'maruku'
 
 class MarukuPlugin < Henshin::HTMLGenerator
   
-  attr_accessor :extensions
+  attr_accessor :extensions, :config
   
-  def initialize
+  Defaults = {}
+  
+  def initialize( override={} )
     @extensions = ['markdown', 'mkdwn', 'md']
+    @config = Defaults.merge(override)
   end
   
   def generate( content )

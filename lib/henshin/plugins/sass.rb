@@ -1,16 +1,25 @@
 require 'henshin/plugin'
-require 'sass'
+require 'haml'
+require 'sass/engine'
 
 class SassPlugin < Henshin::CSSGenerator
   
-  attr_accessor :extensions
+  attr_accessor :extensions, :config
   
-  def initialize
+  Defaults = {:target => 'css',
+              :root => 'sass',
+              :file_type => 'css',
+              :ignore_layouts => true,
+              :style => :nested}
+  
+  def initialize( override={} )
     @extensions = ['sass', 'scss']
+    @config = Defaults.merge(override)
   end
   
   def generate( content )
-    # need to override this
+    engine = Sass::Engine.new(content, config)
+    output = engine.render
   end
   
 end
