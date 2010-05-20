@@ -15,6 +15,13 @@
       <li>should</li>
       <li>be loopable</li>
     </ul>
+    
+    <ul>
+      {% for post in site.posts %}
+        <li>{{ post.title }}</li>
+      {% endfor %}
+    </ul>
+    
   </header>
   
   {{ yield }}

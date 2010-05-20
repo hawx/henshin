@@ -2,7 +2,7 @@ module Henshin
 
   class Site
   
-    attr_accessor :posts, :gens, :statics, :archives, :tags, :categories, :plugins
+    attr_accessor :posts, :gens, :statics, :archive, :tags, :categories, :plugins
     attr_accessor :layouts, :config
     
     def initialize( config )
@@ -15,7 +15,7 @@ module Henshin
       @posts = []
       @gens = []
       @statics = []
-      @archives = {}
+      @archive = {}
       @tags = {}
       @categories = {}
       @layouts = {}
@@ -94,7 +94,11 @@ module Henshin
                   'title' => self.config[:title],
                   'description' => self.config[:description],
                   'time_zone' => self.config[:time_zone],
-                  'created_at' => Time.now} }
+                  'created_at' => Time.now,
+                  'posts' => @posts.collect {|i| i.to_hash},
+                  'tags' => @tags,
+                  'categories' => @categories,
+                  'archive' => @archive} }
     end
     
     

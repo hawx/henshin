@@ -92,14 +92,25 @@ module Henshin
       { 
         'yield' => @content,
         'site' => @site.payload['site'],
-        'post' => {'title' => @title,
-                   'author' => @author,
-                   'date' => @date,
-                   'tags' => @tags,
-                   'category' => @category}
+        'post' => self.to_hash
       }
     end
     
+    # Turns all of the post data into a hash
+    #
+    # @return [Hash]
+    def to_hash
+      { 
+        'title'      => @title,
+        'author'     => @author,
+        'url'        => self.permalink,
+        'date'       => @date,
+        'categories' => @category,
+        'tags'       => @tags,
+        'content'    => @content 
+      }
+    end
+
     
     ##
     # Writes the file to the correct place
