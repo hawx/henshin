@@ -258,6 +258,32 @@ Returns the value of attribute path.
       <li class="public ">
   <span class="summary_signature">
     
+      <a href="#renderer-instance_method" title="#renderer (instance method)">- (Object) <strong>renderer</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    
+    
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Returns the value of attribute renderer.
+</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#site-instance_method" title="#site (instance method)">- (Object) <strong>site</strong> </a>
     
 
@@ -790,6 +816,48 @@ Returns the value of attribute path
 </div>
     
       
+      <span id="renderer=-instance_method"></span>
+      <span id="renderer-instance_method"></span>
+      <div class="method_details ">
+  <p class="signature " id="renderer-instance_method">
+  
+    - (<tt>Object</tt>) <strong>renderer</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Returns the value of attribute renderer
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/henshin/gen.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id renderer'>renderer</span>
+  <span class='ivar'>@renderer</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
       <span id="site=-instance_method"></span>
       <span id="site-instance_method"></span>
       <div class="method_details ">
@@ -985,15 +1053,15 @@ the payload for the layout engine
       <pre class="lines">
 
 
-67
-68
-69
-70
 71
-72</pre>
+72
+73
+74
+75
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/henshin/gen.rb', line 67</span>
+      <pre class="code"><span class="info file"># File 'lib/henshin/gen.rb', line 71</span>
 
 <span class='kw'>def</span> <span class='id payload'>payload</span>
   <span class='lbrace'>{</span> 
@@ -1139,7 +1207,11 @@ Renders the files content
 59
 60
 61
-62</pre>
+62
+63
+64
+65
+66</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/henshin/gen.rb', line 48</span>
@@ -1149,13 +1221,17 @@ Renders the files content
 </span>  <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:plugins</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id plugin'>plugin</span><span class='op'>|</span>
     <span class='kw'>if</span> <span class='id plugin'>plugin</span><span class='period'>.</span><span class='id extensions'>extensions</span><span class='period'>.</span><span class='id include?'>include?</span><span class='lparen'>(</span> <span class='ivar'>@extension</span> <span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id plugin'>plugin</span><span class='period'>.</span><span class='id is_a?'>is_a?</span><span class='lparen'>(</span> <span class='const'>LayoutParser</span> <span class='rparen'>)</span>
       <span class='ivar'>@content</span> <span class='op'>=</span> <span class='id plugin'>plugin</span><span class='period'>.</span><span class='id generate'>generate</span><span class='lparen'>(</span> <span class='ivar'>@content</span> <span class='rparen'>)</span>
+      <span class='ivar'>@renderer</span> <span class='op'>=</span> <span class='id plugin'>plugin</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
+  <span class='ivar'>@renderer</span> <span class='op'>||=</span> <span class='const'>StandardPlugin</span><span class='period'>.</span><span class='id new'>new</span>
   
-  <span class='comment'># do the layout
-</span>  <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:plugins</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id plugin'>plugin</span><span class='op'>|</span>
-    <span class='kw'>if</span> <span class='id plugin'>plugin</span><span class='period'>.</span><span class='id is_a?'>is_a?</span><span class='lparen'>(</span> <span class='const'>LayoutParser</span> <span class='rparen'>)</span>
-      <span class='ivar'>@content</span> <span class='op'>=</span> <span class='id plugin'>plugin</span><span class='period'>.</span><span class='id generate'>generate</span><span class='lparen'>(</span> <span class='ivar'>@layout</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id payload'>payload</span> <span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='ivar'>@renderer</span><span class='period'>.</span><span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:ignore_layouts</span><span class='rbracket'>]</span>
+    <span class='comment'># do the layout
+</span>    <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:plugins</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id plugin'>plugin</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id plugin'>plugin</span><span class='period'>.</span><span class='id is_a?'>is_a?</span><span class='lparen'>(</span> <span class='const'>LayoutParser</span> <span class='rparen'>)</span>
+        <span class='ivar'>@content</span> <span class='op'>=</span> <span class='id plugin'>plugin</span><span class='period'>.</span><span class='id generate'>generate</span><span class='lparen'>(</span> <span class='ivar'>@layout</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id payload'>payload</span> <span class='rparen'>)</span>
+      <span class='kw'>end</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
@@ -1188,23 +1264,51 @@ Writes the file to the correct place
       <pre class="lines">
 
 
-77
-78
-79
-80
 81
 82
-83</pre>
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/henshin/gen.rb', line 77</span>
+      <pre class="code"><span class="info file"># File 'lib/henshin/gen.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id write'>write</span>
-  <span class='id write_path'>write_path</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id join'>join</span><span class='lparen'>(</span> <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:root</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:target</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='ivar'>@path</span><span class='lbracket'>[</span> <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:root</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id size'>size</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span> <span class='rbracket'>]</span> <span class='rparen'>)</span>
+
+  <span class='id write_path'>write_path</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id join'>join</span><span class='lparen'>(</span> <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:root</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:target</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='ivar'>@path</span><span class='lbracket'>[</span><span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:root</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id size'>size</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+
+  <span class='id render_target'>render_target</span> <span class='op'>=</span> <span class='ivar'>@renderer</span><span class='period'>.</span><span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:target</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='ivar'>@renderer</span>
+  <span class='kw'>if</span> <span class='id render_target'>render_target</span>
+    <span class='comment'># files should be put in a different folder
+</span>    <span class='id write_path'>write_path</span><span class='period'>.</span><span class='id gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='ivar'>@renderer</span><span class='period'>.</span><span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:root</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='ivar'>@renderer</span><span class='period'>.</span><span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:target</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  
+  <span class='id render_type'>render_type</span> <span class='op'>=</span> <span class='ivar'>@renderer</span><span class='period'>.</span><span class='id config'>config</span><span class='lbracket'>[</span><span class='symbol'>:file_type</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='ivar'>@renderer</span>
+  <span class='kw'>if</span> <span class='id render_type'>render_type</span>
+    <span class='comment'># files should have different extension
+</span>    <span class='id write_path'>write_path</span><span class='period'>.</span><span class='id gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='ivar'>@extension</span><span class='rbrace'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id render_type'>render_type</span><span class='rbrace'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
   
   <span class='const'>FileUtils</span><span class='period'>.</span><span class='id mkdir_p'>mkdir_p</span> <span class='const'>File</span><span class='period'>.</span><span class='id join'>join</span><span class='lparen'>(</span> <span class='id write_path'>write_path</span><span class='period'>.</span><span class='id directory'>directory</span> <span class='rparen'>)</span>
   <span class='id file'>file</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id new'>new</span><span class='lparen'>(</span> <span class='const'>File</span><span class='period'>.</span><span class='id join'>join</span><span class='lparen'>(</span> <span class='id write_path'>write_path</span> <span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>w</span><span class='tstring_end'>&quot;</span></span> <span class='rparen'>)</span>
   <span class='id file'>file</span><span class='period'>.</span><span class='id puts'>puts</span><span class='lparen'>(</span> <span class='ivar'>@content</span> <span class='rparen'>)</span>
+  
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1216,7 +1320,7 @@ Writes the file to the correct place
 </div>
     
     <div id="footer">
-  Generated on Wed May 19 15:05:31 2010 by 
+  Generated on Thu May 20 19:31:59 2010 by 
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool">yard</a>
   0.5.4 (ruby-1.9.1).
 </div>
