@@ -16,8 +16,8 @@ module Henshin
       @gens = []
       @statics = []
       @archive = {}
-      @tags = {}
-      @categories = {}
+      @tags = Hash.new { |h, k| h[k] = [] }
+      @categories = Hash.new { |h, k| h[k] = [] }
       @layouts = {}
     end
     
@@ -86,21 +86,63 @@ module Henshin
       @gens.each {|g| g.process}
     end
     
-    # Creates the data to be sent to the layout engine
-    #
     # @return [Hash] the payload for the layout engine
     def payload
-      {'site' => {'author' => self.config[:author],
-                  'title' => self.config[:title],
-                  'description' => self.config[:description],
-                  'time_zone' => self.config[:time_zone],
-                  'created_at' => Time.now,
-                  'posts' => @posts.collect {|i| i.to_hash},
-                  'tags' => @tags,
-                  'categories' => @categories,
-                  'archive' => @archive} }
+      {
+        'site' => {
+          'author' => @config[:author],
+          'title' => @config[:title],
+          'description' => @config[:description],
+          'time_zone' => @config[:time_zone],
+          'created_at' => Time.now,
+          'posts' => @posts.collect {|i| i.to_hash},
+          'tags' => self.build_tags,
+          'categories' => self.build_categories,
+          'archive' => @archive
+        } 
+      }
     end
     
+    # @return [Hash] hash of tags
+    def build_tags
+      @posts.each do |p|
+        p.tags.each do |t|
+          @tags[t] << p.to_hash
+        end
+      end
+      @tags
+    end
+    
+    # @return [Hash] hash of categories
+    def build_categories
+      @posts.each do |p|
+        p.category = 'none' if p.category.nil?
+        @categories[p.category] << p.to_hash
+      end
+      
+      {
+        '[name]' => {
+          'title' => '[name]',
+          'posts' => {
+            '[post-title]' => {'post' => 'hash'} 
+          }
+        }
+      }
+      
+      @categories
+    end
+    
+    # @return [Hash] archive hash
+    def build_archive
+      {
+        '2010' => {
+          '01' => [
+            {'post' => 'hash'},
+            {'post' => 'hash'}
+          ]
+        }
+      }
+    end
     
     ##
     # Renders the files

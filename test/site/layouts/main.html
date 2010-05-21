@@ -10,6 +10,32 @@
     {{ yield }}
     
     
+    <h2>A List of Posts</h2>
+    <ul>
+      {% for post in site.posts %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a> - {{ post.date }}</li>
+      {% endfor %}
+    </ul>
+    
+    <h2>A List of Tags</h2>
+    <ul>
+      {% for tag in site.tags %}
+        <li>
+          {% for post in tag.posts %}
+            {{ post.title }}
+          {% endfor %}
+        </li>
+      {% endfor %}
+    </ul>
+    
+    <h2>A List of Categories</h2>
+    <ul>
+      {% for category in categories %}
+        <li>{{ category.name }}</li>
+      {% endfor %}
+    </ul>
+    
+    
     <span>Copyright &copy; {{ site.author }} {{ site.created_at }}</span>
   </body>  
 </html> 
