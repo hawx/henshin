@@ -10,6 +10,8 @@ module Henshin
       @config = site.config
       @extension = path.extension
       @layout = site.layouts[ site.config[:layout] ]
+      @author = @config[:author]
+      @tags = []
     end
     
     
@@ -45,9 +47,9 @@ module Henshin
       file_data.each_with_index do |data, i|
         if data_order[i].include? 'title'
           if data_order[i].include? 'dashes'
-            override[:title] = data.gsub(/-/, ' ')
+            override[:title] = data.gsub(/-/, ' ').titlize
           else
-            override[:title] = data
+            override[:title] = data.titlize
           end
         elsif data_order[i].include? 'date'
           override[:date] = data
@@ -82,6 +84,10 @@ module Henshin
       @category ||= override[:category]
       @author ||= override[:author]
       @extension ||= override[:extension]
+      @category ||= override[:category]
+      
+      @tags << override[:tags].split(', ') if override[:tags]
+      @tags.flatten!
     end
     
     
@@ -105,7 +111,7 @@ module Henshin
         'author'     => @author,
         'url'        => self.permalink,
         'date'       => @date,
-        'categories' => @category,
+        'category' => @category,
         'tags'       => @tags,
         'content'    => @content 
       }

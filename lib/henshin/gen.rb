@@ -11,7 +11,6 @@ module Henshin
       @site = site
       @config = site.config
       @extension = path.extension
-      @layout = site.layouts[ site.config[:layout] ]
     end
     
     
@@ -55,6 +54,7 @@ module Henshin
       end
       @renderer ||= StandardPlugin.new
       
+      @layout ||= site.layouts[ site.config[:layout] ]
       unless @renderer.config[:ignore_layouts]
         # do the layout
         config[:plugins].each do |plugin|

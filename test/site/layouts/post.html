@@ -2,23 +2,18 @@
 <html lang="en">  
   <head>  
     <meta charset="utf-8" />  
-    <title></title>  
+    <title>{{ post.title }}</title>  
     <link rel="stylesheet" href="" type="text/css" />  
   </head>  
   <body>
   
   <header>
-    <h1>{{ post.title }}</h1>
+    <h1>{{ post.title }}</h1><span>in {{ post.category }}</span>
     <time>{{ post.date }}</time>
-    <ul>
-      <li>tags</li>
-      <li>should</li>
-      <li>be loopable</li>
-    </ul>
     
     <ul>
-      {% for post in site.posts %}
-        <li>{{ post.title }}</li>
+      {% for tag in post.tags %}
+        <li>{{ tag }}</li>
       {% endfor %}
     </ul>
     
