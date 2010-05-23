@@ -82,8 +82,8 @@ module Henshin
     ## 
     # Processes all of the necessary files
     def process
-      @posts.each {|p| p.process}
-      @gens.each {|g| g.process}
+      @posts.each_parallel {|p| p.process}
+      @gens.each_parallel {|g| g.process}
     end
     
     # @return [Hash] the payload for the layout engine
@@ -147,17 +147,17 @@ module Henshin
     ##
     # Renders the files
     def render
-      @posts.each {|p| p.render}
-      @gens.each {|g| g.render}
+      @posts.each_parallel {|p| p.render}
+      @gens.each_parallel {|g| g.render}
     end
     
     
     ##
     # Writes the files
     def write
-      @posts.each {|p| p.write}
-      @gens.each {|g| g.write}
-      @statics.each {|s| s.write}
+      @posts.each_parallel {|p| p.write}
+      @gens.each_parallel {|g| g.write}
+      @statics.each_parallel {|s| s.write}
     end
   
   end

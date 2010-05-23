@@ -1,4 +1,37 @@
+require 'thread'
+
+module Enumerable
+  
+  # Like an each loop but runs each task in parallel
+  # Which will probably be very useful for writing and rendering
+  # from http://t-a-w.blogspot.com/2010/05/very-simple-parallelization-with-ruby.html
+  def each_parallel( n=10 )
+    todo = Queue.new
+    ts = (1..n).map do
+      Thread.new do 
+        while x = todo.deq
+          Exception.ignoring_exceptions { yield(x[0]) }
+        end
+      end
+    end
+    each {|x| todo << [x] }
+    n.times { todo << nil }
+    ts.each {|t| t.join }
+  end
+  
+end
+
+def Exception.ignoring_exceptions
+  begin
+    yield
+  rescue Exception => e
+    STDERR.puts e.message
+  end
+end
+
+
 class Hash
+
   # stripped straight out of rails
   # converts string keys to symbol keys
   # from http://api.rubyonrails.org/classes/ActiveSupport/CoreExtensions/Hash/Keys.html
@@ -8,7 +41,9 @@ class Hash
       options
     end
   end
+  
 end
+
 
 class String
   
