@@ -19,4 +19,4 @@ rdoc
 pkg
 
 ## PROJECT::SPECIFIC
-test/site/_site
+test/site/_site/
