@@ -12,6 +12,7 @@ require 'henshin/gen'
 require 'henshin/post'
 require 'henshin/static'
 
+require 'henshin/tags'
 require 'henshin/ext'
 
 
@@ -39,7 +40,7 @@ module Henshin
     config = YAML.load_file( config_file ).to_options
     
     settings = Defaults.merge(config).merge(override)
-    settings[:plugins] = Henshin.load_plugins( settings[:plugins] )
+    settings[:plugins] = Henshin.load_plugins( settings[:plugins], settings[:root] )
     settings[:extensions] = Henshin.extensions( settings[:plugins] )
     settings
   end
@@ -49,10 +50,14 @@ module Henshin
   #
   # @param [Array] plugins list of plugins to load
   # @return [Array] list of loaded plugin instances
-  def self.load_plugins( to_load )
+  def self.load_plugins( to_load, root )
     plugins = []
     to_load.each do |l|
-      require 'henshin/plugins/' + l
+      begin
+        require 'henshin/plugins/' + l
+      rescue LoadError
+        require File.join(root, 'plugins/', l)
+      end
       plugins << eval( l.capitalize + 'Plugin.new' )
     end
     plugins
