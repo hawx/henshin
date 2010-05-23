@@ -28,7 +28,8 @@ module Henshin
               :permalink => '/{year}/{month}/{date}/{title}.html',
               :plugins => ['maraku', 'liquid'],
               :root => '.',
-              :target => '_site' }
+              :target => '_site',
+              :plugin_options => {} }
   
   
   # Creates the configuration hash by merging defaults, supplied options and options read from the 'options.yaml' file. Then loads the plugins
@@ -40,7 +41,14 @@ module Henshin
     config = YAML.load_file( config_file ).to_options
     
     settings = Defaults.merge(config).merge(override)
-    settings[:plugins] = Henshin.load_plugins( settings[:plugins], settings[:root] )
+    
+    settings.each do |k, v|
+      if settings[:plugins].include? k.to_s
+        settings[:plugin_options][k] = v.to_options
+      end
+    end
+    
+    settings[:plugins] = Henshin.load_plugins( settings[:plugins], settings[:root], settings[:plugin_options] )
     settings[:extensions] = Henshin.extensions( settings[:plugins] )
     settings
   end
@@ -50,15 +58,16 @@ module Henshin
   #
   # @param [Array] plugins list of plugins to load
   # @return [Array] list of loaded plugin instances
-  def self.load_plugins( to_load, root )
+  def self.load_plugins( to_load, root, options )
     plugins = []
     to_load.each do |l|
+      p 
       begin
         require 'henshin/plugins/' + l
       rescue LoadError
         require File.join(root, 'plugins/', l)
       end
-      plugins << eval( l.capitalize + 'Plugin.new' )
+      plugins << eval("#{l.capitalize}Plugin.new( #{options[l.to_sym]} )")
     end
     plugins
   end
