@@ -54,6 +54,7 @@ module Henshin
       path = File.join(config[:root], '**', '*.*')
       items = Dir.glob(path)
       items = items.select {|i| !i.include?(config[:root] + '/_site')}
+      items = items.select {|i| !i.include?(config[:root] + '/plugins')}
       
       items -= ["#{config[:root]}/options.yaml"]
       items -= @posts.collect {|i| i.path}
