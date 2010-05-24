@@ -44,7 +44,6 @@ module Henshin
     def read_posts
       path = File.join(config[:root], 'posts')
       Dir.glob(path + '/*.*').each do |post|
-        # should really create a new post object but I haven't made one yet
         @posts << Post.new(post, self)
       end
     end
@@ -53,23 +52,23 @@ module Henshin
     def read_others
       path = File.join(config[:root], '**', '*.*')
       items = Dir.glob(path)
-      items = items.select {|i| !i.include?(config[:root] + '/_site')}
-      items = items.select {|i| !i.include?(config[:root] + '/plugins')}
       
-      items -= ["#{config[:root]}/options.yaml"]
+      ['/_site', '/plugins'].each do |r|
+        items = items.select {|i| !i.include?( File.join(config[:root], r) )}
+      end
+      
+      ignored = ['/options.yaml'] + config[:exclude]
+      ignored.each do |r|
+        items -= [File.join(config[:root], r)]
+        items -= items.select {|i| i.include?( File.join(config[:root], r) )}
+      end
+      
       items -= @posts.collect {|i| i.path}
       items -= @layouts.collect {|k, v| v}
       
       gens = items.select {|i| config[:extensions].include?(i.extension) }
+      gens += items.select {|i| File.open(i, "r").read(3) == "---" }
       
-      gens += items.select do |i|
-        if File.open(i, "r").read(3) == "---"
-          true
-        else
-          false
-        end
-      end
-
       gens.each do |g|
         @gens << Gen.new(g, self)
       end
