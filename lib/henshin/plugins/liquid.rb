@@ -6,7 +6,7 @@ class LiquidPlugin < Henshin::LayoutParser
   attr_accessor :extensions
   
   def initialize
-    @extensions = ['html']
+    @extensions = []
   end
   
   def generate( layout, data )

@@ -61,11 +61,12 @@ module Henshin
       items -= @layouts.collect {|k, v| v}
       
       gens = items.select {|i| config[:extensions].include?(i.extension) }
-      gens = gens.select do |i|
-        if i.extension == "html"
-          File.open(i, "r").read(3) == "---"
-        else
+      
+      gens += items.select do |i|
+        if File.open(i, "r").read(3) == "---"
           true
+        else
+          false
         end
       end
 
