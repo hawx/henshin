@@ -73,6 +73,7 @@ module Henshin
         @gens << Gen.new(g, self)
       end
       
+      
       static = items - @gens.collect {|i| i.path}
       static.each do |s|
         @statics << Static.new(s, self)
