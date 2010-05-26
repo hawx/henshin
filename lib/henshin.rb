@@ -13,6 +13,7 @@ require 'henshin/post'
 require 'henshin/static'
 
 require 'henshin/tags'
+require 'henshin/categories'
 require 'henshin/ext'
 
 
@@ -29,7 +30,8 @@ module Henshin
               :plugins => ['maraku', 'liquid'],
               :root => '.',
               :target => '_site',
-              :plugin_options => {} }
+              :plugin_options => {},
+              :exclude => [] }
   
   
   # Creates the configuration hash by merging defaults, supplied options and options read from the 'options.yaml' file. Then loads the plugins

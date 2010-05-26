@@ -1,5 +1,5 @@
 module Henshin
-  class Tag
+  class Category
   
     attr_accessor :name, :posts
     

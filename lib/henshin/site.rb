@@ -16,8 +16,8 @@ module Henshin
       @gens = []
       @statics = []
       @archive = {}
-      @tags = Hash.new { |h, k| h[k] = [] }
-      @categories = Hash.new { |h, k| h[k] = [] }
+      @tags = Hash.new { |h, k| h[k] = Tag.new(k) }
+      @categories = Hash.new { |h, k| h[k] = Category.new(k) }
       @layouts = {}
     end
     
@@ -85,6 +85,10 @@ module Henshin
     def process
       @posts.each_parallel {|p| p.process}
       @gens.each_parallel {|g| g.process}
+      
+      self.build_tags
+      self.build_categories
+      self.build_archive
     end
     
     # @return [Hash] the payload for the layout engine
@@ -97,40 +101,27 @@ module Henshin
           'time_zone' => @config[:time_zone],
           'created_at' => Time.now,
           'posts' => @posts.collect {|i| i.to_hash},
-          'tags' => self.build_tags,
-          'categories' => self.build_categories,
+          'tags' => @tags.collect {|k, t| t.to_hash},
+          'categories' => @categories.collect {|k, t| t.to_hash},
           'archive' => @archive
         } 
       }
     end
     
-    # @return [Hash] hash of tags
+    # Creates tags from posts and adds them to @tags
     def build_tags
       @posts.each do |p|
         p.tags.each do |t|
-          @tags[t] << p.to_hash
+          @tags[t].posts << p
         end
       end
-      @tags
     end
     
-    # @return [Hash] hash of categories
+    # Create categories from posts and add to @categories
     def build_categories
       @posts.each do |p|
-        p.category = 'none' if p.category.nil?
-        @categories[p.category] << p.to_hash
+        @categories[p.category].posts << p unless p.category.nil?
       end
-      
-      {
-        '[name]' => {
-          'title' => '[name]',
-          'posts' => {
-            '[post-title]' => {'post' => 'hash'} 
-          }
-        }
-      }
-      
-      @categories
     end
     
     # @return [Hash] archive hash

@@ -12,6 +12,7 @@ module Henshin
       @layout = site.layouts[ site.config[:layout] ]
       @author = @config[:author]
       @tags = []
+      @date = Time.now
     end
     
     
@@ -77,17 +78,19 @@ module Henshin
     #
     # @param [Hash] override data to override settings with
     def override( override )
-      @title ||= override[:title]
-      @layout ||= @site.layouts[ override[:layout] ]
-      @date ||= Time.parse( override[:date] ) unless override[:date].nil?
-      @tags ||= override[:tags]
-      @category ||= override[:category]
-      @author ||= override[:author]
-      @extension ||= override[:extension]
-      @category ||= override[:category]
+      @title     = override[:title]                   if override[:title]
+      @layout    = @site.layouts[ override[:layout] ] if override[:layout]
+      @date      = Time.parse( override[:date] )      if override[:date]
+      @tags      = override[:tags].split(', ')        if override[:tags]
+      @category  = override[:category]                if override[:category]
+      @author    = override[:author]                  if override[:author]
+      @extension = override[:extension]               if override[:extension]
+      @category  = override[:category]                if override[:category]
       
-      @tags << override[:tags].split(', ') if override[:tags]
-      @tags.flatten!
+      if override[:tags]
+        @tags << override[:tags].split(', ')
+        @tags.flatten!
+      end
     end
     
     
@@ -111,7 +114,7 @@ module Henshin
         'author'     => @author,
         'url'        => self.permalink,
         'date'       => @date,
-        'category' => @category,
+        'category'   => @category,
         'tags'       => @tags,
         'content'    => @content 
       }
@@ -137,6 +140,10 @@ module Henshin
       config[:permalink].gsub(/\{([a-z-]+)\}/) do
         partials[$1]
       end
+    end
+    
+    def inspect
+      "#<Post:#{@path}>"
     end
     
   end

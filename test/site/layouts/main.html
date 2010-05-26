@@ -21,17 +21,25 @@
     <ul>
       {% for tag in site.tags %}
         <li>
+          {{ tag.name }}
+          <ul>
           {% for post in tag.posts %}
-            {{ post.title }}
+            <li>{{ post.title }} - {{ post.date }}</li>
           {% endfor %}
+          </ul>
         </li>
       {% endfor %}
     </ul>
     
     <h2>A List of Categories</h2>
     <ul>
-      {% for category in categories %}
+      {% for category in site.categories %}
         <li>{{ category.name }}</li>
+        <ul>
+        {% for post in category.posts %}
+          <li>{{ post.title }} - {{ post.date }}</li>
+        {% endfor %}
+        </ul>
       {% endfor %}
     </ul>
     
