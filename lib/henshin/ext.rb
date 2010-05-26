@@ -70,7 +70,7 @@ class String
   
   # Gets the directory from a string
   def directory
-    self =~ /((\/?[a-zA-Z0-9 _-]+\/)+)/
+    self =~ /((\.?\/?[a-zA-Z0-9 _-]+\/)+)/
     $1
   end
   

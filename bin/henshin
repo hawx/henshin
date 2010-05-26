@@ -25,7 +25,13 @@ end
 config = Henshin.configure(override)
 site = Henshin::Site.new(config)
 
+puts "Reading files..."
 site.read
+
 site.process
 site.render
+
+puts "Writing files..."
 site.write
+
+puts "Site created in #{config[:target]}"

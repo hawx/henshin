@@ -93,7 +93,7 @@ module Henshin
         # files should have different extension
         write_path.gsub!(".#{@extension}", ".#{render_type}")
       end
-      
+
       FileUtils.mkdir_p File.join( write_path.directory )
       file = File.new( File.join( write_path ), "w" )
       file.puts( @content )

@@ -38,7 +38,7 @@ module Henshin
   #
   # @param [Hash] override to override other set options
   # @return [Hash] the merged configuration hash
-  def self.configure( override={} )
+  def self.configure( override={} )  
     config_file = (override[:root] || Defaults[:root]) + '/options.yaml'
     config = YAML.load_file( config_file ).to_options
     
