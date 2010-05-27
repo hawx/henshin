@@ -43,7 +43,7 @@ module Henshin
     # Adds all items in 'posts' to the posts array
     def read_posts
       path = File.join(config[:root], 'posts')
-      Dir.glob(path + '/*.*').each do |post|
+      Dir.glob(path + '/**/*.*').each do |post|
         @posts << Post.new(post, self)
       end
     end

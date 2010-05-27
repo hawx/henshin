@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{henshin}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
      "test/helper.rb",
      "test/site/_site/2010/10/20-testing-stuff/index.html",
      "test/site/_site/2010/5/15-lorem-ipsum/index.html",
+     "test/site/_site/css/print.css",
      "test/site/_site/index.html",
      "test/site/_site/static.html",
      "test/site/css/screen.css",

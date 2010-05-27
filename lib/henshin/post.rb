@@ -30,22 +30,33 @@ module Henshin
                 'date' => '(\d{4}-\d{2}-\d{2})',
                 'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
                 'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
+                'category' => '([a-zA-Z0-9-]+)',
                 'extension' => "(#{ site.config[:extensions].join('|') })"}
       
       file_parser = config[:file_name]
-      # create string regex and keep order of info
       data_order = []
+      
+      # put together regex
       m = file_parser.gsub(/\{([a-z-]+)\}/) do
         data_order << $1
         parser[$1]
       end
+      
+      # replace optional '<stuff>'
+      m.gsub!(/<(.+)>/) do
+        # this may lead to problems, well I say may...
+        data_order.unshift( 'optional' )
+        "(#{$1})?"
+      end
+
       # convert string to actual regex
       matcher = Regexp.new(m)
       
       override = {}
-      # extract data from filename
-      file_data = path.file_name.match( matcher ).captures
-      file_data.each_with_index do |data, i|
+      name = path[ (config[:root]+'/posts/').size..-1 ]
+
+      file_data = name.match( matcher ).captures
+      file_data.each_with_index do |data, i|      
         if data_order[i].include? 'title'
           if data_order[i].include? 'dashes'
             override[:title] = data.gsub(/-/, ' ').titlize
@@ -56,6 +67,8 @@ module Henshin
           override[:date] = data
         elsif data_order[i].include? 'extension'
           override[:extension] = data
+        elsif data_order[i].include? 'category'
+          override[:category] = data
         end
       end
       self.override( override )

@@ -25,7 +25,7 @@ module Henshin
               :time_zone => 'GMT',
               :author => '',
               :layout => '',
-              :file_name => '{title-with-dashes}.{extension}',
+              :file_name => '<{category}/>{title-with-dashes}.{extension}',
               :permalink => '/{year}/{month}/{date}/{title}.html',
               :plugins => ['maraku', 'liquid'],
               :root => '.',
