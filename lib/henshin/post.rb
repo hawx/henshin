@@ -148,7 +148,8 @@ module Henshin
       partials = {'year' => self.date.year,
                   'month' => self.date.month,
                   'date' => self.date.day,
-                  'title' => self.title.slugify}
+                  'title' => self.title.slugify,
+                  'category' => self.category.slugify}
                   
       config[:permalink].gsub(/\{([a-z-]+)\}/) do
         partials[$1]

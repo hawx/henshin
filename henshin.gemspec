@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-05-26}
+  s.date = %q{2010-05-27}
   s.default_executable = %q{henshin}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
@@ -52,6 +52,7 @@ Gem::Specification.new do |s|
      "test/site/options.yaml",
      "test/site/plugins/test.rb",
      "test/site/posts/Testing-Stuff.markdown",
+     "test/site/posts/cat/test.markdown",
      "test/site/posts/lorem-ipsum.markdown",
      "test/site/sass/print.sass",
      "test/site/static.html",
