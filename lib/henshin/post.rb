@@ -30,7 +30,7 @@ module Henshin
                 'date' => '(\d{4}-\d{2}-\d{2})',
                 'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
                 'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
-                'category' => '([a-zA-Z0-9-]+)',
+                'category' => '([a-zA-Z0-9_ -]+)',
                 'extension' => "(#{ site.config[:extensions].join('|') })"}
       
       file_parser = config[:file_name]
@@ -149,7 +149,7 @@ module Henshin
                   'month' => self.date.month,
                   'date' => self.date.day,
                   'title' => self.title.slugify,
-                  'category' => self.category.slugify}
+                  'category' => self.category || ''}
                   
       config[:permalink].gsub(/\{([a-z-]+)\}/) do
         partials[$1]
