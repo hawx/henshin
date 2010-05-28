@@ -151,6 +151,34 @@ module Henshin
       @posts.each_parallel {|p| p.write}
       @gens.each_parallel {|g| g.write}
       @statics.each_parallel {|s| s.write}
+      
+      self.write_tags
+      self.write_categories
+    end
+    
+    
+    def write_tags
+      if @layouts['tag_index']
+        write_path = File.join( config[:root], 'tags', 'index.html' )
+      
+        tag_index = Gen.new(write_path, self)
+        tag_index.layout = @layouts['tag_index']
+        
+        tag_index.render
+        tag_index.write
+      end
+    end
+    
+    def write_categories
+      if @layouts['category_index']
+        write_path = File.join( config[:root], 'categories', 'index.html' )
+        
+        category_index = Gen.new(write_path, self)
+        category_index.layout = @layouts['category_index']
+        
+        category_index.render
+        category_index.write
+      end
     end
   
   end
