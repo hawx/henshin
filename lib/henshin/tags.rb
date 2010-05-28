@@ -1,5 +1,5 @@
 module Henshin
-  class Tag < Gen
+  class Tag
   
     attr_accessor :name, :posts
     
