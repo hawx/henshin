@@ -48,7 +48,7 @@ module Henshin
     def render
       # render the posts content
       config[:plugins].each do |plugin|
-        if plugin.extensions.include?( @extension ) && !plugin.is_a?( LayoutParser )
+        if plugin.extensions[:input].include?( @extension ) && plugin.is_a?( Generator )
           @content = plugin.generate( @content )
           @renderer = plugin
         end
@@ -97,8 +97,8 @@ module Henshin
         write_path.gsub!("/#{@renderer.config[:root]}", "/#{@renderer.config[:target]}")
       end
       
-      render_type = @renderer.config[:file_type] if @renderer
-      if render_type
+      render_type = @renderer.extensions[:output] if @renderer
+      if render_type != ''
         # files should have different extension
         write_path.gsub!(".#{@extension}", ".#{render_type}")
       end

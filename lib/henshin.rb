@@ -81,8 +81,10 @@ module Henshin
   # @return [Array] a list of file extensions
   def self.extensions( plugins )
     extensions = []
-    plugins.each do |i| 
-      extensions << i.extensions
+    plugins.each do |i|
+      if i.extensions[:input] != []
+        extensions << i.extensions[:input]
+      end
     end
     extensions.flatten!
   end

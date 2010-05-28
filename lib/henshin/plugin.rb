@@ -5,47 +5,34 @@ module Henshin
     #   class MyPlugin < NoName::StandardPlugin
     #
     # or it can inherit a subclass from below
-    
+    #
     # This is quite useful if a dummy plugin is needed
     
     attr_accessor :extensions, :config
     
     def initialize
-      @extensions = []
+      # inputs are the file types it will take
+      # output should be the type it creates
+      @extensions = {:input => [],
+                     :output => ''}
       @config = {}
     end
   end
   
-  class HTMLGenerator < StandardPlugin
-    # a plugin which returns html
+  class Generator < StandardPlugin
+    # a plugin which returns anything*
     
     def generate( content )
-      #return html
-    end
-  end
-  
-  class CSSGenerator < StandardPlugin
-    # a plugin which returns css
-    
-    def generate( content )
-      #return css
-    end
-  end
-  
-  class JSGenerator < StandardPlugin
-    # a plugin which returns javascript
-    
-    def generate( content )
-      #return javascript
+      # return stuff
     end
   end
   
   class LayoutParser < StandardPlugin
-    # a plugin which returns html
+    # a plugin which returns anything*
     # given a layout and data to insert
     
     def generate( layout, data )
-      #return html
+      # return stuff
     end
   end
   

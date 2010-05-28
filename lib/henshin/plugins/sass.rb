@@ -2,18 +2,18 @@ require 'henshin/plugin'
 require 'haml'
 require 'sass/engine'
 
-class SassPlugin < Henshin::CSSGenerator
+class SassPlugin < Henshin::Generator
   
   attr_accessor :extensions, :config
   
   Defaults = {:target => 'css',
               :root => 'sass',
-              :file_type => 'css',
               :ignore_layouts => true,
               :style => :nested}
   
   def initialize( override={} )
-    @extensions = ['sass', 'scss']
+    @extensions = {:input => ['sass', 'scss'],
+                   :output => 'css'}
     @config = Defaults.merge(override)
   end
   
