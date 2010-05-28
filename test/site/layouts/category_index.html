@@ -1,0 +1,26 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8" />  
+    <title>{{ site.title }}</title>
+    <link rel="stylesheet" href="screen.css" type="text/css" />  
+  </head>  
+  <body>
+
+    <h2>A List of Categories</h2>
+    <ul>
+      {% for category in site.categories %}
+        <li>
+          {{ category.name }}
+          <ul>
+          {% for post in category.posts %}
+            <li>{{ post.title }} - {{ post.date }}</li>
+          {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+    
+    <span>Copyright &copy; {{ site.author }}</span>
+  </body>  
+</html> 

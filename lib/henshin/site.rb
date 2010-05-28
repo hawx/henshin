@@ -167,6 +167,19 @@ module Henshin
         tag_index.render
         tag_index.write
       end
+      
+      if @layouts['tag_page']
+        @tags.each do |n, tag|
+          write_path = File.join( config[:root], 'tags', tag.name, 'index.html' )
+          
+          payload = {:name => 'tag', :payload => tag.to_hash}
+          tag_page = Gen.new(write_path, self, payload)
+          tag_page.layout = @layouts['tag_page']
+          
+          tag_page.render
+          tag_page.write
+        end
+      end
     end
     
     def write_categories
@@ -178,6 +191,19 @@ module Henshin
         
         category_index.render
         category_index.write
+      end
+      
+      if @layouts['category_page']
+        @categories.each do |n, category|
+          write_path = File.join( config[:root], 'categories', category.name, 'index.html' )
+          
+          payload = {:name => 'category', :payload => category.to_hash}
+          category_page = Gen.new(write_path, self, payload)
+          category_page.layout = @layouts['category_page']
+          
+          category_page.render
+          category_page.write
+        end
       end
     end
   

@@ -4,13 +4,14 @@ module Henshin
   class Gen
     
     attr_accessor :path, :extension, :content, :layout, :date, :title
-    attr_accessor :site, :config, :renderer
+    attr_accessor :site, :config, :renderer, :data
     
-    def initialize( path, site )
+    def initialize( path, site, data={} )
       @path = path
       @site = site
       @config = site.config
       @extension = path.extension
+      @data = data
     end
     
     
@@ -65,14 +66,22 @@ module Henshin
       end
     end
     
-    # Creates the data to be sent to the layout engine
+    # Creates the data to be sent to the layout engine. Uses optional data if available
     #
     # @return [Hash] the payload for the layout engine
     def payload
-      { 
-        'yield' => @content,
-        'site' => @site.payload['site']
-      }
+      if @data == {}
+        { 
+          'yield' => @content,
+          'site' => @site.payload['site']
+        }
+      else
+        {
+          'yield' => @content,
+          'site' => @site.payload['site'],
+          @data[:name] => @data[:payload]
+        }
+      end
     end
     
     
