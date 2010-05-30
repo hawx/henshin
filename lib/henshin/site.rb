@@ -2,7 +2,7 @@ module Henshin
 
   class Site
   
-    attr_accessor :posts, :gens, :statics, :archive, :tags, :categories, :plugins
+    attr_accessor :posts, :gens, :statics, :archive, :tags, :categories
     attr_accessor :layouts, :config
     
     def initialize( config )
@@ -15,9 +15,11 @@ module Henshin
       @posts = []
       @gens = []
       @statics = []
+      
       @archive = {}
       @tags = Hash.new { |h, k| h[k] = Tag.new(k) }
       @categories = Hash.new { |h, k| h[k] = Category.new(k) }
+      
       @layouts = {}
     end
     

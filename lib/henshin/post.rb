@@ -84,7 +84,7 @@ module Henshin
         @content = file[$1.size..-1]
       else
         @content = file
-      end  
+      end
     end
     
     # Uses the loaded data to override settings
@@ -102,7 +102,7 @@ module Henshin
       
       if override[:tags]
         @tags << override[:tags].split(', ')
-        @tags.flatten!
+        @tags.flatten!.uniq!
       end
     end
     
