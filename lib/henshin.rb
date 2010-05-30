@@ -88,5 +88,12 @@ module Henshin
     end
     extensions.flatten!
   end
+  
+  
+  
+  
+  def self.version
+    File.read( File.join(File.dirname(__FILE__), *%w[.. VERSION]) )
+  end
 
 end

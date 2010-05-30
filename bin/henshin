@@ -11,8 +11,23 @@ EOS
 
 
 override = {}
+build = {:server => false, :auto => false}
 opts = OptionParser.new do |opts|
   opts.banner = banner
+  
+  opts.on("--server", "-s", "Start server") do
+    build[:server] = true
+  end
+  
+  opts.on("--auto", "-a", "Auto regenerate files") do
+    build[:auto] = true
+  end
+  
+  opts.on("--version", "Display current version of Henshin") do
+    puts "Henshin #{Henshin.version}"
+    exit 0
+  end
+  
 end
 opts.parse!
 
@@ -25,13 +40,60 @@ end
 config = Henshin.configure(override)
 site = Henshin::Site.new(config)
 
-puts "Reading files..."
-site.read
 
-site.process
-site.render
-
-puts "Writing files..."
-site.write
-
+# build normally
+puts "Building site..."
+site.build
 puts "Site created in #{config[:target]}"
+
+
+# regenerate files when changed
+if build[:auto]
+  require 'directory_watcher'
+  
+  puts "", "Auto-build initiated..."
+  
+  # build the glob pattern
+  gl = Dir[ File.join(config[:root], '*')].select { |x| File.directory?(x) }
+  ['/_site', '/plugins'].each do |r|
+    gl = gl.select {|i| !i.include?( File.join(config[:root], r) )}
+  end
+  gl.collect! {|x| "#{x}/**/*"}
+  gl += ['*']
+  
+  dw = DirectoryWatcher.new config[:root], :glob => gl
+  dw.interval = 2.0
+  dw.add_observer do |*args| 
+    if args.size > 1
+      puts "rebuilding -> #{args.size} files"
+    else
+      puts "rebuilding -> #{args[0].path}"
+    end
+    site.build
+  end
+  
+  dw.start
+  
+  unless build[:server]
+    loop {sleep 1000}
+  end
+end  
+
+
+# start a server
+if build[:server]
+  require 'webrick'
+  
+  server = WEBrick::HTTPServer.new(
+    :Port => '3000',
+    :DocumentRoot => File.join(config[:root], config[:target]),
+    :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
+  )
+  
+  thread = Thread.new { server.start }
+  trap("INT") { server.shutdown }
+  
+  thread.join()
+end
+
+

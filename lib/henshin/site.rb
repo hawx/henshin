@@ -23,6 +23,19 @@ module Henshin
     
     
     ##
+    # Read, process, render and write everything
+    #
+    # @todo Make it take an array as an arg so that only specific files are updated
+    def build
+      self.reset
+      self.read
+      self.process
+      self.render
+      self.write
+    end
+    
+    
+    ##
     # Reads all necessary files and puts them into the necessary arrays
     #
     def read
