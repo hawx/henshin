@@ -1,7 +1,38 @@
-require 'helper'
+require File.join(File.dirname(__FILE__) ,'helper')
 
 class TestHenshin < Test::Unit::TestCase
-  should "probably rename this file and start testing for real" do
-    flunk "hey buddy, you should probably rename this file and start testing for real"
+  context "Building sites" do
+  
+    setup do
+      override = {:root => File.join(File.dirname(__FILE__), 'site'),:target => '_site'}
+      config = Henshin.configure(override)
+      @site = Henshin::Site.new(config)
+    end
+    
+    should "reset all data before anything else" do
+      remove_site
+      @site.reset
+      
+      assert_equal @site.posts.length, 0
+      assert_equal @site.gens.length, 0
+      assert_equal @site.statics.length, 0
+      assert_equal @site.archive.length, 0
+      assert_equal @site.tags.length, 0
+      assert_equal @site.categories.length, 0
+      assert_equal @site.layouts.length, 0
+    end
+    
+    should "read posts" do
+      @site.read_posts
+      p = Dir.glob( File.join(root_dir, 'posts', '**', '*.*') )
+      assert_equal p.size, @site.posts.size
+    end
+    
+    should "read layouts" do
+      @site.read_layouts
+      l = Dir.glob( File.join(root_dir, 'layouts', '*.*') )
+      assert_equal l.size, @site.layouts.size
+    end
+    
   end
 end
