@@ -28,9 +28,9 @@ module Henshin
     # Read, process, render and write everything
     #
     # @todo Make it take an array as an arg so that only specific files are updated
-    def build
+    def build( paths=[] )
       self.reset
-      self.read
+      self.read( paths )
       self.process
       self.render
       self.write
@@ -40,10 +40,27 @@ module Henshin
     ##
     # Reads all necessary files and puts them into the necessary arrays
     #
-    def read
-      self.read_layouts
-      self.read_posts
-      self.read_others
+    def read( paths=[] )
+      if paths == []
+        self.read_layouts
+        self.read_posts
+        self.read_others
+      else
+        paths.each do |path|
+          case determine_type( path )
+            when 'post'
+              @posts << Post.new(path, self)
+            when 'layout'
+              path =~ /([a-zA-Z0-9 _-]+)\.([a-zA-Z0-9-]+)/
+              @layouts[$1] = path
+            when 'gen'
+              @gens << Gen.new(path, self)
+            when 'static'
+              @statics << Static.new(path, self)
+          end
+        end
+
+      end
     end
     
     # Adds all items in 'layouts' to the layouts array
@@ -92,6 +109,27 @@ module Henshin
       static = items - @gens.collect {|i| i.path}
       static.each do |s|
         @statics << Static.new(s, self)
+      end
+    end
+    
+    # Determines whether the file at the path is a post, layout, gen or static
+    def determine_type( path )
+      ignored = ['/options.yaml'] + config[:exclude]
+      ignored.collect! {|i| File.join(config[:root], i)}
+      if ignored.include? path
+        return "ignored"
+      end
+      
+      if path.include? File.join(config[:root], 'layouts')
+        return "layout"
+      elsif path.include? File.join(config[:root], 'posts')
+        return "post"
+      elsif config[:extensions].include? path.extension
+        return "gen"
+      elsif File.open(path, "r").read(3) == "---"
+        return "gen"
+      else
+        return "static"
       end
     end
     
