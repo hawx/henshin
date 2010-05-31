@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{henshin}
-  s.version = "0.2.0"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-05-30}
+  s.date = %q{2010-05-31}
   s.default_executable = %q{henshin}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
@@ -60,7 +60,11 @@ Gem::Specification.new do |s|
      "test/site/posts/lorem-ipsum.markdown",
      "test/site/sass/print.sass",
      "test/site/static.html",
-     "test/test_henshin.rb"
+     "test/test_henshin.rb",
+     "test/test_layouts.rb",
+     "test/test_options.rb",
+     "test/test_posts.rb",
+     "test/test_site.rb"
   ]
   s.homepage = %q{http://github.com/hawx/henshin}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -70,7 +74,11 @@ Gem::Specification.new do |s|
   s.test_files = [
     "test/helper.rb",
      "test/site/plugins/test.rb",
-     "test/test_henshin.rb"
+     "test/test_henshin.rb",
+     "test/test_layouts.rb",
+     "test/test_options.rb",
+     "test/test_posts.rb",
+     "test/test_site.rb"
   ]
 
   if s.respond_to? :specification_version then
