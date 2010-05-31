@@ -4,9 +4,7 @@ module Henshin
     #
     #   class MyPlugin < NoName::StandardPlugin
     #
-    # or it can inherit a subclass from below
-    #
-    # This is quite useful if a dummy plugin is needed
+    # or it can (and should) inherit a subclass from below
     
     attr_accessor :extensions, :config
     
@@ -17,23 +15,32 @@ module Henshin
                      :output => ''}
       @config = {}
     end
+    
+    # Uncomment to have the plugin loaded
+    # Henshin.register! self
   end
   
   class Generator < StandardPlugin
     # a plugin which returns anything*
     
     def generate( content )
-      # return stuff
+      # return string
     end
+    
+    # Uncomment to have the plugin loaded
+    # Henshin.register! self
   end
   
   class LayoutParser < StandardPlugin
     # a plugin which returns anything*
-    # given a layout and data to insert
     
+    # given a layout and data to insert
     def generate( layout, data )
-      # return stuff
+      # return string
     end
+    
+    # Uncomment to have the plugin loaded
+    # Henshin.register! self
   end
   
 end

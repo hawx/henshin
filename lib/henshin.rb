@@ -69,15 +69,19 @@ module Henshin
   def self.load_plugins( to_load, root, options )
     plugins = []
     to_load.each do |l|
-      p 
       begin
         require 'henshin/plugins/' + l
       rescue LoadError
         require File.join(root, 'plugins/', l)
       end
-      plugins << eval("#{l.capitalize}Plugin.new( #{options[l.to_sym]} )")
     end
-    plugins
+    @registered_plugins
+  end
+  
+  # Each plugin will call this method when loaded from #load_plugins, these plugins then populate @registered_plugins, which is returned from #load_plugins. Complicated? Maybe, but it works!
+  def self.register!( plug )
+    @registered_plugins ||= []
+    @registered_plugins << plug.new
   end
   
   
@@ -95,9 +99,8 @@ module Henshin
     extensions.flatten!
   end
   
-  
-  
-  
+
+  # @return [String] current version
   def self.version
     File.read( File.join(File.dirname(__FILE__), *%w[.. VERSION]) )
   end

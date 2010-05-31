@@ -12,5 +12,6 @@ class PygmentsPlugin < Henshin::Generator
   def generate( content )
   
   end
-  
+
+  Henshin.register! self
 end

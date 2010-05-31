@@ -22,4 +22,5 @@ class SassPlugin < Henshin::Generator
     output = engine.render
   end
   
+  Henshin.register! self
 end

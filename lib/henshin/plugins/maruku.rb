@@ -1,7 +1,7 @@
 require 'henshin/plugin'
 require 'maruku'
 
-class MarukuPlugin < Henshin::Generator
+class MarukuPlug < Henshin::Generator
   
   attr_accessor :extensions, :config
   
@@ -17,4 +17,5 @@ class MarukuPlugin < Henshin::Generator
     Maruku.new(content).to_html
   end
   
+  Henshin.register! self
 end

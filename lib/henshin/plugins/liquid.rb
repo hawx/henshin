@@ -24,5 +24,6 @@ class LiquidPlugin < Henshin::LayoutParser
     end
     r
   end
-
+  
+  Henshin.register! self
 end
