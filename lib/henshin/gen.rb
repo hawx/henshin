@@ -109,5 +109,10 @@ module Henshin
       
     end
     
+    
+    
+    def inspect
+      "#<Gen:#{@path}>"
+    end
   end
 end

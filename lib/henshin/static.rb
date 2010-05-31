@@ -21,6 +21,11 @@ module Henshin
       file.puts( @content )
     end
     
+    
+    def inspect
+      "#<Static:#{@path}>"
+    end
+    
   end
   
 end

@@ -14,6 +14,11 @@ module Henshin
         'posts' => @posts.collect {|i| i.to_hash}
       }
     end
-  
+    
+    
+    def inspect
+      "#<Category:#{@name}>"
+    end
+    
   end
 end

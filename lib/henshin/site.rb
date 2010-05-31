@@ -39,7 +39,6 @@ module Henshin
     
     ##
     # Reads all necessary files and puts them into the necessary arrays
-    #
     def read( paths=[] )
       if paths == []
         self.read_layouts
@@ -113,6 +112,9 @@ module Henshin
     end
     
     # Determines whether the file at the path is a post, layout, gen or static
+    #
+    # @param [Array]
+    # @return [String]
     def determine_type( path )
       ignored = ['/options.yaml'] + config[:exclude]
       ignored.collect! {|i| File.join(config[:root], i)}
@@ -209,7 +211,7 @@ module Henshin
       self.write_categories
     end
     
-    
+    # Writes the necessary pages for tags, but only if the correct layouts are present
     def write_tags
       if @layouts['tag_index']
         write_path = File.join( config[:root], 'tags', 'index.html' )
@@ -235,6 +237,7 @@ module Henshin
       end
     end
     
+    # Writes the necessary pages for categories, but only if the correct layouts are present
     def write_categories
       if @layouts['category_index']
         write_path = File.join( config[:root], 'categories', 'index.html' )
@@ -261,5 +264,4 @@ module Henshin
     end
   
   end
-
 end
