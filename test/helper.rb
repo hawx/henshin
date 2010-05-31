@@ -20,4 +20,10 @@ class Test::Unit::TestCase
     FileUtils.rm_rf(File.join(root_dir, target_dir))
   end
   
+  def new_site
+    override = {:root => File.join(File.dirname(__FILE__), 'site'),:target => '_site'}
+    config = Henshin.configure(override)
+    Henshin::Site.new(config)
+  end
+  
 end

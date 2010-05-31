@@ -27,7 +27,7 @@ module Henshin
               :layout => '',
               :file_name => '<{category}/>{title-with-dashes}.{extension}',
               :permalink => '/{year}/{month}/{date}/{title}.html',
-              :plugins => ['maraku', 'liquid'],
+              :plugins => ['maruku', 'liquid'],
               :root => '.',
               :target => '_site',
               :plugin_options => {},
@@ -40,9 +40,15 @@ module Henshin
   # @return [Hash] the merged configuration hash
   def self.configure( override={} )  
     config_file = (override[:root] || Defaults[:root]) + '/options.yaml'
-    config = YAML.load_file( config_file ).to_options
     
-    settings = Defaults.merge(config).merge(override)
+    begin
+      config = YAML.load_file( config_file ).to_options
+      settings = Defaults.merge(config).merge(override)
+    rescue => e
+      $stderr.puts "\nCould not read configuration, falling back to defaults..."
+      $stderr.puts "-> #{e.to_s}"
+      settings = Defaults
+    end
     
     settings.each do |k, v|
       if settings[:plugins].include? k.to_s
