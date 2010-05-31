@@ -1,6 +1,5 @@
 require 'henshin/plugin'
-require 'haml'
-require 'sass/engine'
+require 'sass'
 
 class SassPlugin < Henshin::Generator
   
