@@ -135,6 +135,7 @@ module Henshin
     # Processes all of the necessary files
     def process
       @posts.each_parallel {|p| p.process}
+      @posts.sort!
       @gens.each_parallel {|g| g.process}
       
       self.build_tags

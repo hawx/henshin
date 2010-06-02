@@ -11,7 +11,7 @@ EOS
 
 
 override = {}
-build = {:server => false, :auto => false, :verbose => false}
+build = {:server => false, :auto => false}
 opts = OptionParser.new do |opts|
   opts.banner = banner
   

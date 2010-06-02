@@ -109,7 +109,15 @@ module Henshin
       
     end
     
-    
+    # Needed to sort the posts by date, newest first
+    def <=>( val )
+      s = self.date <=> val.date
+      if s == 0
+        return self.permalink <=> val.permalink
+      else
+        return -1 * s
+      end
+    end
     
     def inspect
       "#<Gen:#{@path}>"
