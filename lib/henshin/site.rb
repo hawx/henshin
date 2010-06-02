@@ -26,11 +26,9 @@ module Henshin
     
     ##
     # Read, process, render and write everything
-    #
-    # @todo Make it take an array as an arg so that only specific files are updated
-    def build( paths=[] )
+    def build
       self.reset
-      self.read( paths )
+      self.read
       self.process
       self.render
       self.write
@@ -40,26 +38,9 @@ module Henshin
     ##
     # Reads all necessary files and puts them into the necessary arrays
     def read( paths=[] )
-      if paths == []
-        self.read_layouts
-        self.read_posts
-        self.read_others
-      else
-        paths.each do |path|
-          case determine_type( path )
-            when 'post'
-              @posts << Post.new(path, self)
-            when 'layout'
-              path =~ /([a-zA-Z0-9 _-]+)\.([a-zA-Z0-9-]+)/
-              @layouts[$1] = path
-            when 'gen'
-              @gens << Gen.new(path, self)
-            when 'static'
-              @statics << Static.new(path, self)
-          end
-        end
-
-      end
+      self.read_layouts
+      self.read_posts
+      self.read_others
     end
     
     # Adds all items in 'layouts' to the layouts array
