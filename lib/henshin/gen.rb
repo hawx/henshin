@@ -45,7 +45,7 @@ module Henshin
     
     ##
     # Renders the files content
-    def render
+    def render   
       # render the posts content
       config[:plugins].each do |plugin|
         if plugin.extensions[:input].include?( @extension ) && plugin.is_a?( Generator )
@@ -56,7 +56,7 @@ module Henshin
       @renderer ||= StandardPlugin.new
       
       @layout ||= site.layouts[ site.config[:layout] ]
-      unless @renderer.config[:ignore_layouts]
+      unless @renderer.config[:ignore_layouts] || @layout.nil?
         # do the layout
         config[:plugins].each do |plugin|
           if plugin.is_a?( LayoutParser )

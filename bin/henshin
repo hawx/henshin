@@ -11,7 +11,7 @@ EOS
 
 
 override = {}
-build = {:server => false, :auto => false}
+build = {:server => false, :auto => false, :verbose => false}
 opts = OptionParser.new do |opts|
   opts.banner = banner
   
@@ -40,11 +40,11 @@ end
 config = Henshin.configure(override)
 site = Henshin::Site.new(config)
 
-
+start = Time.now
 # build normally
 puts "Building site..."
 site.build
-puts "Site created in #{config[:target]}"
+puts "Site created in #{config[:target]} (#{Time.now - start}s)"
 
 
 # regenerate files when changed
