@@ -56,8 +56,20 @@ module Henshin
       end
     end
     
-    settings[:plugins] = Henshin.load_plugins( settings[:plugins], settings[:root], settings[:plugin_options] )
-    settings[:extensions] = Henshin.extensions( settings[:plugins] )
+    loaded_plugins = Henshin.load_plugins( settings[:plugins], settings[:root], settings[:plugin_options] )
+    
+    settings[:plugins] = {:generators => {}, :layout_parsers => []}
+    loaded_plugins.each do |plugin|
+      if plugin.is_a? Generator
+        plugin.extensions[:input].each do |ext|
+          settings[:plugins][:generators][ext] = plugin
+        end
+      end
+      if plugin.is_a? LayoutParser
+        settings[:plugins][:layout_parsers] << plugin
+      end
+    end
+    
     settings
   end
   
@@ -82,21 +94,6 @@ module Henshin
   def self.register!( plug )
     @registered_plugins ||= []
     @registered_plugins << plug.new
-  end
-  
-  
-  # Lists the file extensions the currently loaded plugins use
-  #
-  # @param [Array] plugins array of loaded plugin instances
-  # @return [Array] a list of file extensions
-  def self.extensions( plugins )
-    extensions = []
-    plugins.each do |i|
-      if i.extensions[:input] != []
-        extensions << i.extensions[:input]
-      end
-    end
-    extensions.flatten!
   end
   
 

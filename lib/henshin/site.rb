@@ -37,7 +37,7 @@ module Henshin
     
     ##
     # Reads all necessary files and puts them into the necessary arrays
-    def read( paths=[] )
+    def read
       self.read_layouts
       self.read_posts
       self.read_others
@@ -85,7 +85,7 @@ module Henshin
     #
     # @param [Array]
     # @return [String]
-    def determine_type( path )
+    def determine_type( path )    
       ignored = ['/options.yaml'] + config[:exclude]
       ignored.collect! {|i| File.join(config[:root], i)}
       ignored.each do |i|
@@ -96,7 +96,7 @@ module Henshin
         return "layout"
       elsif path.include? File.join(config[:root], 'posts')
         return "post"
-      elsif config[:extensions].include? path.extension
+      elsif config[:plugins][:generators].has_key? path.extension
         return "gen"
       elsif File.open(path, "r").read(3) == "---"
         return "gen"

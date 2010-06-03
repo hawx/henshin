@@ -5,9 +5,7 @@ class SassPlugin < Henshin::Generator
   
   attr_accessor :extensions, :config
   
-  Defaults = {:target => 'css',
-              :root => 'sass',
-              :ignore_layouts => true,
+  Defaults = {:ignore_layouts => true,
               :style => :nested}
   
   def initialize( override={} )

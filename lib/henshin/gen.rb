@@ -4,7 +4,7 @@ module Henshin
   class Gen
     
     attr_accessor :path, :extension, :content, :layout, :date, :title
-    attr_accessor :site, :config, :renderer, :data
+    attr_accessor :site, :config, :renderer, :data, :output
     
     def initialize( path, site, data={} )
       @path = path
@@ -45,25 +45,23 @@ module Henshin
     
     ##
     # Renders the files content
-    def render   
-      # render the posts content
-      config[:plugins].each do |plugin|
-        if plugin.extensions[:input].include?( @extension ) && plugin.is_a?( Generator )
-          @content = plugin.generate( @content )
-          @renderer = plugin
-        end
-      end
-      @renderer ||= StandardPlugin.new
+    def render
+      ignore_layout = false
       
+      if config[:plugins][:generators].has_key? @extension
+        plugin = config[:plugins][:generators][@extension]
+        @content = plugin.generate( @content )
+        @output = plugin.extensions[:output]
+        ignore_layout = true if plugin.config[:ignore_layouts]
+      end
+
       @layout ||= site.layouts[ site.config[:layout] ]
-      unless @renderer.config[:ignore_layouts] || @layout.nil?
-        # do the layout
-        config[:plugins].each do |plugin|
-          if plugin.is_a?( LayoutParser )
-            @content = plugin.generate( @layout, self.payload )
-          end
+      unless ignore_layout || @layout.nil?
+        config[:plugins][:layout_parsers].each do |plugin|
+          @content = plugin.generate( @layout, self.payload )
         end
       end
+      
     end
     
     # Creates the data to be sent to the layout engine. Uses optional data if available
@@ -88,25 +86,14 @@ module Henshin
     ##
     # Writes the file to the correct place
     def write
-    
       write_path = File.join( config[:root], config[:target], @path[config[:root].size..-1] )
-    
-      render_target = @renderer.config[:target] if @renderer
-      if render_target
-        # files should be put in a different folder
-        write_path.gsub!("/#{@renderer.config[:root]}", "/#{@renderer.config[:target]}")
-      end
       
-      render_type = @renderer.extensions[:output] if @renderer
-      if render_type != ''
-        # files should have different extension
-        write_path.gsub!(".#{@extension}", ".#{render_type}")
-      end
+      # change extension if necessary
+      write_path.gsub!(".#{@extension}", ".#{@output}") if @output
 
       FileUtils.mkdir_p File.join( write_path.directory )
       file = File.new( File.join( write_path ), "w" )
       file.puts( @content )
-      
     end
     
     # Needed to sort the posts by date, newest first

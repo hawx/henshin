@@ -25,17 +25,18 @@ module Henshin
     
     # Reads the filename and extracts information from it
     def read_name
+    
       parser = {'title' => '([a-zA-Z0-9 ]+)',
                 'title-with-dashes' => '([a-zA-Z0-9-]+)',
                 'date' => '(\d{4}-\d{2}-\d{2})',
                 'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
                 'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
                 'category' => '([a-zA-Z0-9_ -]+)',
-                'extension' => "(#{ site.config[:extensions].join('|') })"}
+                'extension' => "([a-zA-Z0-9_-]+)"}
       
       file_parser = config[:file_name]
       data_order = []
-      
+
       # put together regex
       m = file_parser.gsub(/\{([a-z-]+)\}/) do
         data_order << $1
