@@ -47,9 +47,10 @@ module Henshin
     rescue => e
       $stderr.puts "\nCould not read configuration, falling back to defaults..."
       $stderr.puts "-> #{e.to_s}"
-      settings = Defaults
+      settings = Defaults.merge(override)
     end
     
+
     settings.each do |k, v|
       if settings[:plugins].include? k.to_s
         settings[:plugin_options][k] = v.to_options
@@ -78,7 +79,8 @@ module Henshin
   #
   # @param [Array] plugins list of plugins to load
   # @return [Array] list of loaded plugin instances
-  def self.load_plugins( to_load, root, options )
+  # @todo Make sure that options are passed to the plugin
+  def self.load_plugins( to_load, root, opts )  
     plugins = []
     to_load.each do |l|
       begin
