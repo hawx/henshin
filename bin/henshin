@@ -5,9 +5,13 @@ require 'optparse'
 require 'fileutils'
 
 banner = <<EOS
-Usage: henshin
-       henshin [path to source]
-       henshin [path to source]:[path to write]
+Usage: henshin    
+       henshin [source]
+       henshin [source]:[destination]
+       
+       henshin create
+       henshin create [path for site]
+       
 EOS
 
 opt_content = <<EOS
