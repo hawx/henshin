@@ -2,6 +2,7 @@
 
 require File.dirname(__FILE__) + '/../lib/henshin'
 require 'optparse'
+require 'fileutils'
 
 banner = <<EOS
 Usage: henshin
@@ -9,91 +10,162 @@ Usage: henshin
        henshin [path to source]:[path to write]
 EOS
 
+opt_content = <<EOS
+title: Test Site
+author: John Doe
+layout: main
+EOS
 
-override = {}
-build = {:server => false, :auto => false}
-opts = OptionParser.new do |opts|
-  opts.banner = banner
+index_content = <<EOS
+---
+title: The Home Page
+---
+
+Well you might want to change this!
+EOS
+
+layout_content = <<EOS
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8" />  
+    <title>{{ site.title }}</title>
+  </head>  
+  <body>
   
-  opts.on("--server", "-s", "Start server") do
-    build[:server] = true
+    {{ yield }}
+    
+    <h4>A List of Posts</h4>
+    <ul>
+      {% for post in site.posts %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a> - {{ post.date }}</li>
+      {% endfor %}
+    </ul>
+    
+    <span>Copyright &copy; {{ site.author }}</span>
+  </body>  
+</html> 
+EOS
+
+post_content = <<EOS
+---
+title: Hello World
+date: #{Time.now.strftime("%Y-%m-%d at %H:%M:%S")}
+tags: test, hello
+---
+
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.  
+EOS
+
+
+if ARGV[0] == "create"
+  if ARGV[1]
+    # create the directory
+    FileUtils.mkdir_p ARGV[1]
+    # and cd to it
+    Dir.chdir ARGV[1]
   end
   
-  opts.on("--auto", "-a", "Auto regenerate files") do
-    build[:auto] = true
+  # create directories
+  dirs = ['layouts', 'posts']
+  dirs.each {|d| FileUtils.mkdir_p d}
+
+  # write files  
+  files = {'options.yaml' => opt_content,
+           'index.html' => index_content, 
+           'layouts/main.html' => layout_content, 
+           'posts/hello-world.markdown' => post_content}
+  files.each do |f, c|
+    file = File.new( f, "w" )
+    file.puts c
   end
-  
-  opts.on("--version", "Display current version of Henshin") do
-    puts "Henshin #{Henshin.version}"
-    exit 0
-  end
-  
-end
-opts.parse!
 
-if ARGV[0]
-  override[:root] = ARGV[0].split(':')[0]
-  override[:target] = ARGV[0].split(':')[1] if ARGV[0].split(':')[1]
-end
+else
 
-
-config = Henshin.configure(override)
-site = Henshin::Site.new(config)
-
-start = Time.now
-# build normally
-puts "Building site..."
-site.build
-puts "Site created in #{config[:target]} (#{Time.now - start}s)"
-
-
-# regenerate files when changed
-if build[:auto]
-  require 'directory_watcher'
-  
-  puts "", "Auto-build initiated..."
-  
-  # build the glob pattern
-  gl = Dir[ File.join(config[:root], '*')].select { |x| File.directory?(x) }
-  ['/_site', '/plugins'].each do |r|
-    gl = gl.select {|i| !i.include?( File.join(config[:root], r) )}
-  end
-  gl.collect! {|x| "#{x}/**/*"}
-  gl += ['*']
-  
-  dw = DirectoryWatcher.new config[:root], :glob => gl
-  dw.interval = 2.0
-  dw.add_observer do |*args| 
-    if args.size > 1
-      puts "rebuilding -> #{args.size} files"
-    else
-      puts "rebuilding -> #{args[0].path}"
+  override = {}
+  build = {:server => false, :auto => false}
+  opts = OptionParser.new do |opts|
+    opts.banner = banner
+    
+    opts.on("--server", "-s", "Start server") do
+      build[:server] = true
     end
-    site.build
+    
+    opts.on("--auto", "-a", "Auto regenerate files") do
+      build[:auto] = true
+    end
+    
+    opts.on("--version", "Display current version of Henshin") do
+      puts "Henshin #{Henshin.version}"
+      exit 0
+    end
+    
+  end
+  opts.parse!
+  
+  if ARGV[0]
+    override[:root] = ARGV[0].split(':')[0]
+    override[:target] = ARGV[0].split(':')[1] if ARGV[0].split(':')[1]
   end
   
-  dw.start
   
-  unless build[:server]
-    loop {sleep 1000}
+  config = Henshin.configure(override)
+  site = Henshin::Site.new(config)
+  
+  start = Time.now
+  # build normally
+  puts "Building site..."
+  site.build
+  puts "Site created in #{config[:target]} (#{Time.now - start}s)"
+  
+  
+  # regenerate files when changed
+  if build[:auto]
+    require 'directory_watcher'
+    
+    puts "", "Auto-build initiated..."
+    
+    # build the glob pattern
+    gl = Dir[ File.join(config[:root], '*')].select { |x| File.directory?(x) }
+    ['/_site', '/plugins'].each do |r|
+      gl = gl.select {|i| !i.include?( File.join(config[:root], r) )}
+    end
+    gl.collect! {|x| "#{x}/**/*"}
+    gl += ['*']
+    
+    dw = DirectoryWatcher.new config[:root], :glob => gl
+    dw.interval = 2.0
+    dw.add_observer do |*args| 
+      if args.size > 1
+        puts "rebuilding -> #{args.size} files"
+      else
+        puts "rebuilding -> #{args[0].path}"
+      end
+      site.build
+    end
+    
+    dw.start
+    
+    unless build[:server]
+      loop {sleep 1000}
+    end
+  end  
+  
+  
+  # start a server
+  if build[:server]
+    require 'webrick'
+    
+    server = WEBrick::HTTPServer.new(
+      :Port => '3000',
+      :DocumentRoot => File.join(config[:root], config[:target]),
+      :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
+    )
+    
+    thread = Thread.new { server.start }
+    trap("INT") { server.shutdown }
+    
+    thread.join()
   end
-end  
 
-
-# start a server
-if build[:server]
-  require 'webrick'
-  
-  server = WEBrick::HTTPServer.new(
-    :Port => '3000',
-    :DocumentRoot => File.join(config[:root], config[:target]),
-    :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
-  )
-  
-  thread = Thread.new { server.start }
-  trap("INT") { server.shutdown }
-  
-  thread.join()
 end
-
-
