@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{henshin}
-  s.version = "0.2.1"
+  s.version = "0.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-06-02}
+  s.date = %q{2010-06-06}
   s.default_executable = %q{henshin}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
      "lib/henshin/plugins/maruku.rb",
      "lib/henshin/plugins/pygments.rb",
      "lib/henshin/plugins/sass.rb",
+     "lib/henshin/plugins/textile.rb",
      "lib/henshin/post.rb",
      "lib/henshin/site.rb",
      "lib/henshin/static.rb",
@@ -45,6 +46,7 @@ Gem::Specification.new do |s|
      "test/site/_site/css/print.css",
      "test/site/_site/index.html",
      "test/site/_site/static.html",
+     "test/site/css/print.sass",
      "test/site/css/screen.css",
      "test/site/index.html",
      "test/site/layouts/category_index.html",
@@ -56,10 +58,12 @@ Gem::Specification.new do |s|
      "test/site/options.yaml",
      "test/site/plugins/test.rb",
      "test/site/posts/Testing-Stuff.markdown",
+     "test/site/posts/Textile-Test.textile",
      "test/site/posts/cat/test.markdown",
      "test/site/posts/lorem-ipsum.markdown",
-     "test/site/sass/print.sass",
+     "test/site/posts/same-date.markdown",
      "test/site/static.html",
+     "test/test_gens.rb",
      "test/test_henshin.rb",
      "test/test_layouts.rb",
      "test/test_options.rb",
@@ -74,6 +78,7 @@ Gem::Specification.new do |s|
   s.test_files = [
     "test/helper.rb",
      "test/site/plugins/test.rb",
+     "test/test_gens.rb",
      "test/test_henshin.rb",
      "test/test_layouts.rb",
      "test/test_options.rb",
