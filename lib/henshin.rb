@@ -50,7 +50,9 @@ module Henshin
       settings = Defaults.merge(override)
     end
     
-
+    
+    
+    # find the options for plugins, if any
     settings.each do |k, v|
       if settings[:plugins].include? k.to_s
         settings[:plugin_options][k] = v.to_options
@@ -79,14 +81,20 @@ module Henshin
   #
   # @param [Array] plugins list of plugins to load
   # @return [Array] list of loaded plugin instances
-  # @todo Make sure that options are passed to the plugin
-  def self.load_plugins( to_load, root, opts )  
+  def self.load_plugins( to_load, root, opts={} )  
     plugins = []
     to_load.each do |l|
       begin
         require 'henshin/plugins/' + l
       rescue LoadError
         require File.join(root, 'plugins/', l)
+      end
+    end
+    
+    # pass options to the plugins
+    @registered_plugins.each do |plugin|
+      if plugin.respond_to? :configure
+        plugin.configure( opts[plugin.opts_name] )
       end
     end
     @registered_plugins

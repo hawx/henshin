@@ -16,6 +16,10 @@ module Henshin
       @config = {}
     end
     
+    # def configure( override )
+      # setup the plugin
+    # end
+    
     # Uncomment to have the plugin loaded
     # Henshin.register! self
   end

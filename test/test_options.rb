@@ -30,18 +30,24 @@ class TestOptions < Test::Unit::TestCase
     end
 
     should "use defaults if no options.yaml" do
+      mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
+      mock($stderr).puts("-> No such file or directory - #{@opts}")
+    
       configured = Henshin.configure
       configured[:plugins] = ["maruku", "liquid"]
       assert_equal Henshin::Defaults, configured
     end
     
     should "merge override with defaults" do
+      mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
+      mock($stderr).puts("-> No such file or directory - #{@opts}")
+    
       override = {:time_zone => '+01:00'}
       configured = Henshin.configure(override)
       assert_equal configured[:time_zone], '+01:00'
     end
     
-    should "load plugins" do
+    should "load plugins" do    
       loaded = Henshin.load_plugins( ['maruku'], '.', {} )
       assert loaded[0].is_a? MarukuPlugin
     end

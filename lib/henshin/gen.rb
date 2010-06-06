@@ -6,7 +6,7 @@ module Henshin
     attr_accessor :path, :extension, :content, :layout, :date, :title
     attr_accessor :site, :config, :renderer, :data, :output
     
-    def initialize( path, site, data={} )
+    def initialize( path, site, data=nil )
       @path = path
       @site = site
       @config = site.config
@@ -38,8 +38,9 @@ module Henshin
     #
     # @param [Hash] override data to override settings with
     def override( override )
-      @layout ||= @site.layouts[ override[:layout] ]
-      @date ||= Time.parse( override[:date].to_s )
+      @title  = override[:title]                    if override[:title]
+      @layout = @site.layouts[ override[:layout] ]  if override[:layout]
+      @date   = Time.parse( override[:date].to_s )  if override[:date]
     end
     
     
@@ -64,22 +65,31 @@ module Henshin
       
     end
     
-    # Creates the data to be sent to the layout engine. Uses optional data if available
+    # Creates the data to be sent to the layout engine. Adds optional data if available
     #
     # @return [Hash] the payload for the layout engine
     def payload
-      if @data == {}
-        { 
-          'yield' => @content,
-          'site' => @site.payload['site']
-        }
-      else
-        {
-          'yield' => @content,
-          'site' => @site.payload['site'],
-          @data[:name] => @data[:payload]
-        }
-      end
+      hash = {
+        'yield' => @content,
+        'gen'   => self.to_hash,
+        'site'  => @site.payload['site'],
+      }
+      hash[ @data[:name] ] = @data[:payload] if @data
+      
+      hash
+    end
+    
+    # Turns all of the post data into a hash
+    #
+    # @return [Hash]
+    def to_hash
+      { 
+        'title'      => @title,
+        'permalink'  => self.permalink,
+        'url'        => self.url,
+        'date'       => @date,
+        'content'    => @content 
+      }
     end
     
     
@@ -95,6 +105,21 @@ module Henshin
       file = File.new( File.join( write_path ), "w" )
       file.puts( @content )
     end
+    
+    # Returns the permalink for the gen
+    def permalink
+      @path[config[:root].size..-1]
+    end
+    
+    # Returns the (pretty) url for the gen
+    def url
+      if config[:permalink].include? "/index.html"
+        self.permalink[0..-11]
+      else
+        self.permalink
+      end
+    end
+    
     
     # Needed to sort the posts by date, newest first
     def <=>( val )

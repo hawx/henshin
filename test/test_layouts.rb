@@ -8,11 +8,7 @@ class TestLayouts < Test::Unit::TestCase
       remove_site
     end
     
-    should "read layouts" do
-      @site.read_layouts
-      l = Dir.glob( File.join(root_dir, 'layouts', '*.*') )
-      assert_equal l.size, @site.layouts.size
-    end
+    
   
   end
 end

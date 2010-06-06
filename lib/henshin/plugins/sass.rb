@@ -3,15 +3,19 @@ require 'sass'
 
 class SassPlugin < Henshin::Generator
   
-  attr_accessor :extensions, :config
+  attr_accessor :extensions, :config, :opts_name
   
   Defaults = {:ignore_layouts => true,
               :style => :nested}
   
-  def initialize( override={} )
+  def initialize
     @extensions = {:input => ['sass', 'scss'],
                    :output => 'css'}
-    @config = Defaults.merge(override)
+    @opts_name = :sass
+  end
+  
+  def configure( override )
+    override ? @config = Defaults.merge(override) : @config = Defaults
   end
   
   def generate( content )

@@ -54,7 +54,7 @@ module Henshin
       matcher = Regexp.new(m)
       
       override = {}
-      name = path[ (config[:root]+'/posts/').size..-1 ]
+      name = @path[ (config[:root]+'/posts/').size..-1 ]
 
       file_data = name.match( matcher ).captures
       file_data.each_with_index do |data, i|      
@@ -114,8 +114,8 @@ module Henshin
     def payload
       { 
         'yield' => @content,
-        'site' => @site.payload['site'],
-        'post' => self.to_hash
+        'site'  => @site.payload['site'],
+        'post'  => self.to_hash
       }
     end
     
@@ -126,7 +126,8 @@ module Henshin
       { 
         'title'      => @title,
         'author'     => @author,
-        'url'        => self.permalink,
+        'permalink'  => self.permalink,
+        'url'        => self.url,
         'date'       => @date,
         'category'   => @category,
         'tags'       => @tags,

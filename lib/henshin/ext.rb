@@ -84,4 +84,46 @@ class String
     self.dup.gsub(/([a-zA-Z0-9_-]+\/)/, '')
   end
   
+  
+  
+  # Methods to determine whether the file at the path is a post, layout, gen or static
+  
+  # @param [Hash] config
+  # @return [Bool]
+  # @todo see #ignored?
+  def static?( config )
+    !( self.layout? || self.post? || self.gen?(config) || self.ignored?(config) )
+  end
+  
+  # @return [Bool]
+  def layout?
+    self.include? 'layouts/'
+  end
+  
+  # @return [Bool]
+  def post?
+    self.include? 'posts/'
+  end
+  
+  # @param [Hash] config
+  # @return [Bool]
+  # @todo see #ignored?
+  def gen?( config )
+    return true if config[:plugins][:generators].has_key? self.extension 
+    return true if File.open(self, "r").read(3) == "---"
+    false
+  end
+  
+  # @param [Hash] config
+  # @return [Bool]
+  # @todo Find a way around having to pass the config in
+  def ignored?( config )
+    ignored = ['/options.yaml'] + config[:exclude]
+    ignored.collect! {|i| File.join(config[:root], i)}
+    ignored.each do |i|
+      return true if self.include? i
+    end
+    false
+  end
+  
 end

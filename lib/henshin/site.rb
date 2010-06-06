@@ -69,67 +69,18 @@ module Henshin
         items = items.select {|i| !i.include?( File.join(config[:root], r) )}
       end
       
-      gens = items.select {|i| gen?(i)}
+      gens = items.select {|i| i.gen?(self.config)}
       gens.each do |g|
         @gens << Gen.new(g, self)
       end
       
-      static = items.select {|i| static?(i)}
+      static = items.select {|i| i.static?(self.config)}
       static.each do |s|
         @statics << Static.new(s, self)
       end
 
     end
-    
-    # Determines whether the file at the path is a post, layout, gen or static
-    #
-    # @param [Array]
-    # @return [String]
-    def determine_type( path )    
-      ignored = ['/options.yaml'] + config[:exclude]
-      ignored.collect! {|i| File.join(config[:root], i)}
-      ignored.each do |i|
-        return "ignored" if path.include? i
-      end
-      
-      if path.include? File.join(config[:root], 'layouts')
-        return "layout"
-      elsif path.include? File.join(config[:root], 'posts')
-        return "post"
-      elsif config[:plugins][:generators].has_key? path.extension
-        return "gen"
-      elsif File.open(path, "r").read(3) == "---"
-        return "gen"
-      else
-        return "static"
-      end
-    end
-    
-    # @return [Bool]
-    def static?( path )
-      determine_type( path ) == "static"
-    end
-    
-    # @return [Bool]
-    def layout?( path )
-      determine_type( path ) == "layout"
-    end
-    
-    # @return [Bool]
-    def post?( path )
-      determine_type( path ) == "post"
-    end
-    
-    # @return [Bool]
-    def gen?( path )
-      determine_type( path ) == "gen"
-    end
-    
-    # @retunr [Bool]
-    def ignored?( path )
-      determine_type( path ) == "ignored"
-    end
-    
+
     
     ## 
     # Processes all of the necessary files
