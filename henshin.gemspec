@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-06-06}
+  s.date = %q{2010-06-10}
   s.default_executable = %q{henshin}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
      "bin/henshin",
      "henshin.gemspec",
      "lib/henshin.rb",
+     "lib/henshin/archive.rb",
      "lib/henshin/categories.rb",
      "lib/henshin/ext.rb",
      "lib/henshin/gen.rb",

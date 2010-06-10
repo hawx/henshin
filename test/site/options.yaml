@@ -7,7 +7,7 @@ layout: post
 
 exclude: []
 post_name: '{title-with-dashes}.{extension}'
-permalink: '/{year}/{month}/{date}-{title}/index.html'
+permalink: '/{year}/{month}/{date}/{title}/index.html'
 plugins: [maruku, sass, pygments, liquid, test, textile]
 
 sass: 

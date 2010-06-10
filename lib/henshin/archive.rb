@@ -60,7 +60,16 @@ module Henshin
     
     # Creates a hash with posts separated by year, month then date
     def to_date_hash
-      @archive
+      r = Hash.new {|h, k| h[k] = Hash.new {|h, k| h[k] = Hash.new {|h, k| h[k] = []} }}
+      @archive.each do |year, m|
+        m.each do |month, d|
+          d.each do |date, p|
+            r[year][month][date] << p
+            r[year][month][date].flatten!
+          end
+        end
+      end
+      r
     end
     
     # Creates a hash with posts separated by year then month
@@ -96,14 +105,15 @@ module Henshin
     def write
       self.write_years if @site.layouts['archive_year']
       self.write_months if @site.layouts['archive_month']
-      self.write_dates if @site.layouts['archive_day']
+      self.write_dates if @site.layouts['archive_date']
     end
     
     def write_years
       years = self.to_year_hash
       years.each do |year, posts|
-        write_path = File.join( @config[:root], @config[:target], year, 'index.html' )
-        page = Gen.new( write_path, @site, years[year] )
+        write_path = File.join( @config[:root], year, 'index.html' )
+        payload = {:name => 'archive', :payload => years[year]}
+        page = Gen.new( write_path, @site, payload )
         page.layout = @site.layouts['archive_year']
         
         page.render
@@ -115,8 +125,9 @@ module Henshin
       months = self.to_month_hash
       months.each do |year, posts|
         posts.each do |month, posts|
-          write_path = File.join( @config[:root], @config[:target], year, month, 'index.html' )
-          page = Gen.new( write_path, @site, months[year][month] )
+          write_path = File.join( @config[:root], year, month, 'index.html' )
+          payload = {:name => 'archive', :payload => months[year][month]}
+          page = Gen.new( write_path, @site, payload )
           page.layout = @site.layouts['archive_month']
           
           page.render
@@ -130,8 +141,9 @@ module Henshin
       dates.each do |year, posts|
         posts.each do |month, posts|
           posts.each do |date, posts|
-            write_path = File.join( @config[:root], @config[:target], year, month, date, 'index.html' )
-            page = Gen.new( write_path, @site, dates[year][month][date] )
+            write_path = File.join( @config[:root], year, month, date, 'index.html' )
+            payload = {:name => 'archive', :payload => dates[year][month][date]}
+            page = Gen.new( write_path, @site, payload )
             page.layout = @site.layouts['archive_date']
             
             page.render
