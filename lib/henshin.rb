@@ -14,6 +14,7 @@ require 'henshin/static'
 
 require 'henshin/tags'
 require 'henshin/categories'
+require 'henshin/archive'
 require 'henshin/ext'
 
 
@@ -49,8 +50,6 @@ module Henshin
       $stderr.puts "-> #{e.to_s}"
       settings = Defaults.merge(override)
     end
-    
-    
     
     # find the options for plugins, if any
     settings.each do |k, v|
@@ -109,7 +108,7 @@ module Henshin
 
   # @return [String] current version
   def self.version
-    File.read( File.join(File.dirname(__FILE__), *%w[.. VERSION]) )
+    File.read( File.join(File.dirname(__FILE__), '..', 'VERSION') )
   end
 
 end

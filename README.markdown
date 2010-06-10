@@ -11,7 +11,6 @@ Henshin is a new static site generator, yeah another one. I wasn't going to rele
 
 ## Future Goals
 
-- Ability to regenerate only files that have changed
 - Easy tag, category and archive pages
 - Default templates so you can just type `henshin` with any folder of text files and create a quick site
 

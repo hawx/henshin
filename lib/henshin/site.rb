@@ -16,7 +16,8 @@ module Henshin
       @gens = []
       @statics = []
       
-      @archive = {}
+      #@archive = {}
+      @archive = Archive.new( @config )
       @tags = Hash.new { |h, k| h[k] = Tag.new(k) }
       @categories = Hash.new { |h, k| h[k] = Category.new(k) }
       
@@ -45,7 +46,7 @@ module Henshin
     
     # Adds all items in 'layouts' to the layouts array
     def read_layouts
-      path = File.join(config[:root], 'layouts')
+      path = File.join(@config[:root], 'layouts')
       Dir.glob(path + '/*.*').each do |layout|
         layout =~ /([a-zA-Z0-9 _-]+)\.([a-zA-Z0-9-]+)/
         @layouts[$1] = layout
@@ -54,7 +55,7 @@ module Henshin
     
     # Adds all items in 'posts' to the posts array
     def read_posts
-      path = File.join(config[:root], 'posts')
+      path = File.join(@config[:root], 'posts')
       Dir.glob(path + '/**/*.*').each do |post|
         @posts << Post.new(post, self)
       end
@@ -62,19 +63,19 @@ module Henshin
     
     # Gets all other items, and determines whether it's static or needs to be converted
     def read_others
-      path = File.join(config[:root], '**', '*.*')
+      path = File.join(@config[:root], '**', '*.*')
       items = Dir.glob(path)
       
       ['/_site', '/plugins'].each do |r|
-        items = items.select {|i| !i.include?( File.join(config[:root], r) )}
+        items = items.select {|i| !i.include?( File.join(@config[:root], r) )}
       end
       
-      gens = items.select {|i| i.gen?(self.config)}
+      gens = items.select {|i| gen? i }
       gens.each do |g|
         @gens << Gen.new(g, self)
       end
       
-      static = items.select {|i| i.static?(self.config)}
+      static = items.select {|i| static? i }
       static.each do |s|
         @statics << Static.new(s, self)
       end
@@ -106,7 +107,7 @@ module Henshin
           'posts' => @posts.collect {|i| i.to_hash},
           'tags' => @tags.collect {|k, t| t.to_hash},
           'categories' => @categories.collect {|k, t| t.to_hash},
-          'archive' => @archive
+          'archive' => @archive.to_hash
         } 
       }
     end
@@ -129,14 +130,7 @@ module Henshin
     
     # @return [Hash] archive hash
     def build_archive
-      {
-        '2010' => {
-          '01' => [
-            {'post' => 'hash'},
-            {'post' => 'hash'}
-          ]
-        }
-      }
+      @posts.each {|p| @archive.add_post(p)}
     end
     
     ##
@@ -154,6 +148,7 @@ module Henshin
       @gens.each_parallel {|g| g.write}
       @statics.each_parallel {|s| s.write}
       
+      @archive.write
       self.write_tags
       self.write_categories
     end
@@ -161,7 +156,7 @@ module Henshin
     # Writes the necessary pages for tags, but only if the correct layouts are present
     def write_tags
       if @layouts['tag_index']
-        write_path = File.join( config[:root], 'tags', 'index.html' )
+        write_path = File.join( @config[:root], 'tags', 'index.html' )
       
         tag_index = Gen.new(write_path, self)
         tag_index.layout = @layouts['tag_index']
@@ -172,7 +167,7 @@ module Henshin
       
       if @layouts['tag_page']
         @tags.each do |n, tag|
-          write_path = File.join( config[:root], 'tags', tag.name, 'index.html' )
+          write_path = File.join( @config[:root], 'tags', tag.name, 'index.html' )
           
           payload = {:name => 'tag', :payload => tag.to_hash}
           tag_page = Gen.new(write_path, self, payload)
@@ -187,7 +182,7 @@ module Henshin
     # Writes the necessary pages for categories, but only if the correct layouts are present
     def write_categories
       if @layouts['category_index']
-        write_path = File.join( config[:root], 'categories', 'index.html' )
+        write_path = File.join( @config[:root], 'categories', 'index.html' )
         
         category_index = Gen.new(write_path, self)
         category_index.layout = @layouts['category_index']
@@ -198,7 +193,7 @@ module Henshin
       
       if @layouts['category_page']
         @categories.each do |n, category|
-          write_path = File.join( config[:root], 'categories', category.name, 'index.html' )
+          write_path = File.join( @config[:root], 'categories', category.name, 'index.html' )
           
           payload = {:name => 'category', :payload => category.to_hash}
           category_page = Gen.new(write_path, self, payload)
@@ -208,6 +203,42 @@ module Henshin
           category_page.write
         end
       end
+    end
+    
+    
+    
+    
+    
+    # @return [Bool]
+    def static?( path )
+      !( layout?(path) || post?(path) || gen?(path) || ignored?(path) )
+    end
+    
+    # @return [Bool]
+    def layout?( path )
+      path.include? 'layouts/'
+    end
+    
+    # @return [Bool]
+    def post?( path )
+      path.include? 'posts/'
+    end
+    
+    # @return [Bool]
+    def gen?( path )
+      return true if @config[:plugins][:generators].has_key? path.extension 
+      return true if File.open(path, "r").read(3) == "---"
+      false
+    end
+    
+    # @return [Bool]
+    def ignored?( path )
+      ignored = ['/options.yaml'] + @config[:exclude]
+      ignored.collect! {|i| File.join(@config[:root], i)}
+      ignored.each do |i|
+        return true if path.include? i
+      end
+      false
     end
   
   end

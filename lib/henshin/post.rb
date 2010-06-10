@@ -140,8 +140,8 @@ module Henshin
     # Writes the file to the correct place
     def write
       write_path = File.join( config[:root], config[:target], permalink )
-      FileUtils.mkdir_p File.join( write_path.directory )
-      file = File.new( File.join( write_path ), "w" )
+      FileUtils.mkdir_p write_path.directory
+      file = File.new( write_path, "w" )
       file.puts( @content )
     end
     
