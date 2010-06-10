@@ -60,9 +60,9 @@ module Henshin
       file_data.each_with_index do |data, i|      
         if data_order[i].include? 'title'
           if data_order[i].include? 'dashes'
-            override[:title] = data.gsub(/-/, ' ').titlize
+            override[:title] = data.gsub(/-/, ' ')
           else
-            override[:title] = data.titlize
+            override[:title] = data
           end
         elsif data_order[i].include? 'date'
           override[:date] = data
@@ -92,7 +92,7 @@ module Henshin
     #
     # @param [Hash] override data to override settings with
     def override( override )
-      @title     = override[:title]                   if override[:title]
+      @title     = override[:title].titlecase         if override[:title]
       @layout    = @site.layouts[ override[:layout] ] if override[:layout]
       @date      = Time.parse( override[:date] )      if override[:date]
       @tags      = override[:tags].split(', ')        if override[:tags]

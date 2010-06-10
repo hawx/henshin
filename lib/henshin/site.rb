@@ -17,7 +17,7 @@ module Henshin
       @statics = []
       
       #@archive = {}
-      @archive = Archive.new( @config )
+      @archive = Archive.new( self )
       @tags = Hash.new { |h, k| h[k] = Tag.new(k) }
       @categories = Hash.new { |h, k| h[k] = Category.new(k) }
       

@@ -5,6 +5,9 @@ require 'time'
 require 'yaml'
 require 'pp'
 
+# 3rd party
+require 'titlecase'
+
 # library
 require 'henshin/site'
 

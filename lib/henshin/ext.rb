@@ -58,11 +58,6 @@ class String
     slug
   end
   
-  # Capitalizes the string using Gruber's guidelines
-  def titlize
-    self
-  end
-  
   # Gets the extension from a string
   def extension
     parts = self.split('.')
