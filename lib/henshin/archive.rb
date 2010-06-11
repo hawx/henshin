@@ -112,7 +112,9 @@ module Henshin
       years = self.to_year_hash
       years.each do |year, posts|
         write_path = File.join( @config[:root], year, 'index.html' )
-        payload = {:name => 'archive', :payload => years[year]}
+        # date should give the full date, as a Time object!! and the others
+        t = Time.parse("#{year}/01/01")
+        payload = {:name => 'archive', :payload => {'date' => t, 'posts' => years[year]} }
         page = Gen.new( write_path, @site, payload )
         page.layout = @site.layouts['archive_year']
         
@@ -126,7 +128,8 @@ module Henshin
       months.each do |year, posts|
         posts.each do |month, posts|
           write_path = File.join( @config[:root], year, month, 'index.html' )
-          payload = {:name => 'archive', :payload => months[year][month]}
+          t = Time.parse("#{year}/#{month}/01")
+          payload = {:name => 'archive', :payload => {'date' => t, 'posts' => months[year][month]} }
           page = Gen.new( write_path, @site, payload )
           page.layout = @site.layouts['archive_month']
           
@@ -142,7 +145,8 @@ module Henshin
         posts.each do |month, posts|
           posts.each do |date, posts|
             write_path = File.join( @config[:root], year, month, date, 'index.html' )
-            payload = {:name => 'archive', :payload => dates[year][month][date]}
+            t = Time.parse("#{year}/#{month}/#{date}")
+            payload = {:name => 'archive', :payload => {'date' => t, 'posts' => dates[year][month][date]} }
             page = Gen.new( write_path, @site, payload )
             page.layout = @site.layouts['archive_date']
             

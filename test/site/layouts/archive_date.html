@@ -7,8 +7,9 @@
   </head>  
   <body>
     
+    <h2>{{ archive.date }}</h2>
     <ul>
-    {% for post in archive %}
+    {% for post in archive.posts %}
       <li>{{ post.title }}</li>
     {% endfor %}
     </ul>
