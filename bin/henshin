@@ -87,7 +87,7 @@ if ARGV[0] == "create"
 else
 
   override = {}
-  build = {:server => false, :auto => false}
+  build = {:server => false, :port => 9991, :auto => false}
   opts = OptionParser.new do |opts|
     opts.banner = banner
     
@@ -161,7 +161,7 @@ else
     require 'webrick'
     
     server = WEBrick::HTTPServer.new(
-      :Port => '3000',
+      :Port => build[:port],
       :DocumentRoot => File.join(config[:root], config[:target]),
       :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
     )

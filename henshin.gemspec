@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-06-10}
+  s.date = %q{2010-06-15}
   s.default_executable = %q{henshin}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
@@ -42,14 +42,15 @@ Gem::Specification.new do |s|
      "lib/henshin/static.rb",
      "lib/henshin/tags.rb",
      "test/helper.rb",
-     "test/site/_site/2010/10/20-testing-stuff/index.html",
-     "test/site/_site/2010/5/15-lorem-ipsum/index.html",
      "test/site/_site/css/print.css",
      "test/site/_site/index.html",
      "test/site/_site/static.html",
      "test/site/css/print.sass",
      "test/site/css/screen.css",
      "test/site/index.html",
+     "test/site/layouts/archive_date.html",
+     "test/site/layouts/archive_month.html",
+     "test/site/layouts/archive_year.html",
      "test/site/layouts/category_index.html",
      "test/site/layouts/category_page.html",
      "test/site/layouts/main.html",
@@ -92,13 +93,25 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<samsouder-titlecase>, [">= 0.1.0"])
+      s.add_runtime_dependency(%q<directory_watcher>, [">= 1.3.1"])
+      s.add_runtime_dependency(%q<maruku>, [">= 0.6.0"])
+      s.add_runtime_dependency(%q<liquid>, [">= 2.0.0"])
       s.add_development_dependency(%q<thoughtbot-shoulda>, [">= 0"])
       s.add_development_dependency(%q<yard>, [">= 0"])
     else
+      s.add_dependency(%q<samsouder-titlecase>, [">= 0.1.0"])
+      s.add_dependency(%q<directory_watcher>, [">= 1.3.1"])
+      s.add_dependency(%q<maruku>, [">= 0.6.0"])
+      s.add_dependency(%q<liquid>, [">= 2.0.0"])
       s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0"])
     end
   else
+    s.add_dependency(%q<samsouder-titlecase>, [">= 0.1.0"])
+    s.add_dependency(%q<directory_watcher>, [">= 1.3.1"])
+    s.add_dependency(%q<maruku>, [">= 0.6.0"])
+    s.add_dependency(%q<liquid>, [">= 2.0.0"])
     s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0"])
   end
