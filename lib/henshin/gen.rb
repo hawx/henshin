@@ -60,6 +60,7 @@ module Henshin
       unless ignore_layout || @layout.nil?
         config[:plugins][:layout_parsers].each do |plugin|
           @content = plugin.generate( @layout, self.payload )
+          @content = plugin.generate( @content, self.payload )
         end
       end
       

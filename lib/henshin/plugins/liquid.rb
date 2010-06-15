@@ -11,8 +11,11 @@ class LiquidPlugin < Henshin::LayoutParser
   end
   
   def generate( layout, data )
-    t = Liquid::Template.parse( read(layout) )
-    t.render(data)
+    if File.exists? layout
+      t = Liquid::Template.parse( read(layout) ).render(data)
+    else
+      t = Liquid::Template.parse(layout).render(data)
+    end
   end
   
   # returns the layout as a string
