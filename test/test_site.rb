@@ -14,7 +14,6 @@ class TestSite < Test::Unit::TestCase
       assert_equal @site.posts.length, 0
       assert_equal @site.gens.length, 0
       assert_equal @site.statics.length, 0
-      assert_equal @site.archive.length, 0
       assert_equal @site.tags.length, 0
       assert_equal @site.categories.length, 0
       assert_equal @site.layouts.length, 0
@@ -30,6 +29,54 @@ class TestSite < Test::Unit::TestCase
       @site.read_layouts
       l = Dir.glob( File.join(root_dir, 'layouts', '*.*') )
       assert_equal l.size, @site.layouts.size
+    end
+    
+    should "read static files" do
+      @site.read_others
+      # For reference these are the static files:
+      # /css/screen.css
+      # /static.html
+      assert_equal 2, @site.statics.size
+    end
+    
+    should "read gens" do
+      @site.read_others
+      # For reference these are the gens
+      # /css/print.sass
+      # /index.html
+      assert_equal 2, @site.gens.size
+    end
+    
+    should "have a payload" do
+      assert @site.payload['site'].is_a? Hash
+    end
+    
+    should "create tags" do
+      @site.read
+      @site.process
+      # For reference these are the tags:
+      # test: lorem-ipsum.markdown, same-date.markdown, Testing-Stuff.markdown, Textile-Test.textile
+      # markdown: Testing-Stuff.markdown
+      # lorem: lorem-ipsum.markdown, same-date.markdown
+      # plugin: Textile-Test.textile
+      assert_equal 4, @site.tags.size
+      assert_equal 4, @site.tags['test'].posts.size
+    end
+    
+    should "create categories" do
+      @site.read
+      @site.process
+      # For reference these are the categories:
+      # cat: cat/test.markdown
+      # test: Testing-Stuff.markdown
+      assert_equal 2, @site.categories.size
+      assert_equal 1, @site.categories['cat'].posts.size
+    end
+    
+    should "create archives" do
+      @site.read
+      @site.process
+      assert @site.archive.is_a? Henshin::Archive
     end
 
   end

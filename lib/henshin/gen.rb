@@ -122,12 +122,16 @@ module Henshin
     
     
     # Needed to sort the posts by date, newest first
-    def <=>( val )
-      s = self.date <=> val.date
-      if s == 0
-        return self.permalink <=> val.permalink
+    def <=>( other )
+      if self.date
+        s = self.date <=> other.date
+        if s == 0
+          return self.permalink <=> other.permalink
+        else
+          return -1 * s
+        end
       else
-        return -1 * s
+        self.permalink <=> other.permalink
       end
     end
     

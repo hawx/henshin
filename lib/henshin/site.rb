@@ -16,7 +16,6 @@ module Henshin
       @gens = []
       @statics = []
       
-      #@archive = {}
       @archive = Archive.new( self )
       @tags = Hash.new { |h, k| h[k] = Tag.new(k) }
       @categories = Hash.new { |h, k| h[k] = Category.new(k) }
@@ -206,9 +205,6 @@ module Henshin
     end
     
     
-    
-    
-    
     # @return [Bool]
     def static?( path )
       !( layout?(path) || post?(path) || gen?(path) || ignored?(path) )
@@ -226,6 +222,7 @@ module Henshin
     
     # @return [Bool]
     def gen?( path )
+      return false if post?(path) || layout?(path)
       return true if @config[:plugins][:generators].has_key? path.extension 
       return true if File.open(path, "r").read(3) == "---"
       false
