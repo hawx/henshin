@@ -5,6 +5,8 @@ class TestPosts < Test::Unit::TestCase
   
     setup do
       @site = new_site
+      @site.read
+      @site.process
       @post = Henshin::Post.new( "#{root_dir}/posts/lorem-ipsum.markdown", @site )
       remove_site
     end
@@ -28,7 +30,6 @@ class TestPosts < Test::Unit::TestCase
     end
     
     should "render with correct layout" do
-      @site.read_layouts
       @post.process
       # lorem-ipsum.markdown uses default 'layout: post'
       assert_equal "#{root_dir}/layouts/post.html", @post.layout
