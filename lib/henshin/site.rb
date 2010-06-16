@@ -48,7 +48,7 @@ module Henshin
       path = File.join(@config[:root], 'layouts')
       Dir.glob(path + '/*.*').each do |layout|
         layout =~ /([a-zA-Z0-9 _-]+)\.([a-zA-Z0-9-]+)/
-        @layouts[$1] = layout
+        @layouts[$1] = File.open(layout, 'r') {|f| f.read}
       end
     end
     
