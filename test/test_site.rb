@@ -11,12 +11,12 @@ class TestSite < Test::Unit::TestCase
       remove_site
       @site.reset
       
-      assert_equal @site.posts.length, 0
-      assert_equal @site.gens.length, 0
-      assert_equal @site.statics.length, 0
-      assert_equal @site.tags.length, 0
-      assert_equal @site.categories.length, 0
-      assert_equal @site.layouts.length, 0
+      assert_equal 0, @site.posts.length
+      assert_equal 0, @site.gens.length
+      assert_equal 0, @site.statics.length
+      assert_equal 0, @site.tags.length
+      assert_equal 0, @site.categories.length
+      assert_equal 0, @site.layouts.length
     end
     
     should "read posts" do

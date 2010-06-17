@@ -44,7 +44,7 @@ class TestOptions < Test::Unit::TestCase
     
       override = {:time_zone => '+01:00'}
       configured = Henshin.configure(override)
-      assert_equal configured[:time_zone], '+01:00'
+      assert_equal '+01:00', configured[:time_zone]
     end
     
     should "load plugins" do    

@@ -9,7 +9,7 @@
   
   <header>
     <h1>{{ post.title }}</h1><span>in {{ post.category }}</span>
-    <time>{{ post.date }}</time>
+    <time>{{ post.date | date_to_string }}</time>
     
     <ul>
       {% for tag in post.tags %}
