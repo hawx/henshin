@@ -44,10 +44,10 @@ module Henshin
   # @param [Hash] override to override other set options
   # @return [Hash] the merged configuration hash
   def self.configure( override={} )  
-    config_file = (override[:root] || Defaults[:root]) + '/options.yaml'
+    config_file = File.join((override[:root] || Defaults[:root]), '/options.yaml')
     
     begin
-      config = YAML.load_file( config_file ).to_options
+      config = YAML.load_file(config_file).to_options
       settings = Defaults.merge(config).merge(override)
     rescue => e
       $stderr.puts "\nCould not read configuration, falling back to defaults..."
@@ -55,22 +55,7 @@ module Henshin
       settings = Defaults.merge(override)
     end
     
-    loaded_plugins = Henshin.load_plugins(settings)
-    
-    Henshin.sort_plugins(loaded_plugins)
-    
-    settings[:plugins] = {:generators => {}, :layout_parsers => []}
-    loaded_plugins.each do |plugin|
-      if plugin.is_a? Generator
-        plugin.extensions[:input].each do |ext|
-          settings[:plugins][:generators][ext] = plugin
-        end
-      end
-      if plugin.is_a? LayoutParser
-        settings[:plugins][:layout_parsers] << plugin
-      end
-    end
-    
+    settings[:plugins] = Henshin.sort_plugins( Henshin.load_plugins(settings) )
     settings
   end
   
@@ -125,6 +110,10 @@ module Henshin
   
   # Each plugin will call this method when loaded from #load_plugins, these plugins then
   # populate @registered_plugins, which is returned from #load_plugins.
+  #
+  # @param [Class] plugin to load
+  # @param [Symbol] options symbol to look up in settings hash
+  # @return [Array] plugins and options symbol in hashes
   def self.register!( plug, opts=nil )
     @registered_plugins ||= []
     @registered_plugins << {:plugin => plug.new, :opts => opts}
