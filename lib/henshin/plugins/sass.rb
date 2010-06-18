@@ -12,15 +12,16 @@ class SassPlugin < Henshin::Generator
     @extensions = {:input => ['sass', 'scss'],
                    :output => 'css'}
     @opts_name = :sass
+    @config = {:ignore_layouts => true,
+               :style => :nested}
   end
   
   def configure( override )
-    override ? @config = Defaults.merge(override) : @config = Defaults
+    @config.merge!(override) if override
   end
   
   def generate( content )
-    engine = Sass::Engine.new(content, config)
-    output = engine.render
+    Sass::Engine.new(content, @config).render
   end
   
   Henshin.register! self

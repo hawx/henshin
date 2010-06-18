@@ -3,22 +3,21 @@ require 'liquid'
 
 class LiquidPlugin < Henshin::LayoutParser
 
-  attr_accessor :extensions, :config, :opts_name
+  attr_accessor :extensions, :config
   
-  Defaults = {}
   
   def initialize
     @extensions = {:input => [],
                    :output => ''}
-    @opts_name = :liquid
+    @config = {}
   end
   
   def configure( override )
-    override ? @config = Defaults.merge(override) : @config = Defaults
+    @config.merge!(override) if override
   end
   
   def generate( layout, data )
-    reg = {:include_dir => @config[:include_dir]}
+    reg = {:include_dir => @config['include_dir']}
     Liquid::Template.parse(layout).render(data, :registers => reg)
   end
   
@@ -62,6 +61,6 @@ class LiquidPlugin < Henshin::LayoutParser
   end
   Liquid::Template.register_tag('include', Include)
   
-  Henshin.register! self
+  Henshin.register! self, :liquid
 end
 

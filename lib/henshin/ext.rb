@@ -25,7 +25,7 @@ def Exception.ignoring_exceptions
   begin
     yield
   rescue Exception => e
-    STDERR.puts e.message
+    STDERR.puts e
   end
 end
 

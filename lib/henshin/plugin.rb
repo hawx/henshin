@@ -8,20 +8,29 @@ module Henshin
     
     attr_accessor :extensions, :config
     
+    # Defaults = {}
+    
     def initialize
       # inputs are the file types it will take
       # output should be the type it creates
       @extensions = {:input => [],
                      :output => ''}
-      @config = {}
     end
     
-    # def configure( override )
-      # setup the plugin
-    # end
+    def configure( override )
+      if Defaults
+        if override 
+          @config = Defaults.merge(override) 
+        else
+          @config = Defaults
+        end
+      elsif override
+        @config = override
+      end
+    end
     
     # Uncomment to have the plugin loaded
-    # Henshin.register! self
+    # Henshin.register! self, :standard_plugin
   end
   
   class Generator < StandardPlugin
@@ -32,7 +41,7 @@ module Henshin
     end
     
     # Uncomment to have the plugin loaded
-    # Henshin.register! self
+    # Henshin.register! self, :generator
   end
   
   class LayoutParser < StandardPlugin
@@ -44,7 +53,7 @@ module Henshin
     end
     
     # Uncomment to have the plugin loaded
-    # Henshin.register! self
+    # Henshin.register! self, :generator
   end
   
 end

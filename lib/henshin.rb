@@ -38,7 +38,8 @@ module Henshin
               :exclude => [] }
   
   
-  # Creates the configuration hash by merging defaults, supplied options and options read from the 'options.yaml' file. Then loads the plugins
+  # Creates the configuration hash by merging defaults, supplied options and options 
+  # read from the 'options.yaml' file. Then loads the plugins and sorts them
   #
   # @param [Hash] override to override other set options
   # @return [Hash] the merged configuration hash
@@ -47,70 +48,86 @@ module Henshin
     
     begin
       config = YAML.load_file( config_file ).to_options
-      @settings = Defaults.merge(config).merge(override)
+      settings = Defaults.merge(config).merge(override)
     rescue => e
       $stderr.puts "\nCould not read configuration, falling back to defaults..."
       $stderr.puts "-> #{e.to_s}"
-      @settings = Defaults.merge(override)
+      settings = Defaults.merge(override)
     end
     
-    # find the options for plugins, if any
-    @settings.each do |k, v|
-      if @settings[:plugins].include? k.to_s
-        @settings[:plugin_options][k] = v.to_options
-      end
-    end
+    loaded_plugins = Henshin.load_plugins(settings)
     
-    loaded_plugins = Henshin.load_plugins( @settings[:plugins], @settings[:root], @settings[:plugin_options] )
+    Henshin.sort_plugins(loaded_plugins)
     
-    @settings[:plugins] = {:generators => {}, :layout_parsers => []}
+    settings[:plugins] = {:generators => {}, :layout_parsers => []}
     loaded_plugins.each do |plugin|
       if plugin.is_a? Generator
         plugin.extensions[:input].each do |ext|
-          @settings[:plugins][:generators][ext] = plugin
+          settings[:plugins][:generators][ext] = plugin
         end
       end
       if plugin.is_a? LayoutParser
-        @settings[:plugins][:layout_parsers] << plugin
+        settings[:plugins][:layout_parsers] << plugin
       end
     end
     
-    @settings
+    settings
   end
   
-  
-  # Loads the specified plugins
+  # Organises the plugins into generators and layout parses,
+  # then turns the generators into a hash with a key for each extension.
   #
-  # @param [Array] plugins list of plugins to load
+  # @param [Array] plugins
+  # @return [Hash] 
+  def self.sort_plugins(plugins)
+    r = {:generators => {}, :layout_parsers => []}
+    plugins.each do |plugin|
+      if plugin.is_a? Generator
+        plugin.extensions[:input].each do |ext|
+          r[:generators][ext] = plugin
+        end
+      elsif plugin.is_a? LayoutParser
+        r[:layout_parsers] << plugin
+      end
+    end
+    r
+  end
+  
+  # Loads the plugins, each plugin then calls Henshin.register!, and then we loop through
+  # the options and pass the options for the plugin to it.
+  #
+  # @param [Hash] settings of loaded so far
   # @return [Array] list of loaded plugin instances
-  def self.load_plugins( to_load, root, opts={} )  
+  def self.load_plugins(opts)  
     plugins = []
-    to_load.each do |l|
+    opts[:plugins].each do |l|
       begin
         require 'henshin/plugins/' + l
       rescue LoadError
-        require File.join(root, 'plugins/', l)
+        require File.join(opts[:root], 'plugins/', l)
       end
     end
     
-    # pass options to the plugins
     @registered_plugins.each do |plugin|
-      if plugin.respond_to? :configure
-        opts[plugin.opts_name].each do |k, v|
+      if plugin[:opts]
+        opts[plugin[:opts]].each do |k, v|
           if k.to_s.include? 'dir'
-            opts[plugin.opts_name][k] = File.join(@settings[:root], v)
+            opts[plugin[:opts]][k] = File.join(opts[:root], v)
           end
         end
-        plugin.configure( opts[plugin.opts_name] )
+        plugin[:plugin].configure opts[plugin[:opts]]
       end
+      plugins << plugin[:plugin]
     end
-    @registered_plugins
+    
+    plugins
   end
   
-  # Each plugin will call this method when loaded from #load_plugins, these plugins then populate @registered_plugins, which is returned from #load_plugins. Complicated? Maybe, but it works!
-  def self.register!( plug )
+  # Each plugin will call this method when loaded from #load_plugins, these plugins then
+  # populate @registered_plugins, which is returned from #load_plugins.
+  def self.register!( plug, opts=nil )
     @registered_plugins ||= []
-    @registered_plugins << plug.new
+    @registered_plugins << {:plugin => plug.new, :opts => opts}
   end
   
 

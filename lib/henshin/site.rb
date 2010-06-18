@@ -136,7 +136,7 @@ module Henshin
     # Renders the files
     def render
       @posts.each_parallel {|p| p.render}
-      @gens.each_parallel {|g| g.render}
+      @gens.each {|g| g.render}
     end
     
     
