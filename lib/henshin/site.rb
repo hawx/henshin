@@ -40,7 +40,8 @@ module Henshin
     def read
       self.read_layouts
       self.read_posts
-      self.read_others
+      self.read_gens
+      self.read_statics
     end
     
     # Adds all items in 'layouts' to the layouts array
@@ -60,25 +61,22 @@ module Henshin
       end
     end
     
-    # Gets all other items, and determines whether it's static or needs to be converted
-    def read_others
-      path = File.join(@config[:root], '**', '*.*')
-      items = Dir.glob(path)
-      
-      ['/_site', '/plugins'].each do |r|
-        items = items.select {|i| !i.include?( File.join(@config[:root], r) )}
-      end
-      
-      gens = items.select {|i| gen? i }
+    # Adds all files that need to be run through a plugin in an array
+    def read_gens
+      files = Dir.glob( File.join(@config[:root], '**', '*.*') )
+      gens = files.select {|i| gen? i }
       gens.each do |g|
         @gens << Gen.new(g, self)
       end
-      
-      static = items.select {|i| static? i }
+    end
+    
+    # Adds all static files to an array
+    def read_statics
+      files = Dir.glob( File.join(@config[:root], '**', '*.*') )
+      static = files.select {|i| static? i }
       static.each do |s|
         @statics << Static.new(s, self)
       end
-
     end
 
     

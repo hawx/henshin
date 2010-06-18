@@ -55,6 +55,7 @@ module Henshin
       settings = Defaults.merge(override)
     end
     
+    settings[:exclude] << '/_site' << '/plugins'
     settings[:plugins] = Henshin.sort_plugins( Henshin.load_plugins(settings) )
     settings
   end
