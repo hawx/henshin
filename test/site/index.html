@@ -5,10 +5,13 @@ title: Home Page
 
 
 <header>
-	<h1>Home Page</h1>
+	<h1>{{ gen.title }}</h1>
 </header>
 
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+
+<hr/>
 
 <h2>A List of Posts</h2>
 <ul>
@@ -17,28 +20,7 @@ title: Home Page
   {% endfor %}
 </ul>
 
-<h2>A List of Tags</h2>
-<ul>
-  {% for tag in site.tags %}
-    <li>
-      {{ tag.name }}
-      <ul>
-      {% for post in tag.posts %}
-        <li><a href="{{ post.url }}">{{ post.title }} - {{ post.date | date_to_string }}</a></li>
-      {% endfor %}
-      </ul>
-    </li>
-  {% endfor %}
-</ul>
+<a href="/categories/">Categories</a>
+<a href="/tags/">Tags</a>
 
-<h2>A List of Categories</h2>
-<ul>
-  {% for category in site.categories %}
-    <li>{{ category.name }}</li>
-    <ul>
-    {% for post in category.posts %}
-      <li><a href="{{ post.url }}">{{ post.title }} - {{ post.date | date_to_string }}</a></li>
-    {% endfor %}
-    </ul>
-  {% endfor %}
-</ul>
+<footer>Created: {{ site.created_at | date_to_long }}</footer>

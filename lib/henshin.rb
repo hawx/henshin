@@ -47,35 +47,35 @@ module Henshin
     
     begin
       config = YAML.load_file( config_file ).to_options
-      settings = Defaults.merge(config).merge(override)
+      @settings = Defaults.merge(config).merge(override)
     rescue => e
       $stderr.puts "\nCould not read configuration, falling back to defaults..."
       $stderr.puts "-> #{e.to_s}"
-      settings = Defaults.merge(override)
+      @settings = Defaults.merge(override)
     end
     
     # find the options for plugins, if any
-    settings.each do |k, v|
-      if settings[:plugins].include? k.to_s
-        settings[:plugin_options][k] = v.to_options
+    @settings.each do |k, v|
+      if @settings[:plugins].include? k.to_s
+        @settings[:plugin_options][k] = v.to_options
       end
     end
     
-    loaded_plugins = Henshin.load_plugins( settings[:plugins], settings[:root], settings[:plugin_options] )
+    loaded_plugins = Henshin.load_plugins( @settings[:plugins], @settings[:root], @settings[:plugin_options] )
     
-    settings[:plugins] = {:generators => {}, :layout_parsers => []}
+    @settings[:plugins] = {:generators => {}, :layout_parsers => []}
     loaded_plugins.each do |plugin|
       if plugin.is_a? Generator
         plugin.extensions[:input].each do |ext|
-          settings[:plugins][:generators][ext] = plugin
+          @settings[:plugins][:generators][ext] = plugin
         end
       end
       if plugin.is_a? LayoutParser
-        settings[:plugins][:layout_parsers] << plugin
+        @settings[:plugins][:layout_parsers] << plugin
       end
     end
     
-    settings
+    @settings
   end
   
   
@@ -96,6 +96,11 @@ module Henshin
     # pass options to the plugins
     @registered_plugins.each do |plugin|
       if plugin.respond_to? :configure
+        opts[plugin.opts_name].each do |k, v|
+          if k.to_s.include? 'dir'
+            opts[plugin.opts_name][k] = File.join(@settings[:root], v)
+          end
+        end
         plugin.configure( opts[plugin.opts_name] )
       end
     end

@@ -5,10 +5,13 @@ author: Joshua Hawxwell
 
 layout: post
 
-exclude: []
+exclude: [includes]
 post_name: '{title-with-dashes}.{extension}'
 permalink: '/{year}/{month}/{date}/{title}/index.html'
 plugins: [maruku, sass, pygments, liquid, test, textile]
 
 sass: 
   style: :compact
+  
+liquid:
+  include_dir: includes

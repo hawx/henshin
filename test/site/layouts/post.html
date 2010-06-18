@@ -7,13 +7,15 @@
   </head>  
   <body>
   
+  <a href="/">Home</a>
+  
   <header>
-    <h1>{{ post.title }}</h1><span>in {{ post.category }}</span>
+    <h1>{{ post.title }}</h1>
     <time>{{ post.date | date_to_string }}</time>
     
     <ul>
       {% for tag in post.tags %}
-        <li>{{ tag }}</li>
+        <li><a href="{{ tag.url }}">{{ tag }}</a></li>
       {% endfor %}
     </ul>
     

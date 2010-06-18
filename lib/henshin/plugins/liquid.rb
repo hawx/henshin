@@ -3,19 +3,26 @@ require 'liquid'
 
 class LiquidPlugin < Henshin::LayoutParser
 
-  attr_accessor :extensions
+  attr_accessor :extensions, :config, :opts_name
+  
+  Defaults = {}
   
   def initialize
     @extensions = {:input => [],
                    :output => ''}
+    @opts_name = :liquid
+  end
+  
+  def configure( override )
+    override ? @config = Defaults.merge(override) : @config = Defaults
   end
   
   def generate( layout, data )
-    Liquid::Template.parse(layout).render(data, {:filters => [Filters]})
+    reg = {:include_dir => @config[:include_dir]}
+    Liquid::Template.parse(layout).render(data, :registers => reg)
   end
   
   module Filters
-  
     def date_to_string(dt)
       dt.strftime "%d %b %Y"
     end
@@ -39,8 +46,21 @@ class LiquidPlugin < Henshin::LayoutParser
     def escape_html(str)
       CGI::escapeHTML str
     end
-  
   end
+  Liquid::Template.register_filter(Filters)
+  
+  class Include < Liquid::Tag
+    def initialize(tag_name, file, tokens)
+      super
+      @file = file.strip
+    end
+    
+    def render(context)
+      include = File.join(context.registers[:include_dir], @file)
+      File.open(include, 'r') {|f| f.read}
+    end
+  end
+  Liquid::Template.register_tag('include', Include)
   
   Henshin.register! self
 end
