@@ -61,11 +61,7 @@ class String
   # Gets the extension from a string
   def extension
     parts = self.split('.')
-    if parts.size == 2
-      return parts[1]
-    elsif parts.size == 3
-      return parts[2]
-    end
+    parts[parts.size-1]
   end
   
   # Gets the directory from a string

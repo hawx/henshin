@@ -48,7 +48,9 @@ class TestOptions < Test::Unit::TestCase
     end
     
     should "load plugins" do    
-      loaded = Henshin.load_plugins( ['maruku'], '.', {} )
+      opts = Henshin::Defaults.dup
+      opts[:plugins] = ['maruku']
+      loaded = Henshin.load_plugins(opts)
       assert loaded[0].is_a? MarukuPlugin
     end
 

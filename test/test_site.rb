@@ -32,7 +32,7 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "read static files" do
-      @site.read_others
+      @site.read_statics
       # For reference these are the static files:
       # /css/screen.css
       # /static.html
@@ -40,7 +40,7 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "read gens" do
-      @site.read_others
+      @site.read_gens
       # For reference these are the gens
       # /css/print.sass
       # /index.html
