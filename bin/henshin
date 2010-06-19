@@ -15,6 +15,7 @@ Usage: henshin
        
 EOS
 
+
 if ARGV[0] == "create"
   if ARGV[1]
     # create the directory
@@ -75,6 +76,20 @@ else
   site.build
   puts "Site created in #{config[:target]} (#{Time.now - start}s)"
   
+  threads = []
+  # start a server
+  if build[:server]
+    require 'webrick'
+    
+    server = WEBrick::HTTPServer.new(
+      :Port => build[:port],
+      :DocumentRoot => File.join(config[:root], config[:target]),
+      :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
+    )
+    
+    threads << Thread.new { server.start }
+    trap("INT") { server.shutdown }
+  end
   
   # regenerate files when changed
   if build[:auto]
@@ -87,11 +102,11 @@ else
     ['/_site', '/plugins'].each do |r|
       gl = gl.select {|i| !i.include?( File.join(config[:root], r) )}
     end
-    gl.collect! {|x| "#{x}/**/*"}
+    gl.collect! {|x| "#{x}/**/*"[config[:root].size+1..-1]}
     gl += ['*']
-    
+
     dw = DirectoryWatcher.new config[:root], :glob => gl
-    dw.interval = 2.0
+    dw.interval = 2
     dw.add_observer do |*args| 
       if args.size > 1
         puts "rebuilding -> #{args.size} files"
@@ -101,28 +116,9 @@ else
       site.build
     end
     
-    dw.start
-    
-    unless build[:server]
-      loop {sleep 1000}
-    end
+    threads << Thread.new { dw.start }
+    loop { sleep 2000 } unless build[:server]
   end  
-  
-  
-  # start a server
-  if build[:server]
-    require 'webrick'
-    
-    server = WEBrick::HTTPServer.new(
-      :Port => build[:port],
-      :DocumentRoot => File.join(config[:root], config[:target]),
-      :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
-    )
-    
-    thread = Thread.new { server.start }
-    trap("INT") { server.shutdown }
-    
-    thread.join()
-  end
 
+  threads.each {|t| t.join}
 end
