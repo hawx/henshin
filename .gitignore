@@ -20,4 +20,4 @@ pkg
 .yardoc
 
 ## PROJECT::SPECIFIC
-_site/
+_site/**/*
