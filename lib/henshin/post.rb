@@ -112,11 +112,14 @@ module Henshin
     #
     # @return [Hash] the payload for the layout engine
     def payload
-      { 
+      r = { 
         'yield' => @content,
         'site'  => @site.payload['site'],
         'post'  => self.to_hash
       }
+      r['post']['next'] = self.next.to_hash if self.next
+      r['post']['prev'] = self.prev.to_hash if self.prev
+      r
     end
     
     # Turns all of the post data into a hash
@@ -131,8 +134,34 @@ module Henshin
         'date'       => @date,
         'category'   => @category,
         'tags'       => @tags,
-        'content'    => @content 
+        'content'    => @content
       }
+    end
+    
+    # Gets the post after this one
+    #
+    # @return [Post] next post
+    def next
+      if i = @site.posts.index(self)
+        if i < @site.posts.size - 1
+          @site.posts[i+1]
+        else
+          nil
+        end
+      end
+    end
+    
+    # Gets the post before this one
+    #
+    # @return [Post] previous post
+    def prev
+      if i = @site.posts.index(self)
+        if i > 0
+          @site.posts[i-1]
+        else
+          nil
+        end
+      end
     end
 
     

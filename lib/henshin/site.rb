@@ -105,7 +105,7 @@ module Henshin
           'tags' => @tags.collect {|k, t| t.to_hash},
           'categories' => @categories.collect {|k, t| t.to_hash},
           'archive' => @archive.to_hash
-        } 
+        }
       }
     end
     

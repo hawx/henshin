@@ -1,9 +1,7 @@
+require 'henshin/plugin'
 require 'simplabs/highlight'
 
-
 class HighlightPlugin < Henshin::Generator
-  
-  #puts Simplabs::Highlight.highlight(:ruby, 'class Test; end')
   
   def initialize
     @extensions = {:input => ['markdown'],

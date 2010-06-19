@@ -7,7 +7,11 @@
   </head>  
   <body>
   
-  <a href="/">Home</a>
+  <nav>
+    <a href="/">Home</a>
+    {% if post.next %}<a href="{{ post.next.url }}">{{ post.next.title }}</a>{% endif %}
+    {% if post.prev %}<a href="{{ post.prev.url }}">{{ post.prev.title }}</a>{% endif %}
+  </nav>
   
   <header>
     <h1>{{ post.title }}</h1>
