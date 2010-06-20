@@ -101,7 +101,7 @@ module Henshin
           'description' => @config[:description],
           'time_zone' => @config[:time_zone],
           'created_at' => Time.now,
-          'posts' => @posts.collect {|i| i.to_hash},
+          'posts' => @posts.collect{|i| i.to_hash},
           'tags' => @tags.collect {|k, t| t.to_hash},
           'categories' => @categories.collect {|k, t| t.to_hash},
           'archive' => @archive.to_hash

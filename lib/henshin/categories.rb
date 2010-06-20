@@ -11,7 +11,7 @@ module Henshin
     def to_hash
       hash = {
         'name' => @name,
-        'posts' => @posts.collect {|i| i.to_hash}
+        'posts' => @posts.sort.collect {|i| i.to_hash}
       }
     end
     
