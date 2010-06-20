@@ -3,12 +3,9 @@ require 'liquid'
 
 class LiquidPlugin < Henshin::LayoutParser
 
-  attr_accessor :extensions, :config
-  
+  attr_accessor :config
   
   def initialize
-    @extensions = {:input => [],
-                   :output => ''}
     @config = {}
   end
   

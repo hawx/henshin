@@ -48,11 +48,18 @@ module Henshin
     # Renders the files content
     def render
       ignore_layout = false
-
-      if config[:plugins][:generators].has_key? @extension
-        plugin = config[:plugins][:generators][@extension]
-        @content = plugin.generate( @content )
-        @output = plugin.extensions[:output]
+      plugins = []
+     
+      config[:plugins][:generators].each do |k, v|
+        if k == @extension || k == '*'
+          plugins << v
+        end
+      end
+      plugins.sort!
+      
+      plugins.each do |plugin|
+        @content = plugin.generate(@content)
+        @output = plugin.extensions[:output] if plugin.extensions[:output]
         ignore_layout = true if plugin.config[:ignore_layouts]
       end
       

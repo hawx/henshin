@@ -64,7 +64,7 @@ module Henshin
     # Adds all files that need to be run through a plugin in an array
     def read_gens
       files = Dir.glob( File.join(@config[:root], '**', '*.*') )
-      gens = files.select {|i| gen? i }
+      gens = files.select {|i| gen?(i) }
       gens.each do |g|
         @gens << Gen.new(g, self)
       end
@@ -73,7 +73,7 @@ module Henshin
     # Adds all static files to an array
     def read_statics
       files = Dir.glob( File.join(@config[:root], '**', '*.*') )
-      static = files.select {|i| static? i }
+      static = files.select {|i| static?(i) }
       static.each do |s|
         @statics << Static.new(s, self)
       end
@@ -210,17 +210,17 @@ module Henshin
     
     # @return [Bool]
     def layout?( path )
-      path.include? 'layouts/'
+      path.include?('layouts/') && !ignored?(path)
     end
     
     # @return [Bool]
     def post?( path )
-      path.include? 'posts/'
+      path.include?('posts/') && !ignored?(path)
     end
     
     # @return [Bool]
     def gen?( path )
-      return false if post?(path) || layout?(path)
+      return false if post?(path) || layout?(path) || ignored?(path)
       return true if @config[:plugins][:generators].has_key? path.extension 
       return true if File.open(path, "r").read(3) == "---"
       false

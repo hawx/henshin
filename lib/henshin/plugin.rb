@@ -29,6 +29,10 @@ module Henshin
       end
     end
     
+    def <=>(other)
+      self.priority <=> other.priority
+    end
+    
     # Uncomment to have the plugin loaded
     # Henshin.register! self, :standard_plugin
   end

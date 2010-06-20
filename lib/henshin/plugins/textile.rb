@@ -3,14 +3,13 @@ require 'redcloth'
 
 class TextilePlugin < Henshin::Generator
   
-  attr_accessor :extensions, :config
-  
-  Defaults = {}
+  attr_accessor :extensions, :config, :priority
   
   def initialize( override={} )
     @extensions = {:input => ['textile'],
                    :output => 'html'}
-    @config = Defaults.merge(override)
+    @config = {}
+    @priority = 5
   end
   
   def generate( content )
