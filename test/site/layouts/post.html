@@ -3,21 +3,25 @@
   <head>  
     <meta charset="utf-8" />  
     <title>{{ post.title }}</title>  
-    <link rel="stylesheet" href="" type="text/css" />  
+    {% include head.html %} 
   </head>  
   <body>
   
   <nav>
+    {% if post.next %}
+      <a href="{{ post.next.url }}">&larr; {{ post.next.title }}</a>&emsp;
+    {% endif %}
     <a href="/">Home</a>
-    {% if post.next %}<a href="{{ post.next.url }}">{{ post.next.title }}</a>{% endif %}
-    {% if post.prev %}<a href="{{ post.prev.url }}">{{ post.prev.title }}</a>{% endif %}
+    {% if post.prev %}
+      &emsp;<a href="{{ post.prev.url }}">{{ post.prev.title }} &rarr;</a>
+    {% endif %}
   </nav>
   
   <header>
     <h1>{{ post.title }}</h1>
     <time>{{ post.date | date_to_string }}</time>
     
-    <ul>
+    <ul class="tags">
       {% for tag in post.tags %}
         <li><a href="{{ tag.url }}">{{ tag }}</a></li>
       {% endfor %}

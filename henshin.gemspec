@@ -9,11 +9,10 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-06-15}
-  s.default_executable = %q{henshin}
+  s.date = %q{2010-06-20}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
-  s.executables = ["henshin"]
+  s.executables = ["files.rb", "henshin"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.markdown"
@@ -24,6 +23,7 @@ Gem::Specification.new do |s|
      "README.markdown",
      "Rakefile",
      "VERSION",
+     "bin/files.rb",
      "bin/henshin",
      "henshin.gemspec",
      "lib/henshin.rb",
@@ -32,9 +32,9 @@ Gem::Specification.new do |s|
      "lib/henshin/ext.rb",
      "lib/henshin/gen.rb",
      "lib/henshin/plugin.rb",
+     "lib/henshin/plugins/highlight.rb",
      "lib/henshin/plugins/liquid.rb",
      "lib/henshin/plugins/maruku.rb",
-     "lib/henshin/plugins/pygments.rb",
      "lib/henshin/plugins/sass.rb",
      "lib/henshin/plugins/textile.rb",
      "lib/henshin/post.rb",
@@ -42,11 +42,10 @@ Gem::Specification.new do |s|
      "lib/henshin/static.rb",
      "lib/henshin/tags.rb",
      "test/helper.rb",
-     "test/site/_site/css/print.css",
-     "test/site/_site/index.html",
-     "test/site/_site/static.html",
-     "test/site/css/print.sass",
-     "test/site/css/screen.css",
+     "test/site/css/includes/reset.sass",
+     "test/site/css/print.css",
+     "test/site/css/screen.sass",
+     "test/site/includes/test.html",
      "test/site/index.html",
      "test/site/layouts/archive_date.html",
      "test/site/layouts/archive_month.html",
@@ -65,12 +64,17 @@ Gem::Specification.new do |s|
      "test/site/posts/lorem-ipsum.markdown",
      "test/site/posts/same-date.markdown",
      "test/site/static.html",
+     "test/test_archives.rb",
+     "test/test_categories.rb",
      "test/test_gens.rb",
      "test/test_henshin.rb",
      "test/test_layouts.rb",
      "test/test_options.rb",
      "test/test_posts.rb",
-     "test/test_site.rb"
+     "test/test_site.rb",
+     "test/test_statics.rb",
+     "test/test_tags.rb",
+     "test/text_exts.rb"
   ]
   s.homepage = %q{http://github.com/hawx/henshin}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -80,12 +84,17 @@ Gem::Specification.new do |s|
   s.test_files = [
     "test/helper.rb",
      "test/site/plugins/test.rb",
+     "test/test_archives.rb",
+     "test/test_categories.rb",
      "test/test_gens.rb",
      "test/test_henshin.rb",
      "test/test_layouts.rb",
      "test/test_options.rb",
      "test/test_posts.rb",
-     "test/test_site.rb"
+     "test/test_site.rb",
+     "test/test_statics.rb",
+     "test/test_tags.rb",
+     "test/text_exts.rb"
   ]
 
   if s.respond_to? :specification_version then
