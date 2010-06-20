@@ -3,7 +3,7 @@ module Henshin
   # This is the main class for all pages, posts, sass, etc, that need to be run through a plugin
   class Gen
     
-    attr_accessor :path, :extension, :content, :layout, :date, :title
+    attr_accessor :path, :extension, :content, :layout, :title
     attr_accessor :site, :config, :renderer, :data, :output
     
     def initialize( path, site, data=nil )
@@ -40,7 +40,6 @@ module Henshin
     def override( override )
       @title  = override[:title]                    if override[:title]
       @layout = @site.layouts[ override[:layout] ]  if override[:layout]
-      @date   = Time.parse( override[:date].to_s )  if override[:date]
     end
     
     
@@ -95,7 +94,6 @@ module Henshin
         'title'      => @title,
         'permalink'  => self.permalink,
         'url'        => self.url,
-        'date'       => @date,
         'content'    => @content 
       }
     end
@@ -131,16 +129,7 @@ module Henshin
     
     # Needed to sort the posts by date, newest first
     def <=>( other )
-      if self.date
-        s = self.date <=> other.date
-        if s == 0
-          return self.permalink <=> other.permalink
-        else
-          return -1 * s
-        end
-      else
-        self.permalink <=> other.permalink
-      end
+      self.permalink <=> other.permalink
     end
     
     def inspect

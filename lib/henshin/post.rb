@@ -187,6 +187,15 @@ module Henshin
       end
     end
     
+    def <=>(other)
+      s = self.date <=> other.date
+      if s == 0
+        self.permalink <=> other.permalink
+      else
+        s
+      end
+    end
+    
     def inspect
       "#<Post:#{@path}>"
     end
