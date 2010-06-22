@@ -11,10 +11,14 @@ module Henshin
     def to_hash
       hash = {
         'name' => @name,
-        'posts' => @posts.sort.collect {|i| i.to_hash}
+        'posts' => @posts.sort.collect {|i| i.to_hash},
+        'url' => self.url
       }
     end
     
+    def url
+      "/tags/#{@name.slugify}/"
+    end
     
     def inspect
       "#<Tag:#{@name}>"

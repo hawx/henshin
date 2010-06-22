@@ -106,7 +106,7 @@ else
     gl += ['*']
 
     dw = DirectoryWatcher.new config[:root], :glob => gl
-    dw.interval = 2
+    dw.interval = 1
     dw.add_observer do |*args| 
       if args.size > 1
         puts "rebuilding -> #{args.size} files"
@@ -114,10 +114,11 @@ else
         puts "rebuilding -> #{args[0].path}"
       end
       site.build
+      puts "rebuilt..."
     end
     
     threads << Thread.new { dw.start }
-    loop { sleep 2000 } unless build[:server]
+    loop { sleep 1000 } unless build[:server]
   end  
 
   threads.each {|t| t.join}

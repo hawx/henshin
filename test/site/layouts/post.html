@@ -9,11 +9,11 @@
   
   <nav>
     {% if post.next %}
-      <a href="{{ post.next.url }}">&larr; {{ post.next.title }}</a>&emsp;
+      <a href="{{ post.next.url }}">&larr;</a>&emsp;
     {% endif %}
     <a href="/">Home</a>
     {% if post.prev %}
-      &emsp;<a href="{{ post.prev.url }}">{{ post.prev.title }} &rarr;</a>
+      &emsp;<a href="{{ post.prev.url }}">&rarr;</a>
     {% endif %}
   </nav>
   
@@ -23,7 +23,7 @@
     
     <ul class="tags">
       {% for tag in post.tags %}
-        <li><a href="{{ tag.url }}">{{ tag }}</a></li>
+        <li><a href="{{ tag.url }}">{{ tag.name }}</a></li>
       {% endfor %}
     </ul>
     

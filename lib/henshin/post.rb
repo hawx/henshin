@@ -126,6 +126,10 @@ module Henshin
     #
     # @return [Hash]
     def to_hash
+      tags = []
+      @site.tags.select{ |t| @tags.include?(t) }.each do |k, tag|
+        tags << {'name' => tag.name, 'url' => tag.url}
+      end
       { 
         'title'      => @title,
         'author'     => @author,
@@ -133,7 +137,7 @@ module Henshin
         'url'        => self.url,
         'date'       => @date,
         'category'   => @category,
-        'tags'       => @tags,
+        'tags'       => tags,
         'content'    => @content
       }
     end
