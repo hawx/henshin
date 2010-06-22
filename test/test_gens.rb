@@ -34,7 +34,6 @@ class TestGens < Test::Unit::TestCase
       assert_equal @gen.title, @gen.to_hash['title']
       assert_equal @gen.permalink, @gen.to_hash['permalink']
       assert_equal @gen.url, @gen.to_hash['url']
-      assert_equal @gen.date, @gen.to_hash['date']
       assert_equal @gen.content, @gen.to_hash['content']
     end
     

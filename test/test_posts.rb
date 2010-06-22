@@ -56,19 +56,18 @@ class TestPosts < Test::Unit::TestCase
       assert_equal @post.url, @post.to_hash['url']
       assert_equal @post.date, @post.to_hash['date']
       assert_equal @post.category, @post.to_hash['category']
-      assert_equal @post.tags, @post.to_hash['tags']
       assert_equal @post.content, @post.to_hash['content']
     end
     
     should "be sortable" do
       another_post = Henshin::Post.new( "#{root_dir}/posts/Testing-Stuff.markdown", @site )
-      post_array = [@post, another_post]
+      post_array = [another_post, @post]
       assert_equal post_array.reverse, post_array.sort
     end
     
     should "sort by url if dates are same" do
       another_post = Henshin::Post.new( "#{root_dir}/posts/same-date.markdown", @site )
-      post_array = [@post, another_post]
+      post_array = [another_post, @post]
       assert_equal post_array.reverse, post_array.sort
     end
     

@@ -43,8 +43,9 @@ class TestSite < Test::Unit::TestCase
       @site.read_gens
       # For reference these are the gens
       # /css/print.sass
+      # /css/includes/reset.sass
       # /index.html
-      assert_equal 2, @site.gens.size
+      assert_equal 3, @site.gens.size
     end
     
     should "have a payload" do
