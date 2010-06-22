@@ -41,7 +41,7 @@ if ARGV[0] == "create"
 else
 
   override = {}
-  build = {:server => false, :port => 9991, :auto => false}
+  build = {:server => false, :auto => false, :port => 9991, :address => '0.0.0.0'}
   opts = OptionParser.new do |opts|
     opts.banner = banner
     
@@ -69,26 +69,44 @@ else
   
   config = Henshin.configure(override)
   site = Henshin::Site.new(config)
-  
-  start = Time.now
-  # build normally
-  puts "Building site..."
-  site.build
-  puts "Site created in #{config[:target]} (#{Time.now - start}s)"
+  unless build[:auto]
+    start = Time.now
+    # build normally
+    puts "Building site..."
+    site.build
+    puts "Site created in #{config[:target]} (#{Time.now - start}s)"
+  end
   
   threads = []
   # start a server
   if build[:server]
-    require 'webrick'
+    begin
+      require 'mongrel'
+      
+      threads << Thread.new {
+        @h = Mongrel::HttpServer.new(build[:address], build[:port])
+        @h.register "/", Mongrel::DirHandler.new("test/site/_site")
+        puts "Server launched at http://#{build[:address]}:#{build[:port]}"
+        trap("INT") { 
+          @h.stop
+          puts "\n"
+        }
+        @h.run.join
+      }
+    rescue LoadError
     
-    server = WEBrick::HTTPServer.new(
-      :Port => build[:port],
-      :DocumentRoot => File.join(config[:root], config[:target]),
-      :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
-    )
-    
-    threads << Thread.new { server.start }
-    trap("INT") { server.shutdown }
+      require 'webrick'
+      threads << Thread.new { 
+        server = WEBrick::HTTPServer.new(
+          :Port => build[:port],
+          :DocumentRoot => File.join(config[:root], config[:target]),
+          :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
+        )
+        trap("INT") { server.shutdown }
+        server.start
+      }
+      
+    end
   end
   
   # regenerate files when changed
