@@ -10,7 +10,7 @@ begin
     gem.email = "m@hawx.me"
     gem.homepage = "http://github.com/hawx/henshin"
     gem.authors = ["hawx"]
-    gem.add_dependency "samsouder-titlecase", ">= 0.1.0"
+    gem.add_dependency "titlecase", ">= 0.1.0"
     gem.add_dependency "directory_watcher", ">= 1.3.1"
     gem.add_dependency "maruku", ">= 0.6.0"
     gem.add_dependency "liquid", ">= 2.0.0"

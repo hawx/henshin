@@ -102,14 +102,14 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<samsouder-titlecase>, [">= 0.1.0"])
+      s.add_runtime_dependency(%q<titlecase>, [">= 0.1.0"])
       s.add_runtime_dependency(%q<directory_watcher>, [">= 1.3.1"])
       s.add_runtime_dependency(%q<maruku>, [">= 0.6.0"])
       s.add_runtime_dependency(%q<liquid>, [">= 2.0.0"])
       s.add_development_dependency(%q<thoughtbot-shoulda>, [">= 0"])
       s.add_development_dependency(%q<yard>, [">= 0"])
     else
-      s.add_dependency(%q<samsouder-titlecase>, [">= 0.1.0"])
+      s.add_dependency(%q<titlecase>, [">= 0.1.0"])
       s.add_dependency(%q<directory_watcher>, [">= 1.3.1"])
       s.add_dependency(%q<maruku>, [">= 0.6.0"])
       s.add_dependency(%q<liquid>, [">= 2.0.0"])
@@ -117,7 +117,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<yard>, [">= 0"])
     end
   else
-    s.add_dependency(%q<samsouder-titlecase>, [">= 0.1.0"])
+    s.add_dependency(%q<titlecase>, [">= 0.1.0"])
     s.add_dependency(%q<directory_watcher>, [">= 1.3.1"])
     s.add_dependency(%q<maruku>, [">= 0.6.0"])
     s.add_dependency(%q<liquid>, [">= 2.0.0"])
