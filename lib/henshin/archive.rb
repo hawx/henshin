@@ -54,7 +54,7 @@ module Henshin
             end
           end
         end
-        
+      @hashed
       end
     end
     
