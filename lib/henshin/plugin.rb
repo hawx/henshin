@@ -1,63 +1,77 @@
 module Henshin
   class StandardPlugin
-    # the main class for plugins to inherit from eg
-    #
-    #   class MyPlugin < NoName::StandardPlugin
-    #
-    # or it can (and should) inherit a subclass from below
-    
-    attr_accessor :extensions, :config
-    
-    # Defaults = {}
+   
+    attr_accessor :extensions, :config, :priority
     
     def initialize
-      # inputs are the file types it will take
-      # output should be the type it creates
+      # input [Array] is a list of file extensions that this plugin can read
+      # output [String] should be the type it creates
       @extensions = {:input => [],
                      :output => ''}
+      
+      # You can put some defaults in this
+      @config = {}
+      
+      # The plugins are sorted based on priority, and then called in order
+      # 1 is high, 5 is low
+      # You could really use any number, but stick to 1 to 5
+      @priority = 3
     end
     
-    def configure( override )
-      if Defaults
-        if override 
-          @config = Defaults.merge(override) 
-        else
-          @config = Defaults
-        end
-      elsif override
-        @config = override
-      end
+    # Allows you to set up the plugin
+    #
+    # @param [Hash] override options for this specific plugin
+    # @param [Hash] site options for the whole site
+    def configure( override, site )
+      @config.merge!(override) if override
     end
     
+    # Need to allow plugins to be sorted by priority
     def <=>(other)
       self.priority <=> other.priority
     end
     
-    # Uncomment to have the plugin loaded
     # Henshin.register! self, :standard_plugin
   end
   
+  
+  # @example
+  #
+  #  class MyMarkupPlugin < Henshin::Generator
+  #    def generate(content)
+  #      MyMarkup.do_stuff(content)
+  #    end
+  #    Henshin.register! self, :mymarkup
+  #  end
+  #
   class Generator < StandardPlugin
-    # a plugin which returns anything*
     
+    # @param [String] content to be rendered
+    # @return [String]
     def generate( content )
-      # return string
     end
     
-    # Uncomment to have the plugin loaded
     # Henshin.register! self, :generator
   end
   
+  # @example
+  #
+  #  class MyLayoutPlugin < Henshin::LayoutParser
+  #    def generate(content, data)
+  #      MyLayout.do_stuff(content).render(data)
+  #    end
+  #    Henshin.register! self, :mylayout
+  #  end
+  #
   class LayoutParser < StandardPlugin
-    # a plugin which returns anything*
     
-    # given a layout and data to insert
-    def generate( layout, data )
-      # return string
+    # @param [String] content to be rendered
+    # @param [Hash] data to be put into the content
+    # @return [String]
+    def generate( content, data )
     end
     
-    # Uncomment to have the plugin loaded
-    # Henshin.register! self, :generator
+    # Henshin.register! self, :layout_parser
   end
   
 end

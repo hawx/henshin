@@ -3,8 +3,6 @@ require 'maruku'
 
 class MarukuPlugin < Henshin::Generator
   
-  attr_accessor :extensions, :config, :priority
-  
   def initialize( override={} )
     @extensions = {:input => ['markdown', 'mkdwn', 'md'],
                    :output => 'html'}

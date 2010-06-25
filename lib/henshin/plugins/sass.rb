@@ -3,11 +3,6 @@ require 'sass'
 
 class SassPlugin < Henshin::Generator
   
-  attr_accessor :extensions, :config, :priority
-  
-  Defaults = {:ignore_layouts => true,
-              :style => :nested}
-  
   def initialize
     @extensions = {:input => ['sass', 'scss'],
                    :output => 'css'}
@@ -16,8 +11,9 @@ class SassPlugin < Henshin::Generator
     @priority = 5
   end
   
-  def configure( override )
+  def configure( override, site )
     @config.merge!(override) if override
+    @config[:load_paths] = Dir.glob( File.join(site[:root], '*') )
   end
   
   def generate( content )

@@ -3,15 +3,13 @@ require 'simplabs/highlight'
 
 class HighlightPlugin < Henshin::Generator
   
-  attr_accessor :priority, :config, :extensions
-  
   def initialize
     @extensions = {:input => ['*']}
     @config = {}
     @priority = 1
   end
   
-  def configure( override )
+  def configure( override, site )
     @config.merge!(override) if override
   end
   

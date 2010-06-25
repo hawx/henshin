@@ -96,12 +96,7 @@ module Henshin
     
     @registered_plugins.each do |plugin|
       if plugin[:opts] && opts[plugin[:opts]]
-        opts[plugin[:opts]].each do |k, v|
-          if k.to_s.include? 'dir'
-            opts[plugin[:opts]][k] = File.join(opts[:root], v)
-          end
-        end
-        plugin[:plugin].configure opts[plugin[:opts]]
+        plugin[:plugin].configure(opts[plugin[:opts]], opts)
       end
       plugins << plugin[:plugin]
     end

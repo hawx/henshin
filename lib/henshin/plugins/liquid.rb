@@ -2,20 +2,19 @@ require 'henshin/plugin'
 require 'liquid'
 
 class LiquidPlugin < Henshin::LayoutParser
-
-  attr_accessor :config
   
   def initialize
     @config = {}
   end
   
-  def configure( override )
+  def configure( override, site )
     @config.merge!(override) if override
+    @config['include_dir'] = File.join(site[:root], @config['include_dir'])
   end
   
-  def generate( layout, data )
+  def generate( content, data )
     reg = {:include_dir => @config['include_dir']}
-    Liquid::Template.parse(layout).render(data, :registers => reg)
+    Liquid::Template.parse(content).render(data, :registers => reg)
   end
   
   module Filters
