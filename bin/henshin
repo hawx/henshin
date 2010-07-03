@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require File.dirname(__FILE__) + '/../lib/henshin'
-require File.dirname(__FILE__) + '/files.rb'
+require File.dirname(__FILE__) + '/../exec/files'
 require 'optparse'
 require 'fileutils'
 
