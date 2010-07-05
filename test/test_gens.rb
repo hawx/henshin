@@ -9,7 +9,7 @@ class TestGens < Test::Unit::TestCase
       remove_site
     end
     
-    should "read frontmatter" do
+    should "have frontmatter read" do
       @site.read_layouts
       @gen.read_yaml
       assert_equal 'Home Page', @gen.title

@@ -1,4 +1,4 @@
-Henshin gives your templates access to certain data as described below. __Note:__ I will be using liquid tags below, but the information should be valid for whatever layout style you are using.
+Henshin gives your templates access to certain data as described below.
 
 
 ## Global
