@@ -3,7 +3,7 @@ module Henshin
   # This is the main class for all pages, posts, sass, etc, that need to be run through a plugin
   class Gen
     
-    attr_accessor :path, :data, :content, :site, :to_inject
+    attr_accessor :path, :data, :content, :site, :to_inject, :generators
     
     attr_accessor :path, :extension, :content, :layout, :title
     attr_accessor :site, :config, :renderer, :data, :output
@@ -14,17 +14,24 @@ module Henshin
       @data = {}
       @content = ''
       @to_inject = to_inject
+      @generators = []
+      
+      @data['input'] = @path.extension
     end
     
     
     ##
-    # Processes the file
-    def process
-      self.read_yaml
+    # Reads the file
+    def read
+      self.read_file
+      self.get_generators
+      self.get_layout
+      @data['output'] ||= @data['input'] # if not different must be same
+      self
     end
     
     # Reads the files yaml frontmatter and uses it to override some settings, then grabs content
-    def read_yaml
+    def read_file
       file = @path.read
     
       if file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
@@ -36,32 +43,36 @@ module Henshin
       end 
     end
     
-    ##
-    # Renders the files content
-    def render
-      @data['input'] = @path.extname[1..-1]
-      
-      plugins = []
+    # Finds the correct plugins to render this gen
+    def get_generators
       @site.plugins[:generators].each do |k, v|
         if k == @data['input'] || k == '*'
-          plugins << v
+          @generators << v
+          @data['output'] ||= v.extensions[:output]
+          @data['ignore_layout'] ||= (v.config[:ignore_layouts] ? true : false)
         end
       end
-      plugins.sort!
-      
-      plugins.each do |plugin|
-        @content = plugin.generate(@content)
-        @data['output'] = plugin.extensions[:output]
-        @data['ignore_layout'] = (plugin.config[:ignore_layouts] ? true : false)
-      end
-      
+      @generators.sort!
+    end
+    
+    # Gets the correct layout for the gen, or the default if none exists
+    def get_layout
       if @data['layout']
         @data['layout'] = site.layouts[ @data['layout'] ]
       else
         # get default layout
         @data['layout'] = site.layouts[ site.config['layout'] ]
       end
+    end
+    
+    ##
+    # Renders the files content
+    def render
       
+      @generators.each do |plugin|
+        @content = plugin.generate(@content)
+      end
+
       unless @data['ignore_layout'] || @data['layout'].nil?
         @site.plugins[:layout_parsers].each do |plugin|
           @content = plugin.generate(@data['layout'], self.payload)
@@ -90,6 +101,8 @@ module Henshin
     # @return [Hash]
     def to_hash
       @data['content'] = @content
+      @data['url'] = self.url
+      @data['permalink'] = self.permalink
       @data
     end
     
@@ -97,32 +110,33 @@ module Henshin
     ##
     # Writes the file to the correct place
     def write
-      t = @site.target + self.permalink
-      
-      # change extension if necessary, this seems a bit of a hack at the moment
-      t = t.to_s.gsub(".#{@data['input']}", ".#{@data['output']}").to_p if @data['output']
-
-      FileUtils.mkdir_p(t.dirname)
-      file = File.new(t, "w")
+      FileUtils.mkdir_p(self.write_path.dirname)
+      file = File.new(self.write_path, "w")
       file.puts(@content)
     end
     
-    # Returns the permalink for the gen
+    # @return [String] the permalink of the gen
     def permalink
-      @path.relative_path_from(@site.root)
+      rel = @path.relative_path_from(@site.root).to_s
+      rel.gsub!(".#{@data['input']}", ".#{@data['output']}")
+      File.join(@site.base, rel)
     end
     
-    # Returns the (pretty) url for the gen
+    # @return [String] the pretty url for the gen
     def url
       if @site.config['permalink'].include?("/index.html") && @data['output'] == 'html'
-        self.permalink.dirname
+        self.permalink.to_p.dirname.to_s
       else
         self.permalink
       end
     end
     
+    # @return [Pathname] path to write the file to
+    def write_path
+      @site.target + self.permalink[1..-1]
+    end
     
-    # Needed to sort the posts by date, newest first
+    # Sort gens based on permalink only
     def <=>( other )
       self.permalink <=> other.permalink
     end

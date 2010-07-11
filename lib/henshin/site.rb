@@ -52,6 +52,7 @@ module Henshin
       end
       @root = @config['root'].to_p
       @target = @config['target'].to_p
+      @base = @config['base'] || ""
       
       @config['exclude'] << '/_site' << '/plugins'
     end
@@ -109,7 +110,7 @@ module Henshin
     def read_posts
       path = File.join(@root, 'posts')
       Dir.glob(path + '/**/*.*').each do |post|
-        @posts << Post.new(post.to_p, self)
+        @posts << Post.new(post.to_p, self).read
       end
     end
     
@@ -118,7 +119,7 @@ module Henshin
       files = Dir.glob( File.join(@root, '**', '*.*') )
       gens = files.select {|i| gen?(i) }
       gens.each do |gen|
-        @gens << Gen.new(gen.to_p, self)
+        @gens << Gen.new(gen.to_p, self).read
       end
     end
     
@@ -135,8 +136,6 @@ module Henshin
     ## 
     # Processes all of the necessary files
     def process
-      @posts.each {|post| post.process}
-      @gens.each {|gen| gen.process}
       @posts.sort!
       @gens.sort!
       

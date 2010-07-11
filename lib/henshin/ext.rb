@@ -39,3 +39,14 @@ class String
   end
   
 end
+
+class Pathname
+  
+  # Gets the extension of the pathname
+  #
+  # @return [String] the extension of the path, without the '.'
+  def extension
+    self.extname[1..-1]
+  end
+
+end

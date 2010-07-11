@@ -3,6 +3,8 @@ description: This is a site to test this site generator!
 time_zone: GMT
 author: Joshua Hawxwell
 
+base: /dog
+
 layout: post
 
 exclude: ['includes', 'css/_reset.sass']

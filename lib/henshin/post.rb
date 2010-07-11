@@ -2,7 +2,7 @@ module Henshin
 
   class Post < Gen
     
-    attr_accessor :path, :data, :content, :site, :layout
+    attr_accessor :path, :data, :content, :site, :layout, :generators
     
     def initialize( path, site )
       @path = path
@@ -11,19 +11,25 @@ module Henshin
       
       @content = ''
       @data = {}
+      @generators = []
+      
+      @data['input'] = @path.extname[1..-1]
     end
     
     
     ##
-    # Processes the file
-    def process
+    # Reads the file
+    def read
       self.read_name
-      self.read_yaml
+      self.read_file
+      self.get_generators
+      self.get_layout
       
       # now tidy up data
       @data['layout'] = @site.layouts[ @data['layout'] ]
       @data['date'] = Time.parse(@data['date'])
       @data['tags'] = @data['tags'].flatten.uniq if @data['tags']
+      self
     end
     
     # Reads the filename and extracts information from it
@@ -101,8 +107,8 @@ module Henshin
       else
         @hashed = @data.dup
         @hashed['content'] = @content
-        @hashed['url'] = self.url.to_s
-        @hashed['permalink'] = self.permalink.to_s
+        @hashed['url'] = self.url
+        @hashed['permalink'] = self.permalink
         
         
       
@@ -155,18 +161,13 @@ module Henshin
     
     ##
     # Writes the file to the correct place
-    #
-    # @todo the idea of using pathnames was that I wouldn't have to hack
-    #  anything, turns out I did. Try to find a way to get the relative path
-    #  from the permalink, easily!
     def write
-      t = @site.target + self.permalink.to_s[1..-1].to_p
-      FileUtils.mkdir_p(t.dirname)
-      file = File.new(t, "w")
+      FileUtils.mkdir_p(self.write_path.dirname)
+      file = File.new(self.write_path, "w")
       file.puts(@content)
     end
     
-    # Creates the permalink for the post
+    # @return [String] the permalink of the post
     def permalink
       partials = {'year' => @data['date'].year,
                   'month' => @data['date'].month,
@@ -174,9 +175,11 @@ module Henshin
                   'title' => @data['title'].slugify,
                   'category' => @data['category'] || ''}
                   
-      @site.config['permalink'].gsub(/\{([a-z-]+)\}/) { partials[$1] }.to_p
+      perm = @site.config['permalink'].gsub(/\{([a-z-]+)\}/) { partials[$1] }
+      File.join(@site.base, perm)
     end
     
+    # Sorts on date first, then permalink if dates are equal
     def <=>(other)
       s = @data['date'] <=> other.data['date']
       if s == 0
