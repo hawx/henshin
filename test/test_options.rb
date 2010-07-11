@@ -12,11 +12,9 @@ class TestOptions < Test::Unit::TestCase
     should "warn of invalid options.yaml" do
       mock(YAML).load_file(@opts) {"boo"}
       mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
-      mock($stderr).puts("-> undefined method `to_options' for \"boo\":String")
+      mock($stderr).puts("-> can't convert String into Hash")
       
-      configured = Henshin.configure
-      configured[:plugins] = ["maruku", "liquid"]
-      assert_equal Henshin::Defaults, configured
+      assert_equal Henshin::Defaults, Henshin::Site.new.config
     end
     
     should "warn of no options.yaml" do
@@ -24,34 +22,43 @@ class TestOptions < Test::Unit::TestCase
       mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
       mock($stderr).puts("-> No such file or directory - #{@opts}")
       
-      configured = Henshin.configure
-      configured[:plugins] = ["maruku", "liquid"]
-      assert_equal Henshin::Defaults, configured
+      assert_equal Henshin::Defaults, Henshin::Site.new.config
     end
 
     should "use defaults if no options.yaml" do
       mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
       mock($stderr).puts("-> No such file or directory - #{@opts}")
-    
-      configured = Henshin.configure
-      configured[:plugins] = ["maruku", "liquid"]
-      assert_equal Henshin::Defaults, configured
+      
+      assert_equal Henshin::Defaults, Henshin::Site.new.config
     end
     
     should "merge override with defaults" do
       mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
       mock($stderr).puts("-> No such file or directory - #{@opts}")
     
-      override = {:time_zone => '+01:00'}
-      configured = Henshin.configure(override)
-      assert_equal '+01:00', configured[:time_zone]
+      override = {'time_zone' => '+01:00'}
+      site = Henshin::Site.new(override)
+      assert_equal '+01:00', site.config['time_zone']
     end
     
-    should "load plugins" do    
-      opts = Henshin::Defaults.dup
-      opts[:plugins] = ['maruku']
-      loaded = Henshin.load_plugins(opts)
-      assert loaded[0].is_a? MarukuPlugin
+    should "add special directories to exclude after loading" do
+      mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
+      mock($stderr).puts("-> No such file or directory - #{@opts}")
+      site = Henshin::Site.new
+      to_ignore = ['/_site', '/plugins']
+      assert_equal to_ignore, site.config['exclude']
+      
+      mock(YAML).load_file(@opts) { {'exclude' => ['/my_dir', 'my_file.txt']} }
+      site2 = Henshin::Site.new
+      to_ignore = ['/my_dir', 'my_file.txt', '/_site', '/plugins']
+      assert_equal to_ignore, site2.config['exclude']
+    end
+    
+    should "convert root, target and base to Pathnames" do
+      site = Henshin::Site.new
+      assert site.root.is_a? Pathname
+      assert site.target.is_a? Pathname
+      assert site.base.is_a? Pathname
     end
 
   end

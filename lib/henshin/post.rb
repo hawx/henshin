@@ -2,17 +2,15 @@ module Henshin
 
   class Post < Gen
     
-    attr_accessor :title, :author, :tags, :category, :date
+    attr_accessor :path, :data, :content, :site, :layout
     
     def initialize( path, site )
       @path = path
       @site = site
-      @config = site.config
-      @extension = path.extension
       @layout = site.layouts[ site.config[:layout] ]
-      @author = @config[:author]
-      @tags = []
-      @date = Time.now
+      
+      @content = ''
+      @data = {}
     end
     
     
@@ -21,6 +19,11 @@ module Henshin
     def process
       self.read_name
       self.read_yaml
+      
+      # now tidy up data
+      @data['layout'] = @site.layouts[ @data['layout'] ]
+      @data['date'] = Time.parse(@data['date'])
+      @data['tags'] = @data['tags'].flatten.uniq if @data['tags']
     end
     
     # Reads the filename and extracts information from it
@@ -34,7 +37,7 @@ module Henshin
                 'category' => '([a-zA-Z0-9_ -]+)',
                 'extension' => "([a-zA-Z0-9_-]+)"}
       
-      file_parser = config[:file_name]
+      file_parser = @site.config['file_name']
       data_order = []
 
       # put together regex
@@ -54,59 +57,26 @@ module Henshin
       matcher = Regexp.new(m)
       
       override = {}
-      name = @path[ (config[:root]+'/posts/').size..-1 ]
+      name = @path.to_s[(@site.root + 'posts').to_s.size..-1]
 
       file_data = name.match( matcher ).captures
       file_data.each_with_index do |data, i|      
         if data_order[i].include? 'title'
           if data_order[i].include? 'dashes'
-            override[:title] = data.gsub(/-/, ' ')
+            override['title'] = data.gsub(/-/, ' ').titlecase
           else
-            override[:title] = data
+            override['title'] = data.titlecase
           end
         elsif data_order[i].include? 'date'
-          override[:date] = data
+          override['date'] = data
         elsif data_order[i].include? 'extension'
-          override[:extension] = data
+          override['extension'] = data
         elsif data_order[i].include? 'category'
-          override[:category] = data
+          override['category'] = data
         end
       end
-      self.override( override )
+      @data = @data.merge(override)
     end
-    
-    # Reads the files yaml frontmatter and uses it to override some settings, then grabs content
-    def read_yaml
-      file = File.read(self.path)
-
-      if file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
-        override = YAML.load_file(@path).to_options
-        self.override(override)
-        @content = file[$1.size..-1]
-      else
-        @content = file
-      end
-    end
-    
-    # Uses the loaded data to override settings
-    #
-    # @param [Hash] override data to override settings with
-    def override( override )
-      @title     = override[:title].titlecase         if override[:title]
-      @layout    = @site.layouts[ override[:layout] ] if override[:layout]
-      @date      = Time.parse( override[:date] )      if override[:date]
-      @tags      = override[:tags].split(', ')        if override[:tags]
-      @category  = override[:category]                if override[:category]
-      @author    = override[:author]                  if override[:author]
-      @extension = override[:extension]               if override[:extension]
-      @category  = override[:category]                if override[:category]
-      
-      if override[:tags]
-        @tags << override[:tags].split(', ')
-        @tags.flatten!.uniq!
-      end
-    end
-    
     
     # Creates the data to be sent to the layout engine
     #
@@ -117,8 +87,8 @@ module Henshin
         'site'  => @site.payload['site'],
         'post'  => self.to_hash
       }
-      r['post']['next'] = self.next.to_hash if self.next
-      r['post']['prev'] = self.prev.to_hash if self.prev
+      #r['post']['next'] = self.next.to_hash if self.next
+      #r['post']['prev'] = self.prev.to_hash if self.prev
       r
     end
     
@@ -126,20 +96,34 @@ module Henshin
     #
     # @return [Hash]
     def to_hash
-      tags = []
-      @site.tags.select{ |t| @tags.include?(t) }.each do |k, tag|
-        tags << {'name' => tag.name, 'url' => tag.url}
+      if @hashed
+        @hashed
+      else
+        @hashed = @data.dup
+        @hashed['content'] = @content
+        @hashed['url'] = self.url.to_s
+        @hashed['permalink'] = self.permalink.to_s
+        
+        
+      
+        if @data['tags']
+          @hashed['tags'] = []
+          @site.tags.select{|t| @data['tags'].include?(t.name)}.each do |tag|
+            # can't call Tag#to_hash or it creates an infinite loop!
+            @hashed['tags'] << {'name' => tag.name, 'url' => tag.url}
+          end
+        end
+      
+        if @data['category']
+          @site.categories.each do |cat|
+            if cat.name == @data['category']
+              @hashed['category'] = {'name' => cat.name, 'url' => cat.url}
+            end
+          end
+        end
+      
+        @hashed
       end
-      { 
-        'title'      => @title,
-        'author'     => @author,
-        'permalink'  => self.permalink,
-        'url'        => self.url,
-        'date'       => @date,
-        'category'   => @category,
-        'tags'       => tags,
-        'content'    => @content
-      }
     end
     
     # Gets the post after this one
@@ -171,28 +155,30 @@ module Henshin
     
     ##
     # Writes the file to the correct place
+    #
+    # @todo the idea of using pathnames was that I wouldn't have to hack
+    #  anything, turns out I did. Try to find a way to get the relative path
+    #  from the permalink, easily!
     def write
-      write_path = File.join( config[:root], config[:target], permalink )
-      FileUtils.mkdir_p write_path.directory
-      file = File.new( write_path, "w" )
-      file.puts( @content )
+      t = @site.target + self.permalink.to_s[1..-1].to_p
+      FileUtils.mkdir_p(t.dirname)
+      file = File.new(t, "w")
+      file.puts(@content)
     end
     
     # Creates the permalink for the post
     def permalink
-      partials = {'year' => self.date.year,
-                  'month' => self.date.month,
-                  'date' => self.date.day,
-                  'title' => self.title.slugify,
-                  'category' => self.category || ''}
+      partials = {'year' => @data['date'].year,
+                  'month' => @data['date'].month,
+                  'date' => @data['date'].day,
+                  'title' => @data['title'].slugify,
+                  'category' => @data['category'] || ''}
                   
-      config[:permalink].gsub(/\{([a-z-]+)\}/) do
-        partials[$1]
-      end
+      @site.config['permalink'].gsub(/\{([a-z-]+)\}/) { partials[$1] }.to_p
     end
     
     def <=>(other)
-      s = self.date <=> other.date
+      s = @data['date'] <=> other.data['date']
       if s == 0
         self.permalink <=> other.permalink
       else

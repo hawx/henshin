@@ -4,71 +4,48 @@ class TestPosts < Test::Unit::TestCase
   context "A post" do
   
     setup do
-      @site = new_site
-      @site.read
-      @site.process
-      @post = Henshin::Post.new( "#{root_dir}/posts/lorem-ipsum.markdown", @site )
+      @site = Henshin::Site.new(site_override)
+      @post_with_date = "#{root_dir}/posts/2010-08-10-lorem-ipsum.markdown"
+      @post = "#{root_dir}/posts/lorem-ipsum.markdown"
       remove_site
     end
     
-    should "get data from the filename" do
-      post_file = "#{root_dir}/posts/2010-08-10-lorem-ipsum.markdown"
-      site = @site
-      site.config[:file_name] = "{date}-{title-with-dashes}.{extension}"
-      post = Henshin::Post.new( post_file, site )
+    should "get data from filename" do
+      site = @site.dup
+      site.config['file_name'] = "{date}-{title-with-dashes}.{extension}"
+      post = Henshin::Post.new(@post_with_date.to_p, site)
       post.read_name
-      assert_equal 'Lorem Ipsum', post.title
-      assert_equal Time.parse('2010-08-10'), post.date
-      assert_equal 'markdown', post.extension
+      assert_equal 'Lorem Ipsum', post.data['title']
+      assert_equal '2010-08-10', post.data['date']
+      assert_equal 'markdown', post.data['input']
     end
     
-    should "get category from folder" do
-      post_file = "#{root_dir}/posts/category/test-post.markdown"
-      post = Henshin::Post.new( post_file, @site )
+    should "turn date to Time object" do
+      post = Henshin::Post.new(@post.to_p, @site)
+      post.process
+      assert post.data['date'].is_a? Time
+    end
+    
+    should "get next post" do
+      
+    end
+    
+    should "get previous post" do
+    
+    end
+    
+    should "have correct permalink" do
+      post = Henshin::Post.new(@post_with_date.to_p, @site)
       post.read_name
-      assert_equal 'category', post.category
+      p post.permalink
     end
     
-    should "render with correct layout" do
-      @post.process
-      # lorem-ipsum.markdown uses default 'layout: post'
-      assert_equal File.open("#{root_dir}/layouts/post.html"){|f| f.read} , @post.layout
-    end
+    should "have correct url" do
     
-    should "read frontmatter" do
-      @post.read_yaml
-      assert_equal 'Lorem Ipsum', @post.title
-      assert_equal Time.parse('2010-05-15 at 13:23:47'), @post.date
-      assert_equal ['test', 'lorem'], @post.tags
-    end
-    
-    should "have the correct permalink and url" do
-      @post.process
-      assert_equal "/2010/5/15/lorem-ipsum/index.html", @post.permalink
-      assert_equal "/2010/5/15/lorem-ipsum/", @post.url
-    end
-    
-    should "respond to #to_hash" do
-      @post.process
-      assert_equal @post.title, @post.to_hash['title']
-      assert_equal @post.author, @post.to_hash['author']
-      assert_equal @post.permalink, @post.to_hash['permalink']
-      assert_equal @post.url, @post.to_hash['url']
-      assert_equal @post.date, @post.to_hash['date']
-      assert_equal @post.category, @post.to_hash['category']
-      assert_equal @post.content, @post.to_hash['content']
     end
     
     should "be sortable" do
-      another_post = Henshin::Post.new( "#{root_dir}/posts/Testing-Stuff.markdown", @site )
-      post_array = [another_post, @post]
-      assert_equal post_array.reverse, post_array.sort
-    end
     
-    should "sort by url if dates are same" do
-      another_post = Henshin::Post.new( "#{root_dir}/posts/same-date.markdown", @site )
-      post_array = [another_post, @post]
-      assert_equal post_array.reverse, post_array.sort
     end
     
   end

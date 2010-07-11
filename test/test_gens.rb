@@ -4,50 +4,75 @@ class TestGens < Test::Unit::TestCase
   context "A gen" do
     
     setup do
-      @site = new_site
-      @gen = Henshin::Gen.new "#{root_dir}/index.html", @site
+      @site = Henshin::Site.new(site_override)
+      @index = "#{root_dir}/index.html"
+      @sass = "#{root_dir}/css/screen.sass"
       remove_site
     end
     
-    should "have frontmatter read" do
+    should "have yaml frontmatter read" do
+      gen = Henshin::Gen.new(@index.to_p, @site)
       @site.read_layouts
-      @gen.read_yaml
-      assert_equal 'Home Page', @gen.title
-      assert_equal File.open("#{root_dir}/layouts/main.html", "r"){|f| f.read}, @gen.layout
+      gen.process
+      assert_equal 'Home Page', gen.data['title']
+      assert_equal "main", gen.data['layout']
+    end
+    
+    should "be rendered" do
+      @site.read.process
+      gen = Henshin::Gen.new(@index.to_p, @site)
+      gen.process
+      gen2 = Henshin::Gen.new(@index.to_p, @site)
+      gen2.process
+      gen2.render
+      assert_not_equal gen.content, gen2.content
+    end
+    
+    should "get output extension from plugin" do
+      gen = Henshin::Gen.new(@sass.to_p, @site)
+      gen.process
+      gen.render
+      assert_equal 'sass', gen.data['input']
+      assert_equal 'css', gen.data['output']
     end
     
     should "render with correct layout" do
-      @site.read_layouts
-      @gen.read_yaml
-      # index.html uses 'layout: main'
-      assert_equal File.open("#{root_dir}/layouts/main.html", "r"){|f| f.read}, @gen.layout
+      @site.read.process
+      gen = Henshin::Gen.new(@index.to_p, @site)
+      # index.html should use 'main'
+      gen.process
+      gen.render
+      l = File.open("#{root_dir}/layouts/main.html", 'r') {|f| f.read}
+      assert_equal l, gen.data['layout']
     end
     
-    should "have the correct permalink and url" do
-      @gen.read_yaml
-      assert_equal '/index.html', @gen.permalink
-      assert_equal '/', @gen.url
+    should "have the correct permalink" do
+      gen = Henshin::Gen.new(@index.to_p, @site)
+      assert_equal '/index.html', gen.permalink
     end
     
-    should "respond to #to_hash" do
-      @gen.process
-      assert_equal @gen.title, @gen.to_hash['title']
-      assert_equal @gen.permalink, @gen.to_hash['permalink']
-      assert_equal @gen.url, @gen.to_hash['url']
-      assert_equal @gen.content, @gen.to_hash['content']
+    should "have the correct url" do
+      gen = Henshin::Gen.new(@index.to_p, @site)
+      assert_equal '/', gen.url
     end
     
-    should "allow a hash to be added to the payload" do
-      payload = { :name => 'people', :payload => {'fname' => 'John', 'sname' => 'Doe'} }
-      gen = Henshin::Gen.new( "#{root_dir}/index.html", @site, payload )
-      gen.read_yaml
-      assert_equal payload[:payload], gen.payload['people']
+    should "turn all data to hash" do
+      gen = Henshin::Gen.new(@index.to_p, @site)
+      gen.process
+      assert gen.to_hash.is_a? Hash
+    end
+    
+    should "insert optional payload" do
+      gen = Henshin::Gen.new(@index.to_p, @site, {:name => 'test', :payload => {'data' => 'to_test'}})
+      gen.process
+      assert_equal 'to_test', gen.payload['test']['data']
     end
     
     should "be sortable" do
-      another_gen = Henshin::Gen.new( "#{root_dir}/css/print.sass", @site )
-      gen_array = [@gen, another_gen]
-      assert_equal gen_array.reverse, gen_array.sort
+      gen = Henshin::Gen.new(@index.to_p, @site)
+      gen2 = Henshin::Gen.new(@sass.to_p, @site)
+      gens = [gen, gen2]
+      assert_equal gens.reverse, gens.sort
     end
     
   end

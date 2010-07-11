@@ -1,33 +1,84 @@
 module Henshin
 
   class Site
-  
-    attr_accessor :posts, :gens, :statics, :archive, :tags, :categories
-    attr_accessor :layouts, :config
     
-    def initialize( config )
+    attr_accessor :config
+    # root -> the path to the site from where the command is executed
+    # target -> the path to where the finished site should be placed
+    # base -> the, if any, directory which should be appended to all urls
+    attr_accessor :root, :target, :base
+    attr_accessor :gens, :posts, :statics, :layouts
+    attr_accessor :tags, :categories, :archive, :plugins
+    
+    def initialize(override={})
       self.reset
-      @config = config
+      self.configure(override)
+      self.load_plugins
     end
     
     # Resets everything
     def reset
-      @posts = []
-      @gens = []
+      @posts   = []
+      @gens    = []
       @statics = []
-      
-      @archive = Archive.new( self )
-      
-      @tags = Hash.new { |h, k| h[k] = Tag.new(k) }
-      @categories = Hash.new { |h, k| h[k] = Category.new(k) }
       @layouts = {}
+      
+      @archive    = Archive.new(self)
+      @tags       = Tags.new(self)
+      @categories = Categories.new(self)
+      @plugins    = {:generators => {}, :layout_parsers => []}
+      self
     end
     
+    # Creates the configuration hash by merging defaults, supplied options and options 
+    # read from the 'options.yaml' file.
+    #
+    # @param [Hash] override to override other set options
+    def configure(override)  
+      config_file = File.join((override['root'] || Defaults['root']), '/options.yaml')
+      
+      # change target to represent given root, only if root given
+      if override['root'] && !override['target']
+        override['target'] = File.join(override['root'], Defaults['target'])
+      end
+      
+      begin
+        config = YAML.load_file(config_file)
+        @config = Defaults.merge(config).merge(override)
+      rescue => e
+        $stderr.puts "\nCould not read configuration, falling back to defaults..."
+        $stderr.puts "-> #{e.to_s}"
+        @config = Defaults.merge(override)
+      end
+      @root = @config['root'].to_p
+      @target = @config['target'].to_p
+      
+      @config['exclude'] << '/_site' << '/plugins'
+    end
+    
+    # Requires each of the plugins files given in the list, then loads and sorts them
+    def load_plugins
+      @config['plugins'].each do |plugin|
+        begin
+          require File.join('henshin', 'plugins', plugin)
+        rescue LoadError
+          require File.join(@root, 'plugins', plugin)
+        end
+      end
+      
+      Henshin::Generator.subclasses.each do |plugin|
+        plugin = plugin.new(self)
+        plugin.extensions[:input].each do |ext|
+          @plugins[:generators][ext] = plugin
+        end
+      end
+      
+      @plugins[:layout_parsers] = Henshin::LayoutParser.subclasses.map {|l| l.new(self)}.sort
+    end
     
     ##
-    # Read, process, render and write everything
+    # Read, process, render and write
     def build
-      self.reset
       self.read
       self.process
       self.render
@@ -42,40 +93,41 @@ module Henshin
       self.read_posts
       self.read_gens
       self.read_statics
+      self
     end
     
-    # Adds all items in 'layouts' to the layouts array
+    # Adds all items in '/layouts' to the layouts array
     def read_layouts
-      path = File.join(@config[:root], 'layouts')
+      path = File.join(@root, 'layouts')
       Dir.glob(path + '/*.*').each do |layout|
         layout =~ /([a-zA-Z0-9 _-]+)\.([a-zA-Z0-9-]+)/
         @layouts[$1] = File.open(layout, 'r') {|f| f.read}
       end
     end
     
-    # Adds all items in 'posts' to the posts array
+    # Adds all items in '/posts' to the posts array
     def read_posts
-      path = File.join(@config[:root], 'posts')
+      path = File.join(@root, 'posts')
       Dir.glob(path + '/**/*.*').each do |post|
-        @posts << Post.new(post, self)
+        @posts << Post.new(post.to_p, self)
       end
     end
     
     # Adds all files that need to be run through a plugin in an array
     def read_gens
-      files = Dir.glob( File.join(@config[:root], '**', '*.*') )
+      files = Dir.glob( File.join(@root, '**', '*.*') )
       gens = files.select {|i| gen?(i) }
-      gens.each do |g|
-        @gens << Gen.new(g, self)
+      gens.each do |gen|
+        @gens << Gen.new(gen.to_p, self)
       end
     end
     
     # Adds all static files to an array
     def read_statics
-      files = Dir.glob( File.join(@config[:root], '**', '*.*') )
+      files = Dir.glob( File.join(@root, '**', '*.*') )
       static = files.select {|i| static?(i) }
-      static.each do |s|
-        @statics << Static.new(s, self)
+      static.each do |static|
+        @statics << Static.new(static.to_p, self)
       end
     end
 
@@ -83,153 +135,104 @@ module Henshin
     ## 
     # Processes all of the necessary files
     def process
-      @posts.each_parallel {|p| p.process}
+      @posts.each {|post| post.process}
+      @gens.each {|gen| gen.process}
       @posts.sort!
-      @gens.each_parallel {|g| g.process}
+      @gens.sort!
       
       self.build_tags
       self.build_categories
       self.build_archive
+      self
     end
     
     # @return [Hash] the payload for the layout engine
     def payload
-      {
-        'site' => {
-          'author' => @config[:author],
-          'title' => @config[:title],
-          'description' => @config[:description],
-          'time_zone' => @config[:time_zone],
-          'created_at' => Time.now,
-          'posts' => @posts.collect{|i| i.to_hash},
-          'tags' => @tags.collect {|k, t| t.to_hash},
-          'categories' => @categories.collect {|k, t| t.to_hash},
-          'archive' => @archive.to_hash
-        }
-      }
+      r = {'site' => @config}
+      r['site']['created_at'] = Time.now
+      r['site']['posts'] = @posts.collect{|i| i.to_hash}
+      r['site']['tags'] = @tags.to_hash
+      r['site']['categories'] = @categories.to_hash
+      r['site']['archive'] = @archive.to_hash
+      r
     end
     
     # Creates tags from posts and adds them to @tags
     def build_tags
-      @posts.each do |p|
-        p.tags.each do |t|
-          @tags[t].posts << p
-        end
+      @posts.each do |post|
+        @tags << post
       end
     end
     
     # Create categories from posts and add to @categories
     def build_categories
-      @posts.each do |p|
-        @categories[p.category].posts << p unless p.category.nil?
+      @posts.each do |post|
+        @categories << post
       end
     end
     
     # @return [Hash] archive hash
     def build_archive
-      @posts.each {|p| @archive.add_post(p)}
+      @posts.each do |post|
+        @archive << post
+      end
     end
     
     ##
     # Renders the files
     def render
-      @posts.each_parallel {|p| p.render}
-      @gens.each {|g| g.render}
+      @posts.each {|post| post.render}
+      @gens.each {|gen| gen.render}
+      self
     end
     
     
     ##
     # Writes the files
     def write
-      @posts.each_parallel {|p| p.write}
-      @gens.each_parallel {|g| g.write}
-      @statics.each_parallel {|s| s.write}
+      @posts.each {|post| post.write}
+      @gens.each {|gen| gen.write}
+      @statics.each {|static| static.write}
       
       @archive.write
-      self.write_tags
-      self.write_categories
-    end
-    
-    # Writes the necessary pages for tags, but only if the correct layouts are present
-    def write_tags
-      if @layouts['tag_index']
-        write_path = File.join( @config[:root], 'tags', 'index.html' )
-      
-        tag_index = Gen.new(write_path, self)
-        tag_index.layout = @layouts['tag_index']
-        
-        tag_index.render
-        tag_index.write
-      end
-      
-      if @layouts['tag_page']
-        @tags.each do |n, tag|
-          write_path = File.join( @config[:root], 'tags', tag.name, 'index.html' )
-          
-          payload = {:name => 'tag', :payload => tag.to_hash}
-          tag_page = Gen.new(write_path, self, payload)
-          tag_page.layout = @layouts['tag_page']
-          
-          tag_page.render
-          tag_page.write
-        end
-      end
-    end
-    
-    # Writes the necessary pages for categories, but only if the correct layouts are present
-    def write_categories
-      if @layouts['category_index']
-        write_path = File.join( @config[:root], 'categories', 'index.html' )
-        
-        category_index = Gen.new(write_path, self)
-        category_index.layout = @layouts['category_index']
-        
-        category_index.render
-        category_index.write
-      end
-      
-      if @layouts['category_page']
-        @categories.each do |n, category|
-          write_path = File.join( @config[:root], 'categories', category.name, 'index.html' )
-          
-          payload = {:name => 'category', :payload => category.to_hash}
-          category_page = Gen.new(write_path, self, payload)
-          category_page.layout = @layouts['category_page']
-          
-          category_page.render
-          category_page.write
-        end
-      end
+      @tags.write
+      @categories.write
+      self
     end
     
     
-    # @return [Bool]
+    # @param [String] path to test
+    # @return [Bool] whether the path points to a static
     def static?( path )
       !( layout?(path) || post?(path) || gen?(path) || ignored?(path) )
     end
     
-    # @return [Bool]
+    # @param [String] path to test
+    # @return [Bool] whether the path points to a layout
     def layout?( path )
       path.include?('layouts/') && !ignored?(path)
     end
     
-    # @return [Bool]
+    # @param [String] path to test
+    # @return [Bool] whether the path points to a post
     def post?( path )
       path.include?('posts/') && !ignored?(path)
     end
     
-    # @return [Bool]
+    # @param [String] path to test
+    # @return [Bool] whether the path points to a gen
     def gen?( path )
       return false if post?(path) || layout?(path) || ignored?(path)
-      return true if @config[:plugins][:generators].has_key? path.extension 
+      return true if @plugins[:generators].has_key? path.to_p.extname[1..-1]
       return true if File.open(path, "r").read(3) == "---"
       false
     end
     
-    # @return [Bool]
+    # @param [String] path to test
+    # @return [Bool] whether the path points to a file which should be ignored
     def ignored?( path )
-      ignored = ['/options.yaml'] + @config[:exclude]
-      ignored.collect! {|i| File.join(@config[:root], i)}
+      ignored = ['/options.yaml'] + @config['exclude']
+      ignored.collect! {|i| File.join(@root, i)}
       ignored.each do |i|
         return true if path.include? i
       end

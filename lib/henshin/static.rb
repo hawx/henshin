@@ -14,11 +14,16 @@ module Henshin
     ##
     # Writes the file to the correct place
     def write
-      write_path = File.join( config[:root], config[:target], @path[ config[:root].size..-1 ] )
-      
-      FileUtils.mkdir_p File.join( write_path.directory )
-      file = File.new( File.join( write_path ), "w" )
-      file.puts( @content )
+      t = @site.target + self.permalink
+      FileUtils.mkdir_p(t.dirname)
+      file = File.new(t, "w")
+      file.puts(@content)
+    end
+    
+    
+    # Returns the permalink for the gen
+    def permalink
+      @path.relative_path_from(@site.root)
     end
     
     

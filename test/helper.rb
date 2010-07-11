@@ -11,12 +11,16 @@ class Test::Unit::TestCase
 
   include RR::Adapters::TestUnit
   
+  def site_override
+    {'root' => root_dir, 'target' => target_dir}
+  end
+  
   def root_dir
     File.join(File.dirname(__FILE__), 'site')
   end
   
   def target_dir
-    "_site"
+    File.join(root_dir, "_site")
   end
 
   def remove_site
@@ -24,9 +28,7 @@ class Test::Unit::TestCase
   end
   
   def new_site
-    override = {:root => File.join(File.dirname(__FILE__), 'site'), :target => '_site'}
-    config = Henshin.configure(override)
-    Henshin::Site.new(config)
+    Henshin::Site.new(site_override)
   end
   
 end

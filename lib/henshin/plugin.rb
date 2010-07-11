@@ -1,9 +1,9 @@
 module Henshin
-  class StandardPlugin
+  class Plugin
    
     attr_accessor :extensions, :config, :priority
     
-    def initialize
+    def initialize(site)
       # input [Array] is a list of file extensions that this plugin can read
       # output [String] should be the type it creates
       @extensions = {:input => [],
@@ -26,6 +26,22 @@ module Henshin
       @config.merge!(override) if override
     end
     
+    # Finds all classes that subclass this particular class
+    #
+    # @return [Array] an array of class objects
+    # @see http://www.ruby-forum.com/topic/163430 
+    #   modified from the answer given here
+    def self.subclasses     
+      r = Henshin.constants.find_all do |c_klass| 
+        if (c_klass != c_klass.upcase) && (Henshin.const_get(c_klass).is_a?(Class))
+          self > Henshin.const_get(c_klass)
+        else
+          nil
+        end
+      end
+      r.collect {|k| Henshin.const_get(k)}
+    end
+    
     # Need to allow plugins to be sorted by priority
     def <=>(other)
       self.priority <=> other.priority
@@ -33,6 +49,11 @@ module Henshin
     
     # Henshin.register! self, :standard_plugin
   end
+  
+  
+  # @deprecated
+  class StandardPlugin < Plugin; end
+  
   
   
   # @example
@@ -44,7 +65,7 @@ module Henshin
   #    Henshin.register! self, :mymarkup
   #  end
   #
-  class Generator < StandardPlugin
+  class Generator < Plugin
     
     # @param [String] content to be rendered
     # @return [String]
@@ -63,7 +84,7 @@ module Henshin
   #    Henshin.register! self, :mylayout
   #  end
   #
-  class LayoutParser < StandardPlugin
+  class LayoutParser < Plugin
     
     # @param [String] content to be rendered
     # @param [Hash] data to be put into the content

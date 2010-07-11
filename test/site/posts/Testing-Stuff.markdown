@@ -1,7 +1,7 @@
 ---
 title: Testing Stuff
 date: 2010-10-20 at 17:33:23
-tags: test, markdown
+tags: [test, markdown]
 category: test
 ---
 

@@ -1,107 +1,52 @@
 module Henshin
-  
-  class Archive
+
+  class Archive < Hash
     
-    attr_accessor :config
+    attr_accessor :site
     
-    def initialize( site )
-      @archive = Hash.new {|h, k| h[k] = Hash.new {|h, k| h[k] = Hash.new {|h, k| h[k] = []} }}
+    def initialize(site)
       @site = site
-      @config = site.config
-    end
-  
-    def add_post( post )
-      date = post.date
-      @archive[date.year.to_s][date.month.to_s][date.day.to_s] << post.to_hash
     end
     
-    # Turns the whole archive into a hash. Probably the least efficient thing in the world, but it works
+    def <<(post)
+      return nil unless post.data['date']
+      date = post.data['date']
+      year, month, day = date.year.to_s, date.month.to_s, date.day.to_s
+      
+      self[year] ||= {}
+      self[year]['posts'] ||= []
+      self[year]['year'] = year
+      self[year]['posts'] << post
+      
+      self[year][month] ||= {}
+      self[year][month]['posts'] ||= []
+      self[year][month]['month'] = month
+      self[year][month]['posts'] << post
+      
+      self[year][month][day] ||= {}
+      self[year][month][day]['posts'] ||= []
+      self[year][month][day]['day'] = day
+      self[year][month][day]['posts'] << post
+    end
+    
     def to_hash
-      if @hashed
-        @hashed
-      else
-        @hashed = Hash.new do |h, k| 
-          h[k] = Hash.new do |h, k| # years
-            if k == 'posts'
-              h[k] = []
-            else
-              h[k] = Hash.new do |h, k| # months
-                if k == 'posts'
-                  h[k] = []
-                else
-                  h[k] = Hash.new do |h, k| # days
-                    if k == 'posts'
-                      h[k] = []
-                    else
-                      h[k] = {}
-                    end
-                  end # /days
-                end
-              end # /months
-            end
-          end # /years
-        end 
-        @archive.each do |y, month|
-          month.each do |m, date|
-            date.each do |d, p|            
-              @hashed[y]['posts'] << p
-              @hashed[y][m]['posts'] << p
-              @hashed[y][m][d]['posts'] << p
-              
-              @hashed[y]['posts'].flatten!
-              @hashed[y][m]['posts'].flatten!
-              @hashed[y][m][d]['posts'].flatten!
-            end
+      return @hashed if @hashed
+      @hashed = self.dup
+      self.each {|y, i|
+        @hashed[y]['posts'] = i['posts'].collect {|p| p.to_hash}
+        i.each {|m, i|
+          if i.is_a? Hash
+            @hashed[y][m]['posts'] = i['posts'].collect {|p| p.to_hash}
+            i.each {|d, i|
+              if i.is_a? Hash
+                @hashed[y][m][d]['posts'] = i['posts'].collect {|p| p.to_hash}
+              end
+            }
           end
-        end
-      @hashed
-      end
+        }
+      }
     end
     
-    # Creates a hash with posts separated by year, month then date
-    def to_date_hash
-      r = Hash.new {|h, k| h[k] = Hash.new {|h, k| h[k] = Hash.new {|h, k| h[k] = []} }}
-      @archive.each do |year, m|
-        m.each do |month, d|
-          d.each do |date, p|
-            r[year][month][date] << p
-            r[year][month][date].flatten!
-          end
-        end
-      end
-      r
-    end
-    
-    # Creates a hash with posts separated by year then month
-    def to_month_hash
-      r = Hash.new {|h, k| h[k] = Hash.new {|h, k| h[k] = []} }
-      @archive.each do |year, m|
-        m.each do |month, d|
-          d.each do |date, p|
-            r[year][month] << p
-            r[year][month].flatten!
-          end
-        end
-      end
-      r
-    end
-    
-    # Creates a hash with posts separated by year
-    def to_year_hash
-      r = Hash.new {|h, k| h[k] = []}
-      @archive.each do |year, m|
-        m.each do |month, d|
-          d.each do |date, p|
-            r[year] << p
-            r[year].flatten!
-          end
-        end
-      end
-      r
-    end
-    
-    ##
-    # Writes the archive pages
     def write
       self.write_years if @site.layouts['archive_year']
       self.write_months if @site.layouts['archive_month']
@@ -109,13 +54,12 @@ module Henshin
     end
     
     def write_years
-      years = self.to_year_hash
-      years.each do |year, posts|
-        write_path = File.join( @config[:root], year, 'index.html' )
-        # date should give the full date, as a Time object!! and the others
-        t = Time.parse("#{year}/01/01")
-        payload = {:name => 'archive', :payload => {'date' => t, 'posts' => years[year]} }
-        page = Gen.new( write_path, @site, payload )
+      self.to_hash.each do |year, v|
+        # need to fake the file loc so that gen automatically creates permalink
+        t = @site.root + year + 'index.html'
+        time = Time.parse("#{year}/01/01")
+        payload = {:name => 'archive', :payload => {'date' => time, 'posts' => self.to_hash} }
+        page = Gen.new(t, @site, payload)
         page.layout = @site.layouts['archive_year']
         
         page.render
@@ -124,34 +68,38 @@ module Henshin
     end
     
     def write_months
-      months = self.to_month_hash
-      months.each do |year, posts|
-        posts.each do |month, posts|
-          write_path = File.join( @config[:root], year, month, 'index.html' )
-          t = Time.parse("#{year}/#{month}/01")
-          payload = {:name => 'archive', :payload => {'date' => t, 'posts' => months[year][month]} }
-          page = Gen.new( write_path, @site, payload )
-          page.layout = @site.layouts['archive_month']
-          
-          page.render
-          page.write
+      self.to_hash.each do |year, v|
+        v.each do |month, v|
+          if month.numeric?
+            t = @site.root + year + month + 'index.html'
+            time = Time.parse("#{year}/#{month}/01")
+            payload = {:name => 'archive', :payload => {'date' => time, 'posts' => self.to_hash} }
+            page = Gen.new(t, @site, payload)
+            page.layout = @site.layouts['archive_month']
+            
+            page.render
+            page.write
+          end
         end
       end
     end
     
     def write_dates
-      dates = self.to_date_hash
-      dates.each do |year, posts|
-        posts.each do |month, posts|
-          posts.each do |date, posts|
-            write_path = File.join( @config[:root], year, month, date, 'index.html' )
-            t = Time.parse("#{year}/#{month}/#{date}")
-            payload = {:name => 'archive', :payload => {'date' => t, 'posts' => dates[year][month][date]} }
-            page = Gen.new( write_path, @site, payload )
-            page.layout = @site.layouts['archive_date']
-            
-            page.render
-            page.write
+      self.to_hash.each do |year, v|
+        v.each do |month, v|
+          if month.numeric?
+            v.each do |date, v|
+              if date.numeric?
+                t = @site.root + year + month + date + 'index.html'
+                time = Time.parse("#{year}/#{month}/#{date}")
+                payload = {:name => 'archive', :payload => {'date' => time, 'posts' => self.to_hash} }
+                page = Gen.new(t, @site, payload)
+                page.layout = @site.layouts['archive_date']
+                
+                page.render
+                page.write
+              end
+            end
           end
         end
       end

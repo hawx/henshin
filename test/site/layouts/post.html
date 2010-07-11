@@ -31,6 +31,6 @@
   
   {{ yield }}
   
-  <span>Copyright &copy; {{ post.author }}</span>
+  <span>Copyright &copy; {% if post.author %}{{ post.author }}{% else %}{{ site.author }}{% endif %}</span>
   </body>  
 </html> 

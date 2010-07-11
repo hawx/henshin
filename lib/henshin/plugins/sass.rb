@@ -1,24 +1,24 @@
-require 'henshin/plugin'
 require 'sass'
 
-class SassPlugin < Henshin::Generator
-  
-  def initialize
-    @extensions = {:input => ['sass', 'scss'],
-                   :output => 'css'}
-    @config = {:ignore_layouts => true,
-               :style => :nested}
-    @priority = 5
+module Henshin
+  class SassPlugin < Generator
+    
+    def initialize(site)
+      @extensions = {:input => ['sass', 'scss'],
+                     :output => 'css'}
+      @config = {:ignore_layouts => true,
+                 :style => :nested}
+                 
+      if site.config['sass']
+        @config.merge!(site.config['sass'])
+        @config['load_paths'] = Dir.glob((site.root + '*').to_s)
+      end
+      @priority = 5
+    end
+    
+    def generate( content )
+      Sass::Engine.new(content, @config).render
+    end
+
   end
-  
-  def configure( override, site )
-    @config.merge!(override) if override
-    @config[:load_paths] = Dir.glob( File.join(site[:root], '*') )
-  end
-  
-  def generate( content )
-    Sass::Engine.new(content, @config).render
-  end
-  
-  Henshin.register! self, :sass
 end
