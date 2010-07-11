@@ -1,14 +1,10 @@
 module Henshin
   
-  # This is the main class for all pages, posts, sass, etc, that need to be run through a plugin
   class Gen
     
     attr_accessor :path, :data, :content, :site, :to_inject, :generators
     
-    attr_accessor :path, :extension, :content, :layout, :title
-    attr_accessor :site, :config, :renderer, :data, :output
-    
-    def initialize( path, site, to_inject=nil )
+    def initialize(path, site, to_inject=nil)
       @path = path
       @site = site
       @data = {}
@@ -21,9 +17,9 @@ module Henshin
     
     
     ##
-    # Reads the file
+    # Reads
     def read
-      self.read_file
+      self.read_file if @path.exist?
       self.get_generators
       self.get_layout
       @data['output'] ||= @data['input'] # if not different must be same
@@ -68,7 +64,6 @@ module Henshin
     ##
     # Renders the files content
     def render
-      
       @generators.each do |plugin|
         @content = plugin.generate(@content)
       end

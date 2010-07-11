@@ -33,25 +33,30 @@ module Henshin
       r
     end
     
-    # @return [String] base url for tags
-    def url
-      "/tags/"
+    # @return [String] permalink for the tag index
+    def permalink
+      File.join(@site.base, "tags/index.html")
     end
     
-    def permalink
-      "/tags/index.html"
+    # @return [String] base url for tags
+    def url
+      File.join(@site.base, "tags")
+    end
+    
+    # @see Categories#fake_write_path
+    def fake_write_path
+      @site.root + self.permalink[1..-1]
     end
     
     # Writes the tag index and calls Tag#write for each tag
     def write
       if @site.layouts['tag_index']
-        t = @site.root + self.permalink[1..-1]
+        page = Gen.new(self.fake_write_path, @site)
+        page.read
+        page.data['layout'] = @site.layouts['tag_index']
         
-        tag_index = Gen.new(t, @site)
-        tag_index.layout = @site.layouts['tag_index']
-        
-        tag_index.render
-        tag_index.write
+        page.render
+        page.write
       end
       
       if @site.layouts['tag_page']
@@ -79,23 +84,29 @@ module Henshin
       }
     end
     
-    def url
-      "/tags/#{@name.slugify}/"
-    end
-    
+    # @return [String] permalink for the tag
     def permalink
       "/tags/#{@name.slugify}/index.html"
     end
     
+    # @return [String] url for the tag
+    def url
+      "/tags/#{@name.slugify}/"
+    end
+
+    # @see Categories#fake_write_path
+    def fake_write_path
+      @site.root + self.permalink[1..-1]
+    end
+    
     def write
-      t = @site.root + self.permalink[1..-1]
-      
       payload = {:name => 'tag', :payload => self.to_hash}
-      tag_index = Gen.new(t, @site, payload)
-      tag_index.layout = @site.layouts['tag_page']
+      page = Gen.new(self.fake_write_path, @site, payload)
+      page.read
+      page.data['layout'] = @site.layouts['tag_page']
       
-      tag_index.render
-      tag_index.write
+      page.render
+      page.write
     end
     
     def inspect

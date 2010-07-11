@@ -60,7 +60,7 @@ module Henshin
         time = Time.parse("#{year}/01/01")
         payload = {:name => 'archive', :payload => {'date' => time, 'posts' => self.to_hash} }
         page = Gen.new(t, @site, payload)
-        page.layout = @site.layouts['archive_year']
+        page.data['layout'] = @site.layouts['archive_year']
         
         page.render
         page.write
@@ -75,7 +75,7 @@ module Henshin
             time = Time.parse("#{year}/#{month}/01")
             payload = {:name => 'archive', :payload => {'date' => time, 'posts' => self.to_hash} }
             page = Gen.new(t, @site, payload)
-            page.layout = @site.layouts['archive_month']
+            page.data['layout'] = @site.layouts['archive_month']
             
             page.render
             page.write
@@ -94,7 +94,7 @@ module Henshin
                 time = Time.parse("#{year}/#{month}/#{date}")
                 payload = {:name => 'archive', :payload => {'date' => time, 'posts' => self.to_hash} }
                 page = Gen.new(t, @site, payload)
-                page.layout = @site.layouts['archive_date']
+                page.data['layout'] = @site.layouts['archive_date']
                 
                 page.render
                 page.write

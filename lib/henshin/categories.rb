@@ -39,24 +39,32 @@ module Henshin
       r
     end
     
-    # @return [String] base url for categories
-    def url
-      "categories/"
+    # @return [String] permalink for category index
+    def permalink
+      File.join(@site.base, "categories/index.html")
     end
     
-    def permalink
-      "categories/index.html"
+    # @return [String] base url for categories
+    def url
+      File.join(@site.base, "categories")
+    end
+    
+    # Need a fake path where the file would have been so as to 
+    #  trick the gen into constructing the correct paths
+    #
+    # @return [Pathname] the path for the gen
+    def fake_write_path
+      @site.root + self.permalink[1..-1]
     end
     
     def write
       if @site.layouts['category_index']
-        t = @site.root + self.permalink
+        page = Gen.new(self.fake_write_path, @site)
+        page.read
+        page.data['layout'] = @site.layouts['category_index']
         
-        category_index = Gen.new(t, @site)
-        category_index.layout = @site.layouts['category_index']
-        
-        category_index.render
-        category_index.write
+        page.render
+        page.write
       end
       if @site.layouts['category_page']
         self.each {|category| category.write }
@@ -84,23 +92,29 @@ module Henshin
       }
     end
     
-    def url
-      "categories/#{@name.slugify}/"
+    # @return [String] permalink for the category
+    def permalink
+      File.join(@site.base, "categories/#{@name.slugify}/index.html")
     end
     
-    def permalink
-      "categories/#{@name.slugify}/index.html"
+    # @return [String] url for the category
+    def url
+      File.join(@site.base, "categories/#{@name.slugify}")
+    end
+    
+    # @see Categories#fake_write_path
+    def fake_write_path
+      @site.root + self.permalink[1..-1]
     end
     
     def write
-      t = @site.root + self.permalink
-      
       payload = {:name => 'category', :payload => self.to_hash}
-      category_page = Gen.new(t, @site, payload)
-      category_page.layout = @site.layouts['category_page']
+      page = Gen.new(self.fake_write_path, @site, payload)
+      page.read
+      page.data['layout'] = @site.layouts['category_page']
       
-      category_page.render
-      category_page.write
+      page.render
+      page.write
     end
     
     def inspect

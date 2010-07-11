@@ -52,7 +52,9 @@ module Henshin
       end
       @root = @config['root'].to_p
       @target = @config['target'].to_p
-      @base = @config['base'] || ""
+      
+      @base = @config['base'] || "/"
+      @base = '/' + @base unless @base[0] == '/' # need to make sure it starts with slash
       
       @config['exclude'] << '/_site' << '/plugins'
     end
