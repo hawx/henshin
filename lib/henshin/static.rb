@@ -2,30 +2,27 @@ module Henshin
 
   class Static
     
-    attr_accessor :path, :site, :config, :content
+    attr_accessor :path, :site, :content
     
     def initialize( path, site )
       @path = path
       @site = site
-      @config = site.config
-      @content = File.read( path )
+      @content = File.read(path)
     end
     
     ##
     # Writes the file to the correct place
     def write
-      t = @site.target + self.permalink
-      FileUtils.mkdir_p(t.dirname)
-      file = File.new(t, "w")
+      FileUtils.mkdir_p(self.write_path.dirname)
+      file = File.new(self.write_path, "w")
       file.puts(@content)
     end
     
-    
-    # Returns the permalink for the gen
-    def permalink
-      @path.relative_path_from(@site.root)
+    # @return [Pathname] path to write the file
+    def write_path
+      rel = @path.relative_path_from(@site.root)
+      @site.target + File.join(@site.base, rel)[1..-1]
     end
-    
     
     def inspect
       "#<Static:#{@path}>"
