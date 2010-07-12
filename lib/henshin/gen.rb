@@ -1,9 +1,15 @@
 module Henshin
   
+  # This is the main class for files which need to be rendered with plugins
   class Gen
     
     attr_accessor :path, :data, :content, :site, :to_inject, :generators
     
+    # Creates a new instance of Gen
+    #
+    # @param [Pathname] path to the file
+    # @param [Site] the site the gen belongs to
+    # @param [Hash] an optional payload to add when rendered
     def initialize(path, site, to_inject=nil)
       @path = path
       @site = site
@@ -17,7 +23,7 @@ module Henshin
     
     
     ##
-    # Reads
+    # Reads the file if it exists, if not gets generators and layout, then cleans up @data
     def read
       self.read_file if @path.exist?
       self.get_generators
@@ -26,7 +32,7 @@ module Henshin
       self
     end
     
-    # Reads the files yaml frontmatter and uses it to override some settings, then grabs content
+    # Reads the files yaml frontmatter and uses it to override @data, then gets content
     def read_file
       file = @path.read
     
@@ -39,7 +45,7 @@ module Henshin
       end 
     end
     
-    # Finds the correct plugins to render this gen
+    # Finds the correct plugins to render this gen and sets output
     def get_generators
       @site.plugins[:generators].each do |k, v|
         if k == @data['input'] || k == '*'
@@ -51,7 +57,7 @@ module Henshin
       @generators.sort!
     end
     
-    # Gets the correct layout for the gen, or the default if none exists
+    # Gets the correct layout for the gen, or the default if none exists.
     def get_layout
       if @data['layout']
         @data['layout'] = site.layouts[ @data['layout'] ]
@@ -62,7 +68,8 @@ module Henshin
     end
     
     ##
-    # Renders the files content
+    # Renders the files content using the generators from #get_generators and all layout parsers. 
+    # Passed through layout parser twice so that markup in the gen is processed.
     def render
       @generators.each do |plugin|
         @content = plugin.generate(@content)
@@ -71,14 +78,13 @@ module Henshin
       unless @data['ignore_layout'] || @data['layout'].nil?
         @site.plugins[:layout_parsers].each do |plugin|
           @content = plugin.generate(@data['layout'], self.payload)
-          # 2nd pass so that markup in the gen are processed too
           @content = plugin.generate(@content, self.payload)
         end
       end
       
     end
     
-    # Creates the data to be sent to the layout engine. Adds optional data if available
+    # Creates the data to be sent to the layout engine. Adds optional data if available.
     #
     # @return [Hash] the payload for the layout engine
     def payload
@@ -91,7 +97,7 @@ module Henshin
       hash
     end
     
-    # Turns all of the post data into a hash
+    # Turns all of the gens data into a hash.
     #
     # @return [Hash]
     def to_hash
@@ -131,7 +137,7 @@ module Henshin
       @site.target + self.permalink[1..-1]
     end
     
-    # Sort gens based on permalink only
+    # Sorts gens based on permalink only
     def <=>( other )
       self.permalink <=> other.permalink
     end

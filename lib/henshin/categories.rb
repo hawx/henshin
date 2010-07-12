@@ -1,12 +1,12 @@
 module Henshin
   
   # Categories is essentially the same as tags, but with two differences
-  #  1) writes to '/categories/'
-  #  2) each post has only one category, if any
+  # 1) writes to '/categories/'
+  # 2) each post has only one category, if any
   #
-  #  But because of the way Tags#<< (it calls super!) works I had to 
-  #  rewrite it almost, maybe would be better if they both had a commom
-  #  ancestor which worked for both implementations
+  # But because of the way Tags#<< (it calls super!) works I had to 
+  # rewrite it almost, maybe would be better if they both had a commom
+  # ancestor which worked for both implementations
   #
   class Categories < Array
     
@@ -16,10 +16,10 @@ module Henshin
       @site = site
     end
     
-    # Overwriten method so that adding a post will add the post
-    #  to the category in the array as needed
+    # Adds the given post to the correct category object in the array
+    # or creates the category and adds the post to that
     #
-    # @param [Post]
+    # @param [Post] post to be added
     def <<(post)
       return nil unless post.data['category']
       c = post.data['category']
@@ -31,6 +31,7 @@ module Henshin
       self[i].posts << post
     end
     
+    # Converts the categories to a hash for use in a layout parser
     def to_hash
       r = []
       self.each do |i|
@@ -50,13 +51,15 @@ module Henshin
     end
     
     # Need a fake path where the file would have been so as to 
-    #  trick the gen into constructing the correct paths
+    # trick the gen into constructing the correct paths
     #
     # @return [Pathname] the path for the gen
     def fake_write_path
       @site.root + self.permalink[1..-1]
     end
     
+    # Writes the category index, then writes the individual
+    # category pages
     def write
       if @site.layouts['category_index']
         page = Gen.new(self.fake_write_path, @site)
@@ -84,6 +87,7 @@ module Henshin
       @site = site
     end
     
+    # Converts the category to a hash
     def to_hash
       hash = {
         'name' => @name,
@@ -107,6 +111,7 @@ module Henshin
       @site.root + self.permalink[1..-1]
     end
     
+    # Writes the category page
     def write
       payload = {:name => 'category', :payload => self.to_hash}
       page = Gen.new(self.fake_write_path, @site, payload)

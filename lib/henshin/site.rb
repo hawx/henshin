@@ -2,24 +2,58 @@ module Henshin
 
   class Site
     
+    # @return [Hash] the configuration made up of the override, options.yaml and Henshin::Defaults
     attr_accessor :config
-    # root -> the path to the site from where the command is executed
-    # target -> the path to where the finished site should be placed
-    # base -> the, if any, directory which should be appended to all urls
-    attr_accessor :root, :target, :base
-    attr_accessor :gens, :posts, :statics, :layouts
-    attr_accessor :tags, :categories, :archive, :plugins
     
+    # @return [Pathname] the path to the site to generate from where the command is executed
+    attr_accessor :root
+    
+    # @return [Pathname] the path to where the finished site should be written
+    attr_accessor :target
+    
+    # @return [String] a path which should be prepended to all urls
+    attr_accessor :base
+    
+    # @return [Array]
+    attr_accessor :gens, :posts, :statics
+    
+    # @return [Hash{String => String}]
+    attr_accessor :layouts
+    
+    # @return [Tags]
+    attr_accessor :tags
+    
+    # @return [Categories]
+    attr_accessor :categories
+    
+    # @return [Archive]
+    attr_accessor :archive
+    
+    # @return [Hash{String => Plugin}]
+    attr_accessor :plugins
+    
+    # A new instance of site
+    #
+    # @param [Hash{String => Object}] override data to override loaded options
+    # @return [self]
     def initialize(override={})
       self.reset
       self.configure(override)
       self.load_plugins
+      self
     end
     
-    # Resets everything
+    # Resets all instance variables
+    #
+    # @return [self]
     def reset
-      @posts   = []
+      @config = {}
+      @root = nil
+      @target = nil
+      @base = ''
+      
       @gens    = []
+      @posts   = []
       @statics = []
       @layouts = {}
       
@@ -31,7 +65,8 @@ module Henshin
     end
     
     # Creates the configuration hash by merging defaults, supplied options and options 
-    # read from the 'options.yaml' file.
+    # read from the 'options.yaml' file. Then sets root, target, base and appends 
+    # special directories to @config['exclude']
     #
     # @param [Hash] override to override other set options
     def configure(override)  
@@ -59,7 +94,8 @@ module Henshin
       @config['exclude'] << '/_site' << '/plugins'
     end
     
-    # Requires each of the plugins files given in the list, then loads and sorts them
+    # Requires each plugin in @config['plugins'], then loads and sorts them into
+    # @plugins by type
     def load_plugins
       @config['plugins'].each do |plugin|
         begin
@@ -91,6 +127,8 @@ module Henshin
     
     ##
     # Reads all necessary files and puts them into the necessary arrays
+    #
+    # @return [self]
     def read
       self.read_layouts
       self.read_posts

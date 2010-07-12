@@ -1,20 +1,33 @@
 module Henshin
+
   class Plugin
    
-    attr_accessor :extensions, :config, :priority
+    # @return [Hash{:input, :output => Array, String}]
+    #  the file extensions that can be read by the plugin and the extension
+    #  of the output
+    #
+    # @example
+    #  
+    #  @extensions = {:input => ['md', 'markdown'],
+    #                 :output => 'html'}
+    attr_accessor :extensions
     
+    # @return [Hash{Symbol => Object}]
+    #  the config for the plugin
+    attr_accessor :config
+    
+    # @return [Integer]
+    #  The plugins are sorted on priority, high priority plugins are called first.
+    #  You could really use any number, but stick to 1 to 5.
+    attr_accessor :priority
+    
+    # Create a new instance of Plugin
+    #
+    # @param [Site] site that the plugin belongs to
     def initialize(site)
-      # input [Array] is a list of file extensions that this plugin can read
-      # output [String] should be the type it creates
       @extensions = {:input => [],
                      :output => ''}
-      
-      # You can put some defaults in this
       @config = {}
-      
-      # The plugins are sorted based on priority, and then called in order
-      # 1 is high, 5 is low
-      # You could really use any number, but stick to 1 to 5
       @priority = 3
     end
     
@@ -30,7 +43,7 @@ module Henshin
     #
     # @return [Array] an array of class objects
     # @see http://www.ruby-forum.com/topic/163430 
-    #   modified from the answer given here
+    #   modified from the answer given on ruby-forum by black eyes
     def self.subclasses     
       r = Henshin.constants.find_all do |c_klass| 
         if (c_klass != c_klass.upcase) && (Henshin.const_get(c_klass).is_a?(Class))
@@ -42,57 +55,54 @@ module Henshin
       r.collect {|k| Henshin.const_get(k)}
     end
     
-    # Need to allow plugins to be sorted by priority
+    # Plugins are sorted by priority
     def <=>(other)
       self.priority <=> other.priority
     end
     
-    # Henshin.register! self, :standard_plugin
-  end
+  end 
   
-  
-  # @deprecated
-  class StandardPlugin < Plugin; end
-  
-  
-  
+  # Generator is the plugin type for processing things like markdown
+  #
   # @example
   #
   #  class MyMarkupPlugin < Henshin::Generator
   #    def generate(content)
   #      MyMarkup.do_stuff(content)
   #    end
-  #    Henshin.register! self, :mymarkup
   #  end
   #
   class Generator < Plugin
     
+    # This is the method that is called when rendering content
+    #
     # @param [String] content to be rendered
     # @return [String]
     def generate( content )
     end
-    
-    # Henshin.register! self, :generator
+
   end
   
+  # LayoutParser is the plugin type for things like liquid
+  #
   # @example
   #
   #  class MyLayoutPlugin < Henshin::LayoutParser
   #    def generate(content, data)
   #      MyLayout.do_stuff(content).render(data)
   #    end
-  #    Henshin.register! self, :mylayout
   #  end
   #
   class LayoutParser < Plugin
     
+    # This is the method called when rendering content
+    #
     # @param [String] content to be rendered
     # @param [Hash] data to be put into the content
     # @return [String]
     def generate( content, data )
     end
     
-    # Henshin.register! self, :layout_parser
   end
   
 end

@@ -29,8 +29,10 @@ module Henshin
               'plugins' => ['maruku', 'liquid'],
               'root' => '.',
               'target' => '_site',
-              'exclude' => []}
+              'exclude' => []}.freeze
   
+  # Reads the current version from VERSION
+  #
   # @return [String] current version
   def self.version
     File.read( File.join(File.dirname(__FILE__), '..', 'VERSION') )

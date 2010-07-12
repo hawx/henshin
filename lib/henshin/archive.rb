@@ -4,10 +4,14 @@ module Henshin
     
     attr_accessor :site
     
+    # Create a new instance of Archive
     def initialize(site)
       @site = site
     end
     
+    # Adds the post to the correct year array, month array and day array within the archive
+    #
+    # @param [Post] post to be added to the archive
     def <<(post)
       return nil unless post.data['date']
       date = post.data['date']
@@ -29,6 +33,10 @@ module Henshin
       self[year][month][day]['posts'] << post
     end
     
+    # Converts the archive to a hash suitable for putting in a layout by 
+    # calling #to_hash for all of the posts it contains
+    #
+    # @return [Hash]
     def to_hash
       return @hashed if @hashed
       @hashed = self.dup
@@ -47,12 +55,14 @@ module Henshin
       }
     end
     
+    # Writes the archives if the correct layouts are present
     def write
       self.write_years if @site.layouts['archive_year']
       self.write_months if @site.layouts['archive_month']
       self.write_dates if @site.layouts['archive_date']
     end
     
+    # This writes all the archives for years
     def write_years
       self.to_hash.each do |year, v|
         # need to fake the file loc so that gen automatically creates permalink
@@ -68,6 +78,7 @@ module Henshin
       end
     end
     
+    # Writes all of the archives for the months
     def write_months
       self.to_hash.each do |year, v|
         v.each do |month, v|
@@ -86,6 +97,7 @@ module Henshin
       end
     end
     
+    # Writes all of the archives for the days
     def write_dates
       self.to_hash.each do |year, v|
         v.each do |month, v|
@@ -96,7 +108,7 @@ module Henshin
                 time = Time.parse("#{year}/#{month}/#{date}")
                 payload = {:name => 'archive', :payload => {'date' => time, 'posts' => self.to_hash} }
                 page = Gen.new(t, @site, payload)
-                page.read
+                page.read 
                 page.data['layout'] = @site.layouts['archive_date']
                 
                 page.render

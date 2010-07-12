@@ -1,5 +1,3 @@
-require 'henshin/plugin'
-
-class TestPlugin < Henshin::StandardPlugin
+class TestPlugin < Henshin::Plugin
 
 end
