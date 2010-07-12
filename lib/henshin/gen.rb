@@ -76,7 +76,7 @@ module Henshin
       end
 
       unless @data['ignore_layout'] || @data['layout'].nil?
-        @site.plugins[:layout_parsers].each do |plugin|
+        @site.plugins[:layoutors].each do |plugin|
           @content = plugin.generate(@data['layout'], self.payload)
           @content = plugin.generate(@content, self.payload)
         end

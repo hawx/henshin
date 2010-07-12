@@ -27,8 +27,8 @@ module Henshin
               'file_name' => '<{category}/>{title-with-dashes}.{extension}',
               'permalink' => '/{year}/{month}/{date}/{title}.html',
               'plugins' => ['maruku', 'liquid'],
-              'root' => '.',
-              'target' => '_site',
+              'root' => './',
+              'target' => './_site',
               'exclude' => []}.freeze
   
   # Reads the current version from VERSION

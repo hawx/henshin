@@ -54,11 +54,15 @@ class TestOptions < Test::Unit::TestCase
       assert_equal to_ignore, site2.config['exclude']
     end
     
-    should "convert root, target and base to Pathnames" do
+    should "convert root, target to Pathnames" do
       site = Henshin::Site.new
       assert site.root.is_a? Pathname
       assert site.target.is_a? Pathname
-      assert site.base.is_a? Pathname
+    end
+    
+    should "set base" do
+      site = Henshin::Site.new
+      assert site.base
     end
 
   end

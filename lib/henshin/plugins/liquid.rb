@@ -1,7 +1,7 @@
 require 'liquid'
 
 module Henshin
-  class LiquidPlugin < LayoutParser
+  class LiquidPlugin < Layoutor
     
     def initialize(site)
       @config = {}

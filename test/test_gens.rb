@@ -12,8 +12,8 @@ class TestGens < Test::Unit::TestCase
     
     should "have yaml frontmatter read" do
       gen = Henshin::Gen.new(@index.to_p, @site)
-      @site.read_layouts
-      gen.process
+      @site.read
+      gen.read
       assert_equal 'Home Page', gen.data['title']
       assert_equal "main", gen.data['layout']
     end
@@ -21,16 +21,16 @@ class TestGens < Test::Unit::TestCase
     should "be rendered" do
       @site.read.process
       gen = Henshin::Gen.new(@index.to_p, @site)
-      gen.process
+      gen.read
       gen2 = Henshin::Gen.new(@index.to_p, @site)
-      gen2.process
+      gen2.read
       gen2.render
       assert_not_equal gen.content, gen2.content
     end
     
     should "get output extension from plugin" do
       gen = Henshin::Gen.new(@sass.to_p, @site)
-      gen.process
+      gen.read
       gen.render
       assert_equal 'sass', gen.data['input']
       assert_equal 'css', gen.data['output']
@@ -40,7 +40,7 @@ class TestGens < Test::Unit::TestCase
       @site.read.process
       gen = Henshin::Gen.new(@index.to_p, @site)
       # index.html should use 'main'
-      gen.process
+      gen.read
       gen.render
       l = File.open("#{root_dir}/layouts/main.html", 'r') {|f| f.read}
       assert_equal l, gen.data['layout']
@@ -48,23 +48,25 @@ class TestGens < Test::Unit::TestCase
     
     should "have the correct permalink" do
       gen = Henshin::Gen.new(@index.to_p, @site)
+      gen.read
       assert_equal '/index.html', gen.permalink
     end
     
     should "have the correct url" do
       gen = Henshin::Gen.new(@index.to_p, @site)
+      gen.read
       assert_equal '/', gen.url
     end
     
     should "turn all data to hash" do
       gen = Henshin::Gen.new(@index.to_p, @site)
-      gen.process
+      gen.read
       assert gen.to_hash.is_a? Hash
     end
     
     should "insert optional payload" do
       gen = Henshin::Gen.new(@index.to_p, @site, {:name => 'test', :payload => {'data' => 'to_test'}})
-      gen.process
+      gen.read
       assert_equal 'to_test', gen.payload['test']['data']
     end
     

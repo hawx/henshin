@@ -4,7 +4,7 @@ class TestSite < Test::Unit::TestCase
   context "A new site" do
     
     should "reset data" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.reset
       assert_equal [], site.posts
       assert_equal [], site.gens
@@ -14,18 +14,18 @@ class TestSite < Test::Unit::TestCase
       assert site.tags.size.zero?
       assert site.categories.size.zero?
       assert site.plugins[:generators].size.zero?
-      assert site.plugins[:layout_parsers].size.zero?
+      assert site.plugins[:layoutors].size.zero?
     end
     
     should "load correct plugins" do
       override = site_override.merge({'plugins' => ['maruku', 'liquid']})
       site = Henshin::Site.new(override)
-      
+            
       site.plugins[:generators].each do |k, v|
         # for some reason it keeps loading SassPlugin as well!?!
-        assert v.is_a? Henshin::MarukuPlugin
+        assert_instance_of Henshin::MarukuPlugin, v
       end
-      assert site.plugins[:layout_parsers][0].is_a? Henshin::LiquidPlugin
+      assert_instance_of Henshin::LiquidPlugin, site.plugins[:layoutors][0]
     end
     
   end
@@ -34,14 +34,14 @@ class TestSite < Test::Unit::TestCase
   context "Reading site" do
 
     should "read layouts" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read_layouts
       l = Dir.glob( File.join(root_dir, 'layouts', '*.*') )
       assert_equal l.size, site.layouts.size
     end
     
     should "read layouts first" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.reset
       site.read
       if mock.instance_of(Henshin::Site).read_posts
@@ -56,14 +56,14 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "read posts" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read_posts
       p = Dir.glob( File.join(root_dir, 'posts', '**', '*.*') )
       assert_equal p.size, site.posts.size
     end
     
     should "read gens" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read_gens
       # For reference these are the gens
       # /css/print.sass
@@ -72,7 +72,7 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "read statics" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read_statics
       # For reference these are the static files:
       # /css/screen.css
@@ -85,35 +85,35 @@ class TestSite < Test::Unit::TestCase
   context "Processing site" do
   
     should "process posts" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read
-      site2 = Henshin::Site.new(site_override)
+      site2 = new_site
       site2.read.process
       assert_not_equal site.posts, site2.posts
     end
     
     should "process gens" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read
-      site2 = Henshin::Site.new(site_override)
+      site2 = new_site
       site2.read.process
       assert_not_equal site.gens, site2.gens
     end
     
     should "sort posts" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read.process
       assert_equal site.posts, site.posts.sort
     end
     
     should "sort gens" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read.process
       assert_equal site.gens, site.gens.sort
     end
     
     should "build tags array" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read.process
       # For reference these are the tags:
       # test: lorem-ipsum.markdown, same-date.markdown, Testing-Stuff.markdown, Textile-Test.textile
@@ -125,7 +125,7 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "build categories array" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read.process
       # For reference these are the categories:
       # cat: cat/test.markdown
@@ -135,7 +135,7 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "build archives" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read.process
       assert site.archive.size > 0
     end
@@ -145,21 +145,21 @@ class TestSite < Test::Unit::TestCase
   context "Rendering site" do
     
     should "render posts" do
-      site = Henshin::Site.new(site_override).read.process
-      site2 = Henshin::Site.new(site_override).read.process.render
+      site = new_site.read.process
+      site2 = new_site.read.process.render
       assert_not_equal site.posts, site2.posts
     end
     
     should "render gens" do
-      site = Henshin::Site.new(site_override).read.process
-      site2 = Henshin::Site.new(site_override).read.process.render
+      site = new_site.read.process
+      site2 = new_site.read.process.render
       assert_not_equal site.gens, site2.gens
     end
     
     should "not render statics" do
-      site = Henshin::Site.new(site_override)
+      site = new_site
       site.read.process
-      site2 = Henshin::Site.new(site_override)
+      site2 = new_site
       site2.read.process.render
       assert_equal site.statics[0].content, site2.statics[0].content
     end

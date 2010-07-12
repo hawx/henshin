@@ -60,7 +60,7 @@ module Henshin
       @archive    = Archive.new(self)
       @tags       = Tags.new(self)
       @categories = Categories.new(self)
-      @plugins    = {:generators => {}, :layout_parsers => []}
+      @plugins    = {:generators => {}, :layoutors => []}
       self
     end
     
@@ -112,7 +112,7 @@ module Henshin
         end
       end
       
-      @plugins[:layout_parsers] = Henshin::LayoutParser.subclasses.map {|l| l.new(self)}.sort
+      @plugins[:layoutors] = Henshin::Layoutor.subclasses.map {|l| l.new(self)}.sort
     end
     
     ##

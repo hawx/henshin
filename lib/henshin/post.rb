@@ -21,7 +21,7 @@ module Henshin
     # Reads the file
     def read
       self.read_name
-      self.read_file
+      self.read_file if @path.exist?
       self.get_generators
       self.get_layout
       

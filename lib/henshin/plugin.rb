@@ -83,17 +83,17 @@ module Henshin
 
   end
   
-  # LayoutParser is the plugin type for things like liquid
+  # Layoutor is the plugin type for things like liquid
   #
   # @example
   #
-  #  class MyLayoutPlugin < Henshin::LayoutParser
+  #  class MyLayoutPlugin < Henshin::Layoutor
   #    def generate(content, data)
   #      MyLayout.do_stuff(content).render(data)
   #    end
   #  end
   #
-  class LayoutParser < Plugin
+  class Layoutor < Plugin
     
     # This is the method called when rendering content
     #
