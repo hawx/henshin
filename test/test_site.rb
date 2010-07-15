@@ -17,15 +17,16 @@ class TestSite < Test::Unit::TestCase
       assert site.plugins[:layoutors].size.zero?
     end
     
-    should "load correct plugins" do
-      override = site_override.merge({'plugins' => ['maruku', 'liquid']})
-      site = Henshin::Site.new(override)
-            
-      site.plugins[:generators].each do |k, v|
-        # for some reason it keeps loading SassPlugin as well!?!
-        assert_instance_of Henshin::MarukuPlugin, v
+    should "load and sort plugins" do
+      site = new_site
+      
+      site.plugins[:generators].each_value do |i|
+        assert_is_a Henshin::Generator, i
       end
-      assert_instance_of Henshin::LiquidPlugin, site.plugins[:layoutors][0]
+      
+      site.plugins[:layoutors].each do |i|
+        assert_is_a Henshin::Layoutor, i
+      end
     end
     
   end

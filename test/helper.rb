@@ -1,11 +1,8 @@
-require 'rubygems'
 require 'test/unit'
 require 'shoulda'
 require 'rr'
 
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'henshin'
+require File.dirname(__FILE__) + '/../lib/henshin'
 
 class Test::Unit::TestCase
 
@@ -29,6 +26,19 @@ class Test::Unit::TestCase
   
   def new_site
     Henshin::Site.new(site_override)
+  end
+  
+  
+  
+  # Determines whether +instance+ is a +klass+ using #is_a?. 
+  # This is similar to assert_instance_of except it doesn't 
+  # have to be an instance of +klass+ just an instance of a 
+  # decendant of +klass+.
+  #
+  # @param [Class] klass the klass to test for
+  # @param [Object] instance of the object to test
+  def assert_is_a(klass, instance)
+    assert instance.is_a?(klass), "Expected #{instance} to be a #{klass}"
   end
   
 end

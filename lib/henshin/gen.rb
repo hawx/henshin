@@ -58,12 +58,14 @@ module Henshin
     end
     
     # Gets the correct layout for the gen, or the default if none exists.
+    # It gets the default layout from options.yaml or looks for one called 
+    # 'main' or 'default'.
     def get_layout
       if @data['layout']
         @data['layout'] = site.layouts[ @data['layout'] ]
       else
         # get default layout
-        @data['layout'] = site.layouts[ site.config['layout'] ]
+        @data['layout'] = site.layouts[(site.config['layout'] || 'main' || 'default')]
       end
     end
     
