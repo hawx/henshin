@@ -58,8 +58,8 @@ module Henshin
       @layouts = {}
       
       @archive    = Archive.new(self)
-      @tags       = Tags.new(self)
-      @categories = Categories.new(self)
+      @tags       = Labels.new('tag', self)
+      @categories = Labels.new('category', self)
       @plugins    = {:generators => {}, :layoutors => []}
       self
     end
@@ -199,14 +199,14 @@ module Henshin
     # Creates tags from posts and adds them to @tags
     def build_tags
       @posts.each do |post|
-        @tags << post
+        @tags << post if post.data['tags']
       end
     end
     
     # Create categories from posts and add to @categories
     def build_categories
       @posts.each do |post|
-        @categories << post
+        @categories << post if post.data['category']
       end
     end
     

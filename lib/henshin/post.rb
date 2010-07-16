@@ -35,53 +35,29 @@ module Henshin
     # Reads the filename and extracts information from it
     def read_name
     
-      parser = {'title' => '([a-zA-Z0-9 ]+)',
-                'title-with-dashes' => '([a-zA-Z0-9-]+)',
-                'date' => '(\d{4}-\d{2}-\d{2})',
-                'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
-                'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
-                'category' => '([a-zA-Z0-9_ -]+)',
-                'extension' => "([a-zA-Z0-9_-]+)"}
+      partials = {'title' => '([a-zA-Z0-9_ -]+)',
+                  'title-with-dashes' => '([a-zA-Z0-9-]+)',
+                  'date' => '(\d{4}-\d{2}-\d{2})',
+                  'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
+                  'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
+                  'category' => '([a-zA-Z0-9_ -]+)',
+                  'extension' => "([a-zA-Z0-9_-]+)"}
       
-      file_parser = @site.config['file_name']
-      data_order = []
+      result = Parsey.parse(@path.to_s[(@site.root + 'posts').to_s.size..-1], @site.config['file_name'], partials)
 
-      # put together regex
-      m = file_parser.gsub(/\{([a-z-]+)\}/) do
-        data_order << $1
-        parser[$1]
-      end
-      
-      # replace optional '<stuff>'
-      m.gsub!(/<(.+)>/) do
-        # this may lead to problems, well I say may...
-        data_order.unshift( 'optional' )
-        "(#{$1})?"
-      end
-
-      # convert string to actual regex
-      matcher = Regexp.new(m)
-      
-      override = {}
-      name = @path.to_s[(@site.root + 'posts').to_s.size..-1]
-
-      file_data = name.match( matcher ).captures
-      file_data.each_with_index do |data, i|      
-        if data_order[i].include? 'title'
-          if data_order[i].include? 'dashes'
-            override['title'] = data.gsub(/-/, ' ').titlecase
-          else
-            override['title'] = data.titlecase
+      result.each do |k, v|
+        unless v.nil?
+          case k
+            when 'title-with-dashes'
+              @data['title'] = v.gsub(/-/, ' ').titlecase
+            when 'title'
+              @data['title'] = v.titlecase
+            else
+              @data[k] = v
           end
-        elsif data_order[i].include? 'date'
-          override['date'] = data
-        elsif data_order[i].include? 'extension'
-          override['extension'] = data
-        elsif data_order[i].include? 'category'
-          override['category'] = data
         end
       end
-      @data = @data.merge(override)
+      
     end
     
     # Creates the data to be sent to the layout engine
@@ -156,15 +132,6 @@ module Henshin
           nil
         end
       end
-    end
-
-    
-    ##
-    # Writes the file to the correct place
-    def write
-      FileUtils.mkdir_p(self.write_path.dirname)
-      file = File.new(self.write_path, "w")
-      file.puts(@content)
     end
     
     # @return [String] the permalink of the post

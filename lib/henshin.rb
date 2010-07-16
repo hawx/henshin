@@ -6,6 +6,7 @@ require 'pp'
 require 'pathname'
 
 require 'titlecase'
+require 'parsey'
 
 require 'henshin/site'
 require 'henshin/plugin'
@@ -14,6 +15,7 @@ require 'henshin/gen'
 require 'henshin/post'
 require 'henshin/static'
 
+require 'henshin/labels'
 require 'henshin/tags'
 require 'henshin/categories'
 require 'henshin/archive'
@@ -28,7 +30,7 @@ module Henshin
               'permalink' => '/{year}/{month}/{date}/{title}.html',
               'plugins' => ['maruku', 'liquid'],
               'root' => './',
-              'target' => './_site',
+              'target' => '_site',
               'exclude' => []}.freeze
   
   # Reads the current version from VERSION
