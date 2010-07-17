@@ -32,6 +32,15 @@ module Henshin
               'root' => './',
               'target' => '_site',
               'exclude' => []}.freeze
+              
+  # Partial regexs for use in parsing file names
+  Partials = {'title' => '([a-zA-Z0-9_ -]+)',
+              'title-with-dashes' => '([a-zA-Z0-9-]+)',
+              'date' => '(\d{4}-\d{2}-\d{2})',
+              'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
+              'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
+              'category' => '([a-zA-Z0-9_ -]+)',
+              'extension' => "([a-zA-Z0-9_-]+)"}.freeze
   
   # Reads the current version from VERSION
   #

@@ -6,14 +6,21 @@
     {% include head.html %}
   </head>  
   <body>
-    
-    <h2>{{ archive.date }}</h2>
+    <a href="/">Home</a>
+    <h1>Archive for {{ archive.year }}</h1>
+
     <ul>
-    {% for post in archive.posts %}
-      <li><a href="{{ post.url }}">{{ post.title }}</a></li>
-    {% endfor %}
+      {% for day in (1..31) %}
+        {% for month in (1..12) %}
+          {% if archive.posts[archive.year][month][day] %}
+            {% for post in archive.posts[archive.year][month][day] %}
+              <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
     </ul>
-    
+
     <span>Copyright &copy; {{ site.author }}</span>
   </body>  
 </html> 

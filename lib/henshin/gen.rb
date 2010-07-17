@@ -28,11 +28,14 @@ module Henshin
       self.read_file if @path.exist?
       self.get_generators
       self.get_layout
-      @data['output'] ||= @data['input'] # if not different must be same
+      
+      # tidy up data
+      @data['output'] ||= @data['input']
       self
     end
     
-    # Reads the files yaml frontmatter and uses it to override @data, then gets content
+    # Opens the file and reads the yaml frontmatter if any exists, and
+    # also gets the contents of the file.
     def read_file
       file = @path.read
     
@@ -51,7 +54,7 @@ module Henshin
         if k == @data['input'] || k == '*'
           @generators << v
           @data['output'] ||= v.extensions[:output]
-          @data['ignore_layout'] ||= (v.config[:ignore_layouts] ? true : false)
+          @data['ignore_layout'] ||= (v.config['ignore_layouts'] ? true : false)
         end
       end
       @generators.sort!

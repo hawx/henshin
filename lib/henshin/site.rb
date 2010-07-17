@@ -43,15 +43,11 @@ module Henshin
       self
     end
     
-    # Resets all instance variables
+    # Resets all instance variables, except +config+ and +plugins+ as these shouldn't
+    # need to be reloaded each time.
     #
     # @return [self]
-    def reset
-      @config = {}
-      @root = nil
-      @target = nil
-      @base = ''
-      
+    def reset     
       @gens    = []
       @posts   = []
       @statics = []
@@ -60,7 +56,6 @@ module Henshin
       @archive    = Archive.new(self)
       @tags       = Labels.new('tag', self)
       @categories = Labels.new('category', self)
-      @plugins    = {:generators => {}, :layoutors => []}
       self
     end
     
@@ -70,6 +65,7 @@ module Henshin
     #
     # @param [Hash] override to override other set options
     def configure(override)  
+      @config = {}
       config_file = File.join((override['root'] || Defaults['root']), '/options.yaml')
       
       # change target to represent given root, only if root given
@@ -95,8 +91,10 @@ module Henshin
     end
     
     # Requires each plugin in @config['plugins'], then loads and sorts them into
-    # @plugins by type
+    # +plugins+ by type
     def load_plugins
+      @plugins = {:generators => {}, :layoutors => []}
+    
       @config['plugins'].each do |plugin|
         begin
           require File.join('henshin', 'plugins', plugin)
@@ -118,6 +116,7 @@ module Henshin
     ##
     # Read, process, render and write
     def build
+      self.reset
       self.read
       self.process
       self.render
@@ -222,6 +221,7 @@ module Henshin
     def render
       @posts.each {|post| post.render}
       @gens.each {|gen| gen.render}
+      
       self
     end
     

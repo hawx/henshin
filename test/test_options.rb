@@ -55,12 +55,16 @@ class TestOptions < Test::Unit::TestCase
     end
     
     should "convert root, target to Pathnames" do
+      mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
+      mock($stderr).puts("-> No such file or directory - #{@opts}")
       site = Henshin::Site.new
       assert site.root.is_a? Pathname
       assert site.target.is_a? Pathname
     end
     
     should "set base" do
+      mock($stderr).puts("\nCould not read configuration, falling back to defaults...")
+      mock($stderr).puts("-> No such file or directory - #{@opts}")
       site = Henshin::Site.new
       assert site.base
     end

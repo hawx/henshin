@@ -7,7 +7,6 @@ module Henshin
     def initialize( path, site )
       @path = path
       @site = site
-      @layout = site.layouts[ site.config[:layout] ]
       
       @content = ''
       @data = {}
@@ -26,7 +25,7 @@ module Henshin
       self.get_layout
       
       # now tidy up data
-      @data['layout'] = @site.layouts[ @data['layout'] ]
+      @data['output'] ||= @data['input']
       @data['date'] = Time.parse(@data['date'])
       @data['tags'] = @data['tags'].flatten.uniq if @data['tags']
       self
@@ -34,16 +33,8 @@ module Henshin
     
     # Reads the filename and extracts information from it
     def read_name
-    
-      partials = {'title' => '([a-zA-Z0-9_ -]+)',
-                  'title-with-dashes' => '([a-zA-Z0-9-]+)',
-                  'date' => '(\d{4}-\d{2}-\d{2})',
-                  'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
-                  'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
-                  'category' => '([a-zA-Z0-9_ -]+)',
-                  'extension' => "([a-zA-Z0-9_-]+)"}
       
-      result = Parsey.parse(@path.to_s[(@site.root + 'posts').to_s.size..-1], @site.config['file_name'], partials)
+      result = Parsey.parse(@path.to_s[(@site.root + 'posts').to_s.size..-1], @site.config['file_name'], Partials)
 
       result.each do |k, v|
         unless v.nil?

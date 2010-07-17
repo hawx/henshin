@@ -13,8 +13,6 @@ class TestSite < Test::Unit::TestCase
       assert site.archive.size.zero?
       assert site.tags.size.zero?
       assert site.categories.size.zero?
-      assert site.plugins[:generators].size.zero?
-      assert site.plugins[:layoutors].size.zero?
     end
     
     should "load and sort plugins" do
@@ -43,7 +41,6 @@ class TestSite < Test::Unit::TestCase
     
     should "read layouts first" do
       site = new_site
-      site.reset
       site.read
       if mock.instance_of(Henshin::Site).read_posts
         assert site.layouts.size > 0
@@ -122,7 +119,8 @@ class TestSite < Test::Unit::TestCase
       # lorem: lorem-ipsum.markdown, same-date.markdown
       # plugin: Textile-Test.textile
       assert_equal 4, site.tags.size
-      assert site.tags[0].is_a? Henshin::Tag
+      assert site.tags[0].is_a? Henshin::Label
+      assert_equal 'tag', site.tags.base
     end
     
     should "build categories array" do
@@ -132,7 +130,8 @@ class TestSite < Test::Unit::TestCase
       # cat: cat/test.markdown
       # test: Testing-Stuff.markdown
       assert_equal 2, site.categories.size
-      assert site.categories[0].is_a? Henshin::Category
+      assert site.categories[0].is_a? Henshin::Label
+      assert_equal 'category', site.categories.base
     end
     
     should "build archives" do

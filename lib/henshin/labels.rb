@@ -79,7 +79,7 @@ module Henshin
         page.render
         page.write
       end
-      if @site.layouts["{@base}_page"]
+      if @site.layouts["#{@base}_page"]
         self.each {|label| label.write }
       end
     end

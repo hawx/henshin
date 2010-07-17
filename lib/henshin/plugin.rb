@@ -31,14 +31,6 @@ module Henshin
       @priority = 3
     end
     
-    # Allows you to set up the plugin
-    #
-    # @param [Hash] override options for this specific plugin
-    # @param [Hash] site options for the whole site
-    def configure( override, site )
-      @config.merge!(override) if override
-    end
-    
     # Finds all classes that subclass this particular class
     #
     # @return [Array] an array of class objects
