@@ -14,6 +14,7 @@ begin
     gem.add_dependency "directory_watcher", ">= 1.3.1"
     gem.add_dependency "maruku", ">= 0.6.0"
     gem.add_dependency "liquid", ">= 2.0.0"
+    gem.add_dependency "parsey", ">= 0.1.3"
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     gem.add_development_dependency "yard", ">= 0"
   end
