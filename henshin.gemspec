@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-07-10}
+  s.date = %q{2010-07-17}
   s.default_executable = %q{henshin}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
@@ -26,12 +26,12 @@ Gem::Specification.new do |s|
      "VERSION",
      "bin/henshin",
      "henshin.gemspec",
-     "lib/exec/files.rb",
      "lib/henshin.rb",
      "lib/henshin/archive.rb",
-     "lib/henshin/categories.rb",
+     "lib/henshin/exec/files.rb",
      "lib/henshin/ext.rb",
      "lib/henshin/gen.rb",
+     "lib/henshin/labels.rb",
      "lib/henshin/plugin.rb",
      "lib/henshin/plugins/highlight.rb",
      "lib/henshin/plugins/liquid.rb",
@@ -41,7 +41,6 @@ Gem::Specification.new do |s|
      "lib/henshin/post.rb",
      "lib/henshin/site.rb",
      "lib/henshin/static.rb",
-     "lib/henshin/tags.rb",
      "test/helper.rb",
      "test/site/css/_reset.sass",
      "test/site/css/print.css",
@@ -65,16 +64,12 @@ Gem::Specification.new do |s|
      "test/site/posts/lorem-ipsum.markdown",
      "test/site/posts/same-date.markdown",
      "test/site/static.html",
-     "test/test_archives.rb",
-     "test/test_categories.rb",
-     "test/test_gens.rb",
-     "test/test_henshin.rb",
+     "test/suite.rb",
+     "test/test_gen.rb",
      "test/test_options.rb",
-     "test/test_posts.rb",
+     "test/test_post.rb",
      "test/test_site.rb",
-     "test/test_statics.rb",
-     "test/test_tags.rb",
-     "test/text_exts.rb"
+     "test/test_static.rb"
   ]
   s.homepage = %q{http://github.com/hawx/henshin}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -84,16 +79,12 @@ Gem::Specification.new do |s|
   s.test_files = [
     "test/helper.rb",
      "test/site/plugins/test.rb",
-     "test/test_archives.rb",
-     "test/test_categories.rb",
-     "test/test_gens.rb",
-     "test/test_henshin.rb",
+     "test/suite.rb",
+     "test/test_gen.rb",
      "test/test_options.rb",
-     "test/test_posts.rb",
+     "test/test_post.rb",
      "test/test_site.rb",
-     "test/test_statics.rb",
-     "test/test_tags.rb",
-     "test/text_exts.rb"
+     "test/test_static.rb"
   ]
 
   if s.respond_to? :specification_version then
@@ -105,6 +96,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<directory_watcher>, [">= 1.3.1"])
       s.add_runtime_dependency(%q<maruku>, [">= 0.6.0"])
       s.add_runtime_dependency(%q<liquid>, [">= 2.0.0"])
+      s.add_runtime_dependency(%q<parsey>, [">= 0.1.3"])
       s.add_development_dependency(%q<thoughtbot-shoulda>, [">= 0"])
       s.add_development_dependency(%q<yard>, [">= 0"])
     else
@@ -112,6 +104,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<directory_watcher>, [">= 1.3.1"])
       s.add_dependency(%q<maruku>, [">= 0.6.0"])
       s.add_dependency(%q<liquid>, [">= 2.0.0"])
+      s.add_dependency(%q<parsey>, [">= 0.1.3"])
       s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0"])
     end
@@ -120,6 +113,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<directory_watcher>, [">= 1.3.1"])
     s.add_dependency(%q<maruku>, [">= 0.6.0"])
     s.add_dependency(%q<liquid>, [">= 2.0.0"])
+    s.add_dependency(%q<parsey>, [">= 0.1.3"])
     s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0"])
   end
