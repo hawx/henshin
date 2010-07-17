@@ -178,9 +178,11 @@ module Henshin
       @posts.sort!
       @gens.sort!
       
-      self.build_tags
-      self.build_categories
-      self.build_archive
+      @posts.each do |post|
+        @tags << post if post.data['tags']
+        @categories << post if post.data['category']
+        @archive << post
+      end
       self
     end
     
@@ -193,27 +195,6 @@ module Henshin
       r['site']['categories'] = @categories.to_hash
       r['site']['archive'] = @archive.to_hash
       r
-    end
-    
-    # Creates tags from posts and adds them to @tags
-    def build_tags
-      @posts.each do |post|
-        @tags << post if post.data['tags']
-      end
-    end
-    
-    # Create categories from posts and add to @categories
-    def build_categories
-      @posts.each do |post|
-        @categories << post if post.data['category']
-      end
-    end
-    
-    # @return [Hash] archive hash
-    def build_archive
-      @posts.each do |post|
-        @archive << post
-      end
     end
     
     ##
