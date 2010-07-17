@@ -16,8 +16,6 @@ require 'henshin/post'
 require 'henshin/static'
 
 require 'henshin/labels'
-require 'henshin/tags'
-require 'henshin/categories'
 require 'henshin/archive'
 require 'henshin/ext'
 
