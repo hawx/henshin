@@ -64,7 +64,14 @@ else
   
   if ARGV[0]
     override['root'] = ARGV[0].split(':')[0]
-    override['target'] = ARGV[0].split(':')[1] if ARGV[0].split(':')[1]
+    if ARGV[0].split(':')[1]
+      override['target'] = ARGV[0].split(':')[1]
+    else
+      override['target'] = File.join(override['root'], Henshin::Defaults['target'])
+    end
+  else
+    override['root'] = Henshin::Defaults['root']
+    override['target'] = Henshin::Defaults['target']
   end
   
   
@@ -85,7 +92,7 @@ else
       
       threads << Thread.new {
         @h = Mongrel::HttpServer.new(build[:address], build[:port])
-        @h.register "/", Mongrel::DirHandler.new("test/site/_site")
+        @h.register("/", Mongrel::DirHandler.new(override['target']))
         puts "Server launched at http://#{build[:address]}:#{build[:port]}"
         trap("INT") { 
           @h.stop
@@ -99,7 +106,7 @@ else
       threads << Thread.new { 
         server = WEBrick::HTTPServer.new(
           :Port => build[:port],
-          :DocumentRoot => File.join(config[:root], config[:target]),
+          :DocumentRoot => override['target'],
           :MimeTypes => WEBrick::HTTPUtils::DefaultMimeTypes
         )
         trap("INT") { server.shutdown }
@@ -116,14 +123,14 @@ else
     puts "", "Auto-build initiated..."
     
     # build the glob pattern
-    gl = Dir[ File.join(site.config['root'], '*')].select { |x| File.directory?(x) }
+    gl = Dir[ File.join(override['root'], '*')].select { |x| File.directory?(x) }
     ['/_site', '/plugins'].each do |r|
-      gl = gl.select {|i| !i.include?( File.join(site.config['root'], r) )}
+      gl = gl.select {|i| !i.include?( File.join(override['root'], r) )}
     end
-    gl.collect! {|x| "#{x}/**/*"[site.config['root'].size+1..-1]}
+    gl.collect! {|x| "#{x}/**/*"[override['root'].size+1..-1]}
     gl += ['*']
 
-    dw = DirectoryWatcher.new(site.config['root'], :glob => gl)
+    dw = DirectoryWatcher.new(override['root'], :glob => gl)
     dw.interval = 1
     dw.add_observer do |*args| 
       if args.size > 1

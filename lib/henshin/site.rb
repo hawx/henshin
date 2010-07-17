@@ -14,22 +14,8 @@ module Henshin
     # @return [String] a path which should be prepended to all urls
     attr_accessor :base
     
-    # @return [Array]
-    attr_accessor :gens, :posts, :statics
-    
-    # @return [Hash{String => String}]
-    attr_accessor :layouts
-    
-    # @return [Tags]
-    attr_accessor :tags
-    
-    # @return [Categories]
-    attr_accessor :categories
-    
-    # @return [Archive]
-    attr_accessor :archive
-    
-    # @return [Hash{String => Plugin}]
+    attr_accessor :gens, :posts, :statics, :layouts
+    attr_accessor :tags, :categories, :archive
     attr_accessor :plugins
     
     # A new instance of site
