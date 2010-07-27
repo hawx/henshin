@@ -16,24 +16,70 @@ Usage: henshin
        
 EOS
 
-
 if ARGV[0] == "create"
+
+  dirs = ['layouts', 'posts']
+  files = {'options.yaml' => Files.options,
+           'index.html' => Files.index, 
+           'layouts/main.html' => Files.layout, 
+           'posts/hello-world.markdown' => Files.post}
+
   if ARGV[1]
-    # create the directory
-    FileUtils.mkdir_p ARGV[1]
-    # and cd to it
-    Dir.chdir ARGV[1]
+    case ARGV[1]
+    when 'options'
+      # create new options file
+      dirs = []
+      files = {'options.yaml' => Files.options}
+    when 'post'
+      # create new post
+      dirs = ['posts']
+      files = {'posts/new-post.markdown' => Files.post}
+    when 'layout'  
+      # create new layout
+      dirs = ['layouts']
+      files = {'layouts/main.html' => Files.layout}
+    when 'archives'
+      # create archive layouts
+      dirs = ['layouts']
+      files = {'layouts/archive_date.html'  => Files::Archive.date,
+               'layouts/archive_month.html' => Files::Archive.month,
+               'layouts/archive_year.html'  => Files::Archive.year}
+    when 'tags'
+      # create tag layouts
+      dirs = ['layouts']
+      files = {'layouts/tag_index.html' => Files::Tag.index,
+               'layouts/tag_page.html'  => Files::Tag.page}
+    when 'categories'
+      # create categories layouts
+      dirs =['layouts']
+      files = {'layouts/category_index.html' => Files::Category.index,
+               'layouts/category_page.html'  => Files::Category.page}
+    when 'full'
+      # create everything
+      dirs = ['layouts', 'posts']
+      files = {'options.yaml'                => Files.options,
+               'index.html'                  => Files.index, 
+               'posts/hello-world.markdown'  => Files.post,
+               'layouts/main.html'           => Files.layout, 
+               'layouts/archive_date.html'   => Files::Archive.date,
+               'layouts/archive_month.html'  => Files::Archive.month,
+               'layouts/archive_year.html'   => Files::Archive.year,
+               'layouts/tag_index.html'      => Files::Tag.index,
+               'layouts/tag_page.html'       => Files::Tag.page,
+               'layouts/category_index.html' => Files::Category.index,
+               'layouts/category_page.html'  => Files::Category.page}
+    else
+      # create the directory
+      FileUtils.mkdir_p ARGV[1]
+      # and cd to it
+      Dir.chdir ARGV[1]
+    end
   end
   
-  # create directories
-  dirs = ['layouts', 'posts']
+  # make directories
   dirs.each {|d| FileUtils.mkdir_p d}
 
-  # write files  
-  files = {'options.yaml' => opt_content,
-           'index.html' => index_content, 
-           'layouts/main.html' => layout_content, 
-           'posts/hello-world.markdown' => post_content}
+  # write files
   files.each do |f, c|
     file = File.new( f, "w" )
     file.puts c
