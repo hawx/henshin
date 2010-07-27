@@ -7,7 +7,7 @@ module Henshin
       @extensions = {:input => ['markdown', 'mkdwn', 'md'],
                      :output => 'html'}
       @config = {}
-      @priority = 5
+      @priority = 4
     end
     
     def generate( content )

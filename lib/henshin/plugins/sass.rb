@@ -13,7 +13,7 @@ module Henshin
   
       @config.merge!(site.config['sass']) if site.config['sass']
       
-      @priority = 5
+      @priority = 4
     end
     
     def generate( content )
