@@ -51,10 +51,9 @@ module Henshin
     
     # Writes the archives if the correct layouts are present
     def write
-      layouts = @site.layouts.map {|i| i.name }
-      self.write_years if layouts.include?('archive_year')
-      self.write_months if layouts.include?('archive_month')
-      self.write_dates if layouts.include?('archive_date')
+      self.write_years  if @site.layouts.include?('archive_year')
+      self.write_months if @site.layouts.include?('archive_month')
+      self.write_dates  if @site.layouts.include?('archive_date')
     end
     
     # This writes all the archives for years
@@ -72,7 +71,7 @@ module Henshin
         }
         page = Gen.new(t, @site, payload)
         page.read
-        page.data['layout'] = @site.layouts.select {|i| i.name == 'archive_year'}[0]
+        page.data['layout'] = @site.layouts['archive_year']
         
         page.render
         page.write
@@ -95,7 +94,7 @@ module Henshin
           }
           page = Gen.new(t, @site, payload)
           page.read
-          page.data['layout'] = @site.layouts.select {|i| i.name == 'archive_month'}[0]
+          page.data['layout'] = @site.layouts['archive_month']
           
           page.render
           page.write
@@ -121,7 +120,7 @@ module Henshin
             }
             page = Gen.new(t, @site, payload)
             page.read 
-            page.data['layout'] = @site.layouts.select {|i| i.name == 'archive_date'}[0]
+            page.data['layout'] = @site.layouts['archive_date']
             
             page.render
             page.write

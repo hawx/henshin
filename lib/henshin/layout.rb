@@ -1,5 +1,26 @@
 module Henshin
 
+  class Layouts < Array
+    
+    # @param [String] val name of layout to find
+    # @return [Layout] the layout with the name +val+
+    def [](val)
+      self.select {|i| i.name == val}
+    end
+    
+    # @return [Layout] the default layout
+    def default
+      self.select {|i| i.default?}[0]
+    end
+    
+    # @param [String] name of layout to check for
+    # @return [Boolean] whether Layouts contains a Layout called +val+
+    def include?(val)
+      self.map{|i| i.name }.include?(val)
+    end
+    
+  end
+
   class Layout
   
     attr_accessor :path, :name, :content, :extension, :site

@@ -37,7 +37,7 @@ module Henshin
       @gens    = []
       @posts   = []
       @statics = []
-      @layouts = []
+      @layouts = Layouts.new
       
       @archive    = Archive.new(self)
       @tags       = Labels.new('tag', self)
@@ -214,25 +214,25 @@ module Henshin
     
     # @param [String] path to test
     # @return [Bool] whether the path points to a static
-    def static?( path )
+    def static?(path)
       !( layout?(path) || post?(path) || gen?(path) || ignored?(path) )
     end
     
     # @param [String] path to test
     # @return [Bool] whether the path points to a layout
-    def layout?( path )
+    def layout?(path)
       path.include?('layouts/') && !ignored?(path)
     end
     
     # @param [String] path to test
     # @return [Bool] whether the path points to a post
-    def post?( path )
+    def post?(path)
       path.include?('posts/') && !ignored?(path)
     end
     
     # @param [String] path to test
     # @return [Bool] whether the path points to a gen
-    def gen?( path )
+    def gen?(path)
       return false if post?(path) || layout?(path) || ignored?(path)
       return true if @plugins[:generators].has_key? path.to_p.extname[1..-1]
       return true if File.open(path, "r").read(3) == "---"
@@ -241,7 +241,7 @@ module Henshin
     
     # @param [String] path to test
     # @return [Bool] whether the path points to a file which should be ignored
-    def ignored?( path )
+    def ignored?(path)
       ignored = ['/options.yaml'] + @config['exclude']
       ignored.collect! {|i| File.join(@root, i)}
       ignored.each do |i|
