@@ -5,7 +5,7 @@ module Henshin
     # @param [String] val name of layout to find
     # @return [Layout] the layout with the name +val+
     def [](val)
-      self.select {|i| i.name == val}
+      self.select {|i| i.name == val}[0]
     end
     
     # @return [Layout] the default layout

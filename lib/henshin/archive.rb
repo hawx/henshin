@@ -70,8 +70,9 @@ module Henshin
           }
         }
         page = Gen.new(t, @site, payload)
-        page.read
-        page.data['layout'] = @site.layouts['archive_year']
+        
+        page.data['layout'] = 'archive_year'
+        page.get_layout
         
         page.render
         page.write
@@ -93,8 +94,9 @@ module Henshin
             }
           }
           page = Gen.new(t, @site, payload)
-          page.read
-          page.data['layout'] = @site.layouts['archive_month']
+          
+          page.data['layout'] = 'archive_month'
+          page.get_layout
           
           page.render
           page.write
@@ -119,8 +121,9 @@ module Henshin
               }
             }
             page = Gen.new(t, @site, payload)
-            page.read 
-            page.data['layout'] = @site.layouts['archive_date']
+            
+            page.data['layout'] = 'archive_date'
+            page.get_layout
             
             page.render
             page.write

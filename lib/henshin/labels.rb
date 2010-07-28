@@ -73,9 +73,10 @@ module Henshin
     def write
       if @site.layouts.include?("#{@base}_index")
         page = Gen.new(self.fake_write_path, @site)
-        page.read
-        page.data['layout'] = @site.layouts["#{@base}_index"]
-                
+        
+        page.data['layout'] = "#{@base}_index"
+        page.get_layout
+        
         page.render
         page.write
       end
@@ -129,8 +130,9 @@ module Henshin
     def write
       payload = {:name => @base, :payload => self.to_hash}
       page = Gen.new(self.fake_write_path, @site, payload)
-      page.read
-      page.data['layout'] = @site.layouts["#{@base}_page"]
+      
+      page.data['layout'] = "#{@base}_page"
+      page.get_layout
       
       page.render
       page.write

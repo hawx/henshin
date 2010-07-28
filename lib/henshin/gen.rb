@@ -24,7 +24,7 @@ module Henshin
     
     
     ##
-    # Reads the file if it exists, if not gets generators and layout, then cleans up @data
+    # Reads the file if it exists, and gets the layout
     def read
       self.read_file if @path.exist?
       self.get_layout
@@ -46,7 +46,7 @@ module Henshin
       end 
     end
     
-    # Finds the correct plugins to render this gen and sets output
+    # Finds the generators for this gen and sets output
     def generators
       r = []
       @site.plugins[:generators].each do |k, v|
@@ -59,6 +59,7 @@ module Henshin
       r.sort!
     end
     
+    # Finds the Layoutors for this gen
     def layoutors
       r = []
       @site.plugins[:layoutors].each do |k, v|
@@ -75,14 +76,12 @@ module Henshin
     end
     
     # Gets the correct layout for the gen, or the default if none exists.
-    # It gets the default layout from options.yaml or looks for one called 
-    # 'main' or 'default'.
     def get_layout
       if @data['layout']
-        @layout = site.layouts.select {|i| i.name == @data['layout']}[0]
+        @layout = site.layouts[@data['layout']]
       else
         # get default layout
-        @layout = site.layouts.select {|i| i.default? }[0]
+        @layout = site.layouts.default
       end
     end
     

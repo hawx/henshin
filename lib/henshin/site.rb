@@ -174,6 +174,7 @@ module Henshin
         @categories << post if post.data['category']
         @archive << post
       end
+      
       self
     end
     

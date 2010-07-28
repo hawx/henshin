@@ -66,34 +66,28 @@ module Henshin
     #
     # @return [Hash]
     def to_hash
-      if @hashed
-        @hashed
-      else
-        @hashed = @data.dup
-        @hashed['content'] = @content
-        @hashed['url'] = self.url
-        @hashed['permalink'] = self.permalink
-        
-        
-      
-        if @data['tags']
-          @hashed['tags'] = []
-          @site.tags.select{|t| @data['tags'].include?(t.name)}.each do |tag|
-            # can't call Tag#to_hash or it creates an infinite loop!
-            @hashed['tags'] << {'name' => tag.name, 'url' => tag.url}
-          end
+      r = @data.dup
+      r['content'] = @content
+      r['url'] = self.url
+      r['permalink'] = self.permalink
+    
+      if @data['tags']
+        r['tags'] = []
+        @site.tags.select{|t| @data['tags'].include?(t.name)}.each do |tag|
+          # can't call Tag#to_hash or it creates an infinite loop!
+          r['tags'] << {'name' => tag.name, 'url' => tag.url}
         end
-      
-        if @data['category']
-          @site.categories.each do |cat|
-            if cat.name == @data['category']
-              @hashed['category'] = {'name' => cat.name, 'url' => cat.url}
-            end
-          end
-        end
-      
-        @hashed
       end
+    
+      if @data['category']
+        @site.categories.each do |cat|
+          if cat.name == @data['category']
+            r['category'] = {'name' => cat.name, 'url' => cat.url}
+          end
+        end
+      end
+      
+      r
     end
     
     # Gets the post after this one
