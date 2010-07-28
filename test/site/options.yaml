@@ -8,7 +8,7 @@ layout: post
 exclude: ['includes', 'css/_reset.sass']
 post_name: '{title-with-dashes}.{extension}'
 permalink: '/{year}/{month}/{date}/{title}/index.html'
-plugins: [maruku, sass, liquid, test, textile, highlight]
+plugins: [maruku, sass, liquid, test, textile, highlight, erb]
 
 sass: 
   style: :compact

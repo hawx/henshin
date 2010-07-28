@@ -37,7 +37,7 @@ module Henshin
       @gens    = []
       @posts   = []
       @statics = []
-      @layouts = {}
+      @layouts = []
       
       @archive    = Archive.new(self)
       @tags       = Labels.new('tag', self)
@@ -79,7 +79,7 @@ module Henshin
     # Requires each plugin in @config['plugins'], then loads and sorts them into
     # +plugins+ by type
     def load_plugins
-      @plugins = {:generators => {}, :layoutors => []}
+      @plugins = {:generators => {}, :layoutors => {}}
     
       @config['plugins'].each do |plugin|
         begin
@@ -96,7 +96,13 @@ module Henshin
         end
       end
       
-      @plugins[:layoutors] = Henshin::Layoutor.subclasses.map {|l| l.new(self)}.sort
+      Henshin::Layoutor.subclasses.each do |plugin|
+        plugin = plugin.new(self)
+        plugin.extensions[:input].each do |ext|
+          @plugins[:layoutors][ext] = plugin
+        end
+      end
+      
     end
     
     ##
@@ -122,12 +128,11 @@ module Henshin
       self
     end
     
-    # Adds all items in '/layouts' to the layouts array
+    # Adds all items in '/layouts' to the layouts hash
     def read_layouts
       path = File.join(@root, 'layouts')
       Dir.glob(path + '/*.*').each do |layout|
-        layout =~ /([a-zA-Z0-9 _-]+)\.([a-zA-Z0-9-]+)/
-        @layouts[$1] = File.open(layout, 'r') {|f| f.read}
+        @layouts << Layout.new(layout.to_p, self)
       end
     end
     

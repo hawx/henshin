@@ -11,6 +11,7 @@ require 'parsey'
 require 'henshin/site'
 require 'henshin/plugin'
 
+require 'henshin/layout'
 require 'henshin/gen'
 require 'henshin/post'
 require 'henshin/static'

@@ -71,15 +71,16 @@ module Henshin
     # Writes the category index, then writes the individual
     # category pages
     def write
-      if @site.layouts["#{@base}_index"]
+      layouts = @site.layouts.map {|i| i.name }
+      if layouts.include?("#{@base}_index")
         page = Gen.new(self.fake_write_path, @site)
         page.read
-        page.data['layout'] = @site.layouts["#{@base}_index"]
+        page.data['layout'] = @site.layouts.select {|i| i.name == "#{@base}_index"}[0]
         
         page.render
         page.write
       end
-      if @site.layouts["#{@base}_page"]
+      if layouts.include?("#{@base}_page")
         self.each {|label| label.write }
       end
     end
@@ -130,7 +131,7 @@ module Henshin
       payload = {:name => @base, :payload => self.to_hash}
       page = Gen.new(self.fake_write_path, @site, payload)
       page.read
-      page.data['layout'] = @site.layouts["#{@base}_page"]
+      page.data['layout'] = @site.layouts.select {|i| i.name == "#{@base}_page"}[0]
       
       page.render
       page.write

@@ -9,7 +9,7 @@ class TestSite < Test::Unit::TestCase
       assert_equal [], site.posts
       assert_equal [], site.gens
       assert_equal [], site.statics
-      assert_equal Hash.new, site.layouts
+      assert_equal [], site.layouts
       assert site.archive.size.zero?
       assert site.tags.size.zero?
       assert site.categories.size.zero?
@@ -22,7 +22,7 @@ class TestSite < Test::Unit::TestCase
         assert_is_a Henshin::Generator, i
       end
       
-      site.plugins[:layoutors].each do |i|
+      site.plugins[:layoutors].each_value do |i|
         assert_is_a Henshin::Layoutor, i
       end
     end
@@ -66,7 +66,8 @@ class TestSite < Test::Unit::TestCase
       # For reference these are the gens
       # /css/print.sass
       # /index.html
-      assert_equal 2, site.gens.size
+      # /erb.html
+      assert_equal 3, site.gens.size
     end
     
     should "read statics" do

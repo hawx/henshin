@@ -3,7 +3,7 @@ module Henshin
   # This is the main class for files which need to be rendered with plugins
   class Gen
     
-    attr_accessor :path, :data, :content, :site, :to_inject, :generators
+    attr_accessor :path, :data, :content, :site, :to_inject, :layout
     
     # Creates a new instance of Gen
     #
@@ -17,8 +17,9 @@ module Henshin
       @content = ''
       @to_inject = to_inject
       @generators = []
+      @layoutors = []
       
-      @data['input'] = @path.extension
+      @data['input'] = @data['output'] = @path.extension
     end
     
     
@@ -26,11 +27,8 @@ module Henshin
     # Reads the file if it exists, if not gets generators and layout, then cleans up @data
     def read
       self.read_file if @path.exist?
-      self.get_generators
       self.get_layout
       
-      # tidy up data
-      @data['output'] ||= @data['input']
       self
     end
     
@@ -49,15 +47,31 @@ module Henshin
     end
     
     # Finds the correct plugins to render this gen and sets output
-    def get_generators
+    def generators
+      r = []
       @site.plugins[:generators].each do |k, v|
         if k == @data['input'] || k == '*'
-          @generators << v
-          @data['output'] ||= v.extensions[:output]
+          r << v
+          @data['output'] = v.extensions[:output] if v.extensions[:output]
           @data['ignore_layout'] ||= (v.config['ignore_layouts'] ? true : false)
         end
       end
-      @generators.sort!
+      r.sort!
+    end
+    
+    def layoutors
+      r = []
+      @site.plugins[:layoutors].each do |k, v|
+        if k == @data['input'] || k == '*'
+          r << v
+        end
+        if @layout
+          if k == @layout.extension
+            r << v
+          end
+        end
+      end
+      r.sort!
     end
     
     # Gets the correct layout for the gen, or the default if none exists.
@@ -65,10 +79,10 @@ module Henshin
     # 'main' or 'default'.
     def get_layout
       if @data['layout']
-        @data['layout'] = site.layouts[ @data['layout'] ]
+        @layout = site.layouts.select {|i| i.name == @data['layout']}[0]
       else
         # get default layout
-        @data['layout'] = site.layouts[(site.config['layout'] || 'main' || 'default')]
+        @layout = site.layouts.select {|i| i.default? }[0]
       end
     end
     
@@ -76,13 +90,13 @@ module Henshin
     # Renders the files content using the generators from #get_generators and all layout parsers. 
     # Passed through layout parser twice so that markup in the gen is processed.
     def render
-      @generators.each do |plugin|
+      self.generators.each do |plugin|
         @content = plugin.generate(@content)
       end
-
-      unless @data['ignore_layout'] || @data['layout'].nil?
-        @site.plugins[:layoutors].each do |plugin|
-          @content = plugin.generate(@data['layout'], self.payload)
+      
+      unless @data['ignore_layout']
+        self.layoutors.each do |plugin|
+          @content = plugin.generate(@layout.content, self.payload) if @layout
           @content = plugin.generate(@content, self.payload)
         end
       end

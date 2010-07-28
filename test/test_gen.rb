@@ -38,6 +38,7 @@ class TestGen < Test::Unit::TestCase
     should "get output extension from plugin" do
       gen = new_sass_gen
       gen.read
+      gen.render
       assert_equal 'sass', gen.data['input']
       assert_equal 'css', gen.data['output']
     end
@@ -47,8 +48,7 @@ class TestGen < Test::Unit::TestCase
       # index.html should use 'main'
       gen.read
       gen.render
-      l = File.open("#{root_dir}/layouts/main.html", 'r') {|f| f.read}
-      assert_equal l, gen.data['layout']
+      assert_equal gen.data['layout'], 'main'
     end
     
     should "have the correct permalink" do
@@ -72,6 +72,7 @@ class TestGen < Test::Unit::TestCase
     should "write with the correct output" do
       gen = new_sass_gen
       gen.read
+      gen.render
       assert_equal "#{target_dir}/css/screen.css".to_p, gen.write_path
     end
     

@@ -16,7 +16,7 @@ module Henshin
       @priority = 4
     end
     
-    def generate( content )
+    def generate(content)
       Sass::Engine.new(content, @config.to_options).render
     end
 

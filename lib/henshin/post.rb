@@ -2,7 +2,7 @@ module Henshin
 
   class Post < Gen
     
-    attr_accessor :path, :data, :content, :site, :layout, :generators
+    attr_accessor :path, :data, :content, :site, :layout
     
     def initialize( path, site )
       @path = path
@@ -10,18 +10,15 @@ module Henshin
       
       @content = ''
       @data = {}
-      @generators = []
       
-      @data['input'] = @path.extname[1..-1]
-    end
-    
+      @data['input'] = @path.extension
+    end    
     
     ##
     # Reads the file
     def read
       self.read_name
       self.read_file if @path.exist?
-      self.get_generators
       self.get_layout
       
       # now tidy up data
@@ -39,12 +36,12 @@ module Henshin
       result.each do |k, v|
         unless v.nil?
           case k
-            when 'title-with-dashes'
-              @data['title'] = v.gsub(/-/, ' ').titlecase
-            when 'title'
-              @data['title'] = v.titlecase
-            else
-              @data[k] = v
+          when 'title-with-dashes'
+            @data['title'] = v.gsub(/-/, ' ').titlecase
+          when 'title'
+            @data['title'] = v.titlecase
+          else
+            @data[k] = v
           end
         end
       end

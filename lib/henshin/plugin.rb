@@ -52,6 +52,10 @@ module Henshin
       self.priority <=> other.priority
     end
     
+    def inspect
+      "#<#{self.class.to_s}>"
+    end
+    
   end 
   
   # Generator is the plugin type for processing things like markdown

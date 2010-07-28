@@ -27,11 +27,11 @@ class TestPost < Test::Unit::TestCase
     end
     
     should "get next post" do
-      
+      assert_equal 1, 0
     end
     
     should "get previous post" do
-    
+      assert_equal 1, 0
     end
     
     should "have correct permalink" do
@@ -47,6 +47,7 @@ class TestPost < Test::Unit::TestCase
       site.config['file_name'] = "{date}-{title-with-dashes}.{extension}"
       post = Henshin::Post.new(@post_with_date.to_p, @site)
       post.read
+      post.render
       assert_equal '/2010/8/10/lorem-ipsum', post.url
     end
     

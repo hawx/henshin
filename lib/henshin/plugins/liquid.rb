@@ -4,7 +4,9 @@ module Henshin
   class LiquidPlugin < Layoutor
     
     def initialize(site)
+      @extensions = {:input => ['*', 'liquid']}
       @config = {}
+      @priority = 4
       
       if site.config['liquid']
         @config = site.config['liquid']
