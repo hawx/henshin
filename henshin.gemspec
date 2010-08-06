@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["hawx"]
-  s.date = %q{2010-07-27}
+  s.date = %q{2010-07-28}
   s.default_executable = %q{henshin}
   s.description = %q{Henshin is a static site generator, with a plugin system and more}
   s.email = %q{m@hawx.me}
@@ -32,7 +32,9 @@ Gem::Specification.new do |s|
      "lib/henshin/ext.rb",
      "lib/henshin/gen.rb",
      "lib/henshin/labels.rb",
+     "lib/henshin/layout.rb",
      "lib/henshin/plugin.rb",
+     "lib/henshin/plugins/erb.rb",
      "lib/henshin/plugins/highlight.rb",
      "lib/henshin/plugins/liquid.rb",
      "lib/henshin/plugins/maruku.rb",
@@ -45,6 +47,7 @@ Gem::Specification.new do |s|
      "test/site/css/_reset.sass",
      "test/site/css/print.css",
      "test/site/css/screen.sass",
+     "test/site/erb.html",
      "test/site/includes/head.html",
      "test/site/index.html",
      "test/site/layouts/archive_date.html",
@@ -52,6 +55,7 @@ Gem::Specification.new do |s|
      "test/site/layouts/archive_year.html",
      "test/site/layouts/category_index.html",
      "test/site/layouts/category_page.html",
+     "test/site/layouts/erbtest.erb",
      "test/site/layouts/main.html",
      "test/site/layouts/post.html",
      "test/site/layouts/tag_index.html",

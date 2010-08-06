@@ -1,6 +1,4 @@
 #!/usr/bin/env ruby
-$:.unshift File.dirname(__FILE__) + '/../lib' # testing only
-
 require 'henshin'
 require 'henshin/exec/files'
 

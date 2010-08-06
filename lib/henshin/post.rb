@@ -57,8 +57,8 @@ module Henshin
         'site'  => @site.payload['site'],
         'post'  => self.to_hash
       }
-      #r['post']['next'] = self.next.to_hash if self.next
-      #r['post']['prev'] = self.prev.to_hash if self.prev
+      r['post']['next'] = self.next.to_hash if self.next
+      r['post']['prev'] = self.prev.to_hash if self.prev
       r
     end
     

@@ -27,11 +27,19 @@ class TestPost < Test::Unit::TestCase
     end
     
     should "get next post" do
-      assert_equal 1, 0
+      site = @site.dup
+      p1 = Henshin::Post.new(@post.to_p, site)
+      p2 = Henshin::Post.new(@post_with_date.to_p, site)
+      site.posts << p1 << p2
+      assert_equal p2, p1.next
     end
     
     should "get previous post" do
-      assert_equal 1, 0
+      site = @site.dup
+      p1 = Henshin::Post.new(@post.to_p, site)
+      p2 = Henshin::Post.new(@post_with_date.to_p, site)
+      site.posts << p1 << p2
+      assert_equal p1, p2.prev
     end
     
     should "have correct permalink" do
