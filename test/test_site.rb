@@ -1,42 +1,49 @@
 require File.join(File.dirname(__FILE__) ,'helper')
 
 class TestSite < Test::Unit::TestCase
+
+  # Test methods called within Site#initialize
+  # except #configure which is tested in test_options
   context "A new site" do
+  
+    setup do
+      @site = new_site
+    end
     
     should "reset data" do
-      site = new_site
-      site.reset
-      assert_equal [], site.posts
-      assert_equal [], site.gens
-      assert_equal [], site.statics
-      assert_equal [], site.layouts
-      assert site.archive.size.zero?
-      assert site.tags.size.zero?
-      assert site.categories.size.zero?
+      @site.reset
+      assert_equal [], @site.posts
+      assert_equal [], @site.gens
+      assert_equal [], @site.statics
+      assert_equal [], @site.layouts
+      assert @site.archive.size.zero?
+      assert @site.tags.size.zero?
+      assert @site.categories.size.zero?
     end
     
     should "load and sort plugins" do
-      site = new_site
-      
-      site.plugins[:generators].each_value do |i|
+      @site.plugins[:generators].each_value do |i|
         assert_is_a Henshin::Generator, i
       end
       
-      site.plugins[:layoutors].each_value do |i|
+      @site.plugins[:layoutors].each_value do |i|
         assert_is_a Henshin::Layoutor, i
       end
     end
     
   end
 
-
+  # Test methods called within Site#read
   context "Reading site" do
+  
+    setup do
+      @site = new_site
+    end
 
     should "read layouts" do
-      site = new_site
-      site.read_layouts
+      @site.read_layouts
       l = Dir.glob( File.join(root_dir, 'layouts', '*.*') )
-      assert_equal l.size, site.layouts.size
+      assert_equal l.size, @site.layouts.size
     end
     
     should "read layouts first" do
@@ -54,34 +61,36 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "read posts" do
-      site = new_site
-      site.read_posts
+      @site.read_posts
       p = Dir.glob( File.join(root_dir, 'posts', '**', '*.*') )
-      assert_equal p.size, site.posts.size
+      assert_equal p.size, @site.posts.size
     end
     
     should "read gens" do
-      site = new_site
-      site.read_gens
+      @site.read_gens
       # For reference these are the gens
       # /css/print.sass
       # /index.html
       # /erb.html
-      assert_equal 3, site.gens.size
+      assert_equal 3, @site.gens.size
     end
     
     should "read statics" do
-      site = new_site
-      site.read_statics
+      @site.read_statics
       # For reference these are the static files:
       # /css/screen.css
       # /static.html
-      assert_equal 2, site.statics.size
+      assert_equal 2, @site.statics.size
     end
     
   end
   
+  # Test methods called within Site#process
   context "Processing site" do
+  
+    setup do
+      @site = new_site.read.process
+    end
   
     should "process posts" do
       site = new_site
@@ -100,49 +109,40 @@ class TestSite < Test::Unit::TestCase
     end
     
     should "sort posts" do
-      site = new_site
-      site.read.process
-      assert_equal site.posts, site.posts.sort
+      assert_equal @site.posts, @site.posts.sort
     end
     
     should "sort gens" do
-      site = new_site
-      site.read.process
-      assert_equal site.gens, site.gens.sort
+      assert_equal @site.gens, @site.gens.sort
     end
     
     should "build tags array" do
-      site = new_site
-      site.read.process
       # For reference these are the tags:
       # test: lorem-ipsum.markdown, same-date.markdown, Testing-Stuff.markdown, Textile-Test.textile
       # markdown: Testing-Stuff.markdown
       # lorem: lorem-ipsum.markdown, same-date.markdown
       # plugin: Textile-Test.textile
-      assert_equal 4, site.tags.size
-      assert site.tags[0].is_a? Henshin::Label
-      assert_equal 'tag', site.tags.base
+      assert_equal 4, @site.tags.size
+      assert @site.tags[0].is_a? Henshin::Label
+      assert_equal 'tag', @site.tags.base
     end
     
     should "build categories array" do
-      site = new_site
-      site.read.process
       # For reference these are the categories:
       # cat: cat/test.markdown
       # test: Testing-Stuff.markdown
-      assert_equal 2, site.categories.size
-      assert site.categories[0].is_a? Henshin::Label
-      assert_equal 'category', site.categories.base
+      assert_equal 2, @site.categories.size
+      assert @site.categories[0].is_a? Henshin::Label
+      assert_equal 'category', @site.categories.base
     end
     
     should "build archives" do
-      site = new_site
-      site.read.process
-      assert site.archive.size > 0
+      assert @site.archive.size > 0
     end
     
   end
   
+  # Test methods called within Site#render
   context "Rendering site" do
     
     should "render posts" do
@@ -167,30 +167,12 @@ class TestSite < Test::Unit::TestCase
     
   end
   
+  # Test methods called within Site#write
   context "Writing site" do
-  
-    should "write posts" do
-      
-    end
     
-    should "write gens" do
-    
-    end
-    
-    should "write statics" do
-    
-    end
-    
-    should "write tags" do
-    
-    end
-    
-    should "write categories" do
-    
-    end
-    
-    should "write archive" do
-    
+    setup do
+      @site = new_site
+      @site.read.process.render
     end
   
   end
