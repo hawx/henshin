@@ -130,7 +130,7 @@ module Henshin
     def write
       payload = {:name => @base, :payload => self.to_hash}
       page = Gen.new(self.fake_write_path, @site, payload)
-      
+
       page.data['layout'] = "#{@base}_page"
       page.get_layout
       
