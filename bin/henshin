@@ -18,7 +18,7 @@ EOS
 build = {:server => false, :auto => false, :port => 9991, :address => '0.0.0.0'}
 override = {}
 c = Clive.new do
-  banner help_banner
+  header help_banner
 
   command(:create, "Create a basic henshin site") do
     
