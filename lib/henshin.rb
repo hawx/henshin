@@ -9,6 +9,7 @@ require 'titlecase'
 require 'parsey'
 
 require 'henshin/site'
+require 'henshin/able'
 require 'henshin/plugin'
 
 require 'henshin/layout'

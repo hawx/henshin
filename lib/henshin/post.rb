@@ -28,26 +28,6 @@ module Henshin
       self
     end
     
-    # Reads the filename and extracts information from it
-    def read_name
-      
-      result = Parsey.parse(@path.to_s[(@site.root + 'posts').to_s.size..-1], @site.config['file_name'], Partials)
-
-      result.each do |k, v|
-        unless v.nil?
-          case k
-          when 'title-with-dashes'
-            @data['title'] = v.gsub(/-/, ' ').titlecase
-          when 'title'
-            @data['title'] = v.titlecase
-          else
-            @data[k] = v
-          end
-        end
-      end
-      
-    end
-    
     # Creates the data to be sent to the layout engine
     #
     # @return [Hash] the payload for the layout engine
