@@ -2,10 +2,8 @@
 #
 # Usage:
 #    henshin [options] [input] [output]
-#    henshin serve [options] [input]
+#    henshin help
 #
-
-$: << File.join(File.dirname(__FILE__), '..')
-require 'lib/henshin'
+require 'henshin/cli'
 
 Henshin.parse!(ARGV)
