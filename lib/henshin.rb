@@ -1,52 +1,19 @@
-$:.unshift File.dirname(__FILE__)
-
-require 'time'
-require 'yaml'
-require 'pp'
 require 'pathname'
-
+require 'yaml'
+require 'ostruct'
 require 'titlecase'
-require 'parsey'
+require 'fileutils'
+require 'active_support/inflector'
 
+require 'henshin/file'
+require 'henshin/file/layout'
+require 'henshin/cli'
+
+require 'henshin/base'
 require 'henshin/site'
-require 'henshin/able'
-require 'henshin/plugin'
+require 'henshin/blog'
 
-require 'henshin/layout'
-require 'henshin/gen'
-require 'henshin/post'
-require 'henshin/static'
-
-require 'henshin/labels'
-require 'henshin/archive'
-require 'henshin/ext'
-
+require 'rack/henshin'
 
 module Henshin
-  
-  # Default options for configuration
-  Defaults = {'title' => 'A site',
-              'file_name' => '<{category}/>{title-with-dashes}.{extension}',
-              'permalink' => '/{year}/{month}/{date}/{title}.html',
-              'plugins' => ['maruku', 'liquid'],
-              'root' => './',
-              'target' => '_site',
-              'exclude' => []}.freeze
-              
-  # Partial regexs for use in parsing file names
-  Partials = {'title' => '([a-zA-Z0-9_ -]+)',
-              'title-with-dashes' => '([a-zA-Z0-9-]+)',
-              'date' => '(\d{4}-\d{2}-\d{2})',
-              'date-time' => '(\d{4}-\d{2}-\d{2} at \d{2}:\d{2})',
-              'xml-date-time' => '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?((\+|-)\d{2}:\d{2})?)',
-              'category' => '([a-zA-Z0-9_ -]+)',
-              'extension' => "([a-zA-Z0-9_-]+)"}.freeze
-  
-  # Reads the current version from VERSION
-  #
-  # @return [String] current version
-  def self.version
-    File.read( File.join(File.dirname(__FILE__), '..', 'VERSION') )
-  end
-
 end
