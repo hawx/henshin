@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Archive</title>
+    <link rel="stylesheet" href="css/screen.css" type="text/css" />
+  </head>
+  <body>
+  
+    <a href="/">Home</a>
+    <h1>Archive</h1>
+    
+    <ul>
+      {% for year in (2000..2011) %}
+        {% if archive.posts[year] %}
+        <li>{{ year }}</li>
+        <ul>
+          {% for month in (1..12) %}
+            {% if archive.posts[year][month] %}
+            <li>{{ month }}</li>
+            <ul>
+              {% for day in (1..31) %}
+                {% if archive.posts[year][month][day] %}
+                <li>{{ day }}</li>
+                <ul>
+                  {% for post in archive.posts[year][month][day] %}
+                    <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+              {% endfor %}
+            </ul>
+            {% endif %}
+          {% endfor %}
+        </ul>
+        {% endif %}
+      {% endfor %}
+    </ul>
+
+    <span>Copyright &copy; {{ site.author }}</span>
+  
+  </body>
+</html>

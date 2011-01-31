@@ -1,0 +1,36 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8" />  
+    <title>{{ post.title }}</title>  
+    {% include head.html %} 
+  </head>  
+  <body>
+  
+  <nav>
+    {% if post.next %}
+      <a href="{{ post.next.url }}">&larr;</a>&emsp;
+    {% endif %}
+    <a href="/">Home</a>
+    {% if post.prev %}
+      &emsp;<a href="{{ post.prev.url }}">&rarr;</a>
+    {% endif %}
+  </nav>
+  
+  <header>
+    <h1>{{ post.title }}</h1>
+    <time>{{ post.date | date_to_string }}</time>
+    
+    <ul class="tags">
+      {% for tag in post.tags %}
+        <li><a href="{{ tag.url }}">{{ tag.name }}</a></li>
+      {% endfor %}
+    </ul>
+    
+  </header>
+  
+  {{ yield }}
+  
+  <span>Copyright &copy; {% if post.author %}{{ post.author }}{% else %}{{ site.author }}{% endif %}</span>
+  </body>  
+</html> 

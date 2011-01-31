@@ -1,0 +1,20 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8" />  
+    <title>{{ site.title }}</title>
+    <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  </head>  
+  <body>
+    <a href="/">Home</a>
+    <h1>Archive for {{ archive.year }}/{{ archive.month }}/{{ archive.day }}</h1>
+    
+    <ul>
+      {% for post in archive.posts[archive.year][archive.month][archive.day] %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+      {% endfor %}
+    </ul>
+    
+    <span>Copyright &copy; {{ site.author }}</span>
+  </body>  
+</html> 

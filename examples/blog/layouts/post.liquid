@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  </head>
+  <body>
+    <header>
+      <h1>{{ post.title }}</h1>
+      <h2>{{ post.date }}</h2>
+      <a href="/">Home</a>
+      <ul>
+        {% for tag in post.tags %}
+          <li><a href="{{ tag.url }}">{{ tag.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </header>
+    
+    <article>
+      {{ yield }}
+    </article>
+  </body>
+</html>

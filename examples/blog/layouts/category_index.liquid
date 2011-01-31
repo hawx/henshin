@@ -1,0 +1,27 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8" />  
+    <title>categories</title>
+    <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  </head>  
+  <body>
+    <a href="/">Home</a>
+  
+    <h2>A List of categories</h2>
+    <ul>
+      {% for categories in categories %}
+        <li>
+          <a href="{{ categories.url }}">{{ categories.name }}</a>
+          <ul>
+          {% for post in categories.posts %}
+            <li><time>{{ post.date }}</time> - <a href="{{ post.url }}">{{ post.title }}</a></li>
+          {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+    
+    <span>Copyright &copy; {{ site.author }}</span>
+  </body>  
+</html> 

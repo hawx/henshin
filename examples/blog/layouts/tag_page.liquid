@@ -1,0 +1,20 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="utf-8" />  
+    <title>{{ tag.name }}</title>
+    <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  </head>  
+  <body>
+    <a href="/">Home</a>
+    
+    <h2>{{ tag.name }}</h2>
+    <ul>
+    {% for post in tag.posts %}
+      <li><time>{{ post.date }}</time> - <a href="{{ post.url }}">{{ post.title }}</a></li>
+    {% endfor %}
+    </ul>
+    
+    <span>Copyright &copy; {{ site.author }}</span>
+  </body>  
+</html> 

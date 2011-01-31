@@ -1,0 +1,5 @@
+timezone: GMT
+type: blog
+
+serve:
+  handler: thin
