@@ -23,5 +23,5 @@ pkg
 _site/
 .sass-cache/
 docs-github/
-hmm/
 doc/
+cov/
