@@ -1,0 +1,53 @@
+henshin(1) -- static site generator
+===================================
+
+## SYNOPSIS
+
+`henshin` <read> [<write>]<br>
+`henshin` serve <read>
+
+
+## DESCRIPTION
+
+**Henshin** is a static site generator, it takes a folder of files,
+layouts, etc. and turns them into a website you can put on a web
+server. 
+
+The `serve` command stops **henshin** from writing any output 
+instead it starts a web server and generates the files that are 
+needed to display a specific page.
+
+If no <write> is given the default path of <read>`/_site` is used.
+If no <read> is given either then it is assumed the current directory
+is the input directory and `./_site` is the output.
+
+The following arguments can be passed:
+
+  * `serve`:
+    Starts a server (thin/mongrel/webrick) running your site.
+    
+    * `-[-no]-write`:
+      Force **henshin** to write as well.
+      
+    * `-[-no]-reload`:
+      Do/Don't reload files when they are changed.
+      
+    * `-p, --port`=<port>:
+      Specify port to use.
+      
+    * `-S, --server`=<server>:
+      Specify server to use.
+    
+    
+## INSTALLATION
+
+Assuming you have RubyGems installed run:
+
+    gem install henshin    
+
+
+## COPYRIGHT
+
+Henshin is Copyright (C) 2010 Joshua Hawxwell
+
+
