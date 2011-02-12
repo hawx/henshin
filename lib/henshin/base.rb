@@ -4,14 +4,53 @@ require 'ostruct'
 require 'titlecase'
 require 'fileutils'
 require 'active_support/inflector'
+require 'chronic'
 
-require 'class_attr'
+require 'attr_plus'
+require 'clive/output'
 
+require 'henshin/matcher'
+require 'henshin/filter'
 require 'henshin/file'
 require 'henshin/file/layout'
 
 
 module Henshin
+
+  # Description of DEFAULTS
+  #
+  #  'dest_prefix' directory (relative) to build sites to
+  #  'source' source location
+  #  'dest' build location
+  #  'root' prefix for urls
+  #  'layout_paths' paths to find layouts
+  #  'ignore' array of files to ignore
+  #  'load' array of files to load (then ignore)
+  #
+  DEFAULTS = {
+    'dest_suffix'  => '_site',
+    'source'       => Pathname.pwd,
+    'dest'         => Pathname.pwd + '_site',
+    'root'         => '',
+    'layout_paths' => ['layouts/*.*', '**/layouts/*.*'],
+    'ignore'       => [],
+    'load'         => []
+  }
+  
+  module_attr_accessor :registered => {'base' => Henshin::Base}
+  
+  # Register a subclass of Henshin::Base that can be used for building sites
+  # it should implement all the necessary protocols.
+  #
+  # @param key [String]
+  #   Identifier used when loading with the command line interface, this is
+  #   the argument that should be supplied to build using the klass.
+  #
+  # @param klass [Class]
+  #
+  def self.register(key, klass)
+    registered[key] = klass
+  end
   
   # @abstract
   #
@@ -21,27 +60,10 @@ module Henshin
   #
   # Base itself will only have two types of files it deals
   # with in its mind: Gens and Statics. There is no post in
-  # Base. It obviously also deals with layouts aswell.
-  #
-  #
-  # *CONFIG*
-  #
-  # This is a list of the configuration variables available to use:
-  #
-  #   dest   #=> [Pathname] The directory to write into
-  #   source #=> [Pathname] The directory to read from
-  #   root   #=> [String] A prefix to append to all urls
+  # Base. It obviously also deals with layouts as well.
   #
   class Base
-    
-    DEFAULTS = {
-      'dest_prefix'  => '_site',
-      'source'       => Pathname.pwd,
-      'dest'         => Pathname.pwd + '_site',
-      'root'         => '',
-      'layout_paths' => ['layouts/*.*', '**/layouts/*.*']
-    }
-    
+  
     @config = {}
     attr_accessor :files, :config, :write_path
     
@@ -112,7 +134,10 @@ module Henshin
       if config['source'] && !config['dest']
         config['dest'] = config['source'] + DEFAULTS['dest_prefix']
       end
-      new(config).read.render.write
+      site = new(config)
+      site.read
+      site.render
+      site.write
     end
     
     # Creates a new instance of Henshin::Base.
@@ -123,7 +148,11 @@ module Henshin
     def initialize(config={})
       # Precedence:
       # @@const > +config+ > @@pre_config > DEFAULTS
-      @config = DEFAULTS.merge pre_config.merge config.merge const
+      begin
+        @config = DEFAULTS.merge pre_config.merge config.merge const
+      rescue
+        @config = DEFAULTS
+      end
       load_config
       @files   = []
       @injects = []
@@ -135,7 +164,7 @@ module Henshin
     # @param load_dirs [Array[Pathname]]
     # @return [Hash{String=>Object}]
     #
-    def load_config(load_dirs=nil)
+    def load_config(load_dirs=nil, load=true)
       load_dirs ||= [self.source, Pathname.pwd]
       
       load_dirs.each do |d|
@@ -152,19 +181,40 @@ module Henshin
         end
       end
       
+      # If any requires require them, do that before loading!
+      if @config['require'] && load
+        [@config['require']].flatten.each do |i|
+          require (source + i).realpath
+          @config['ignore'] << (source + i).realpath
+        end
+      end
+      
+      # If any loads have been set load the files
+      if @config['load'] && load
+        [@config['load']].flatten.each do |i|
+          self.class.class_eval (source + i).realpath.read
+          @config['ignore'] << (source + i).realpath
+        end
+      end
+      
       @config
     end
     
-    def self.load_config(load_dirs=nil)
-      new.load_config(load_dirs)
+    def self.load_config(load_dirs=nil, load=true)
+      new.load_config(load_dirs, load)
     end
-    
+=begin
     # Reads the files 
-    def read
+    def read(dirs=nil)
       @files = []
       run(:before, :read, self)
       
-      glob_dir = self.source + '**' + '*'
+      if dirs
+        glob_dir = Pathname.new("{"+dirs.join(',')+"}") + '**' + '*'
+      else
+        glob_dir = self.source + '**' + '*'
+      end
+
       files = Pathname.glob(glob_dir)
       files.reject! {|i| i.directory? }
       
@@ -176,16 +226,72 @@ module Henshin
             break
           end
         end
+        
+        @config['ignore'].each do |m|
+          if f.realpath == m
+            r = true
+            break
+          end
+        end
         r
       end
       
       files.each do |file|
-        @files <<  run_through_filters(file)
+        @files << run_through_filters(file)
       end
       
       run(:after, :read, self)
       self
     end
+=end
+    
+    def read(dirs = [self.source.to_s]) 
+      @files = []
+      run :before, :read, self
+      
+      glob_dir = Pathname.new("{"+dirs.join(',')+"}") + '**' + '*'
+      
+      files = Pathname.glob(glob_dir)
+      files.reject! {|i| i.directory? }
+      
+      files.reject! do |f|
+        r = false
+        ignores.each do |m|
+          if f.fnmatch(m)
+            r = true
+            break
+          end
+        end
+        
+        @config['ignore'].each do |m|
+          if f.realpath == m
+            r = true
+            break
+          end
+        end
+        r
+      end
+      
+      # Need to implement priorities      
+      files.each do |f|
+        _k = _p = nil
+        filter_blocks.each do |(m,k,p)|
+          if m.matches?(f.relative_path_from(source).to_s)
+            _k = k
+          end
+        end
+        if _k
+          @files << _k.new(f, self)
+        else
+          @files << Henshin::File.new(f, self)
+        end
+      end
+
+      run :after, :read, self
+      @files
+    end
+    
+=begin
     
     # Run a path through @@filters
     #
@@ -227,8 +333,7 @@ module Henshin
         Henshin::File.new(file, self)
       end
     end
-    
-    
+
     # Run a file through @@filters
     #
     # @param [Henshin::File]
@@ -262,6 +367,25 @@ module Henshin
       
       run(:after, :render, self) 
       self
+    end
+=end
+
+    def render(files=@files)
+      files.each do |f|
+        render_blocks.each do |(m,b)|
+          if vals = m.matches(f.path.to_s)
+            if vals['splat']
+              f.class.send(:define_method, :splat) { v }
+            end
+            
+            if res = vals.select {|k,v| k != 'splat'}
+              f.class.send(:define_method, :keys) { res }
+            end
+            
+            f.instance_exec(*vals.values.flatten, &b)
+          end
+        end
+      end
     end
      
     # Writes the site to the correct directory, by calling the write 
@@ -365,6 +489,59 @@ module Henshin
     end
     
     
+    
+    # Define new rendering phases, these are basically merges with FilterBody
+    # but supercharged because they were way too limited to do anything.
+    # Filters will now just set the class, #engine will be replaced with Engine
+    # which has #make defined which takes the content and data returning a string
+    # this will allow more flexibility like in the old plugin system which I 
+    # really liked.
+    # 
+    # Any way an example
+    #
+    #   # define an engine
+    #   class MarukuEngine
+    #     def make(content, data)
+    #       doc = Maruku.new(content)
+    #       doc.to_html
+    #     end
+    #   end
+    #   
+    #   # Use sinatra style route matching then pass in the results
+    #   render 'posts/:category/:title.*' do |m|
+    #     set :title, m[:title]
+    #     set :category, m[:category]
+    #     set :extension, m[:splat][0]
+    #   end
+    #   
+    #   # gets my-file.markdown
+    #   #   or something/siemtb/my-file.md, etc
+    #   render '**/*.{md,mkd,markdown}' do
+    #     # These steps all happen in order when this proc is #call-ed
+    #     set :output 'html' # set the output
+    #     apply MarukuEngine # use the engine
+    #   end
+
+    class_attr_accessor :render_blocks, :filter_blocks, :default => []
+    
+    def self.render(match, &block)
+      render_blocks << [Matcher.new(match), block]
+    end
+    
+    # Set a klass filter for a path, set the priority as either :high, :medium
+    # or :low. It is recommended not to overuse :high as it is for very specific 
+    # purposes.
+    #
+    # Internally you can set the :internal flag for guaranteed highest priority.
+    #
+    def self.filter(match, klass, priority=:low)
+      filter_blocks << [Matcher.new(match), klass, priority]
+    end
+    
+    
+    filter 'layouts/*.*', Layout, :internal
+    
+    
     # These are the class methods to be used when setting up a sub-class of 
     # Henshin::Base.
     
@@ -398,7 +575,7 @@ module Henshin
     #     end
     #   end
     #
-    def self.filter(arg, &block)
+    def self._filter(arg, &block)
       patterns = *arg.keys[0]
       klass = arg.values[0]
       
@@ -596,7 +773,6 @@ module Henshin
   end
   
 end
-
 
 class String
 
