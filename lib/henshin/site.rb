@@ -1,8 +1,8 @@
-require 'henshin/base'
-require 'henshin/file/page'
+require_relative 'base'
+require_relative 'file/page'
 
 %w(coffeescript erb haml liquid maruku redcloth sass).each do |l|
-  require "henshin/filter/#{l}"
+  require_relative "filter/#{l}"
 end
 
 module Henshin
@@ -20,8 +20,58 @@ module Henshin
     
     
     after_each :write do |file|
-      puts file.path.to_s
+      if file.can_write?
+        puts "  #{'->'.green} #{file.write_path.to_s.grey}"
+      end
     end
+    
+    
+    class MarukuEngine
+      def make(content, data)
+        Maruku.new(content).to_html
+      end
+    end
+    
+    class LiquidEngine
+      def make(content, data)
+        
+      end
+    end
+    
+    class SassEngine
+      def make(content, data)
+        engine = Sass::Engine.new(content, :syntax => :sass)
+        engine.render
+      rescue NameError
+        require 'sass'
+        retry
+      end
+    end
+    
+    render '**/:title.liquid' do
+      set :output, 'html'
+      set :title, keys[:title]
+      
+      apply LiquidEngine
+    end
+    
+    render '**/:title.markdown' do
+      set :output, 'html'
+      set :title, keys[:title]
+      
+      apply MarukuEngine
+    end
+    
+    render '**/*.sass' do
+      set :output, 'css'
+      set :no_layout, true # would be better as +set :layout, false+
+      
+      apply SassEngine
+    end
+    
+    filter 'layouts/*.*', Layout, :internal
     
   end
 end
+
+Henshin.register 'site', Henshin::Site

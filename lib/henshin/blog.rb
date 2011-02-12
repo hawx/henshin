@@ -79,3 +79,5 @@ module Henshin
     
   end
 end
+
+Henshin.register 'blog', Henshin::Blog

@@ -11,7 +11,7 @@ module Henshin
     
     def url
       y = YAML.load(self.yaml)
-      date = Time.parse(y['date'])
+      date = Chronic.parse(y['date'])
       "/#{date.year}/#{date.month}/#{date.day}/#{y['title'].slugify}"
     end
     

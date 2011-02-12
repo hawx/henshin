@@ -22,51 +22,19 @@ module Henshin
   # itself is determined by the path.
   #
   class File
-  
-    # Open the singleton class of this class to add accessors for payload_keys
-    # which aren't tied to class variables
-    class << self; attr_accessor :payload_keys; end
-    @payload_keys = []
-  
-    # Use this for file type attributes, they are slightly different 
-    # as the value will be automatically added to the #data and #payload
-    # hashes.
-    #
-    # Note: Not all values should be made as attribute some may require
-    # the use of attr_accessor, for example "engine", as the user doesn't
-    # want to find an "engine" key in the payload to the rendering engine! 
     
-    # Adds a key to the payload hash with the name of the method passed and
-    # the value the method returns. This is then available when templating.
-    #
-    # @example
-    #
-    #   def url
-    #     "/page/#{@path.basename}"
-    #   end
-    #   attribute :url
-    #   # adds {'url' => #url} to data hash
-    #   # which is available with '{{ file.url }}' in liquid, for example
-    #
-    # @param attrs [Symbol]
-    #
+    inheritable_class_attr_accessor :payload_keys => []
+    
     def self.attribute(*attrs)
-      if self.name == "Henshin::File"
-        @payload_keys ||= []
-      else
-        # the #dup call is _very_ important
-        @payload_keys ||= superclass.payload_keys.dup
+      attrs.each do |i|
+        payload_keys << i
       end
-      
-      @payload_keys += attrs
     end
     
-    attr_accessor :engine, :key, :type, :no_layout, :rendered
-    attr_accessor :path, :output
-    attribute :path, :output
+    attr_accessor :engine, :key, :type, :no_layout, :rendered, :output, :path
+    attribute :path
     
     def initialize(path, site)
-      @payload_keys = self.class.payload_keys || []
       if path.respond_to? :extname
         @path = path
       elsif path
@@ -83,6 +51,40 @@ module Henshin
     
     def inject_payload(hash)
       @injects << hash
+    end
+    
+    
+  # @group Filter Methods
+    
+    # Set a property for the file
+    def set(key, value)
+      if respond_to?("#{key}=")
+        send("#{key}=", value)
+      else
+        # store in the data hash
+        #
+        # Obviously first I need to set up the data hash
+      end
+    end
+    
+    # Use a rendering engine, though shouldn't be used immediately should be stored and
+    # executed later.
+    def apply(engine)
+      engine.new.make(content, data)
+    end
+    
+    # Should store the class in a list to call at a later date but this will be pretty much
+    # the implementation, only difference to #apply is the file itself is passed so the klass
+    # can do anything it wants!
+    def use(klass)
+      klass.new.make(self)
+    end
+    
+    
+  # @group Questions
+    
+    def can_read?
+      true
     end
     
     def can_render?
@@ -105,12 +107,18 @@ module Henshin
     #   Whether the file contains YAML frontmatter.
     #
     def has_yaml?
-      @path.read(3) == "---"
+      if can_read?
+        @path.read(3) == "---"
+      else
+        false
+      end
     end
     
     def rendered?
       !!@rendered
     end
+    
+  # @endgroup
     
     # Get the mime type for the output file.
     def mime
@@ -172,8 +180,6 @@ module Henshin
       @path.relative_path_from @site.config['source']
     end
     
-    
-    
     # @return [Hash{String=>Object}]
     #   Data taken from the file, usually from the YAML frontmatter
     #   but may also come from the file name, folders, etc.
@@ -183,13 +189,13 @@ module Henshin
           
       r = {}
       
-      @payload_keys.each do |k|
+      payload_keys.each do |k|
         o = self.send(k)
         o = o.to_s if o.is_a? Pathname
         r[k.to_s] = o
       end
     
-      if !@override_content && has_yaml?
+      if has_yaml?
         r.merge YAML.load(self.yaml)
       else
         r
@@ -211,7 +217,7 @@ module Henshin
       
       r = site_payload.merge({
         singular_key => self.data, # makes it easier to create layouts
-        'file'   => self.data      # if all files share a key, "file".
+        'file'   => self.data      # if all files share the key, "file".
       })
       
       @injects.each do |i|
@@ -225,20 +231,33 @@ module Henshin
     #   The yaml frontmatter of the file.
     #
     def yaml
-      file = @path.read
-      file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
-      file[0..$1.size-1] || ""
+      if can_read?
+        file = @path.read
+        file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
+        file[0..$1.size-1] || ""
+      end
     end
     
     
 
   # @group Overrides
   
+    # Override the content with +val+. Note if +@rendered+ is present it 
+    # will be preferred over this.
+    #
+    # @param val [String]
+    #
     def content=(val)
       @override_content = val
     end
     
     # Override the data loading if necessary
+    
+    # Override the data with +val+. This will be preferred over any other 
+    # value so will prevent the data from being loaded.
+    #
+    # @param val [Hash]
+    #
     def data=(val)
       @override_data = val
     end
@@ -266,20 +285,20 @@ module Henshin
         raw_content
       end
     end
-    attribute :content
 
     # This is kind of like #content, but will never return rendered content
     # under any circumstances.
     def raw_content
       if @override_content
         @override_content
-      elsif has_yaml?
-        @path.read[yaml.size..-1]
-      else
-        @path.read
+      elsif can_read?
+        if has_yaml?
+          @path.read[yaml.size..-1]
+        else
+          @path.read
+        end
       end
     end
-    attribute :raw_content
   
     # @return [String]
     #   Extension of the original file.
@@ -287,7 +306,6 @@ module Henshin
     def extension
       @path.extname[1..-1]
     end
-    attribute :extension
 
     # @return [String]
     #   The pretty url for the file, eg. +/my_file+ instead of 
@@ -300,7 +318,6 @@ module Henshin
         permalink
       end
     end
-    attribute :url
     
     # @return [String]
     #   Full url to the file itself.
@@ -308,7 +325,6 @@ module Henshin
     def permalink
       "/" + write_path.to_s
     end
-    attribute :permalink
     
     # @return [String]
     #   Base name of file, eg. /my_site/somefile/about.liquid -> about
@@ -316,7 +332,6 @@ module Henshin
     def title
       @path.basename.to_s.split('.')[0].titlecase
     end
-    attribute :title
 
     # If the output has been set during rendering return that value otherwise
     # assume the extension has not changed.
@@ -326,18 +341,15 @@ module Henshin
     def output
       @output || self.extension
     end
-    attribute :output
 
     # @todo Get this working properly
     def plural_key
       singular_key.pluralize || 'files'
     end
-    attribute :plural_key
     
     def singular_key
       @key ? @key.to_s : 'file'
     end
-    attribute :singular_key
     
 
   # @group Actions
@@ -374,7 +386,6 @@ module Henshin
         FileUtils.mkdir_p (dir + write_path).dirname
         f = ::File.new(dir + write_path, 'w')
         f.puts(self.content)
-        puts "  #{'->'.green} #{dir.to_s.grey}/#{write_path}"
       end
     end
     
