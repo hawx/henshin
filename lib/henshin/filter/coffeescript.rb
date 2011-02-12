@@ -1,5 +1,3 @@
-require 'henshin/filter'
-
 module Henshin
   module CoffeeScriptFilter
     include Henshin::Filter

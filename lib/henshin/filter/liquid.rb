@@ -1,11 +1,9 @@
-require 'henshin/filter'
-
 module Henshin
   module LiquidFilter
     include Henshin::Filter
     
     type 'liquid'
-    pattern '**/*.liquid'
+    patterns '**/*.liquid', '*.liquid'
     
     engine do |content, data|
       begin
@@ -17,7 +15,5 @@ module Henshin
     end
     
   end
-  
-  
   
 end
