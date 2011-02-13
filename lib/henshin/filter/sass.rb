@@ -1,40 +1,17 @@
 module Henshin
-  module SassFilter
-    include Henshin::Filter
-    
-    type 'sass'
-    pattern '**/*.sass'
-    
-    engine do |content, data|
-      begin
-        engine = Sass::Engine.new(content, :syntax => :sass)
-        engine.render
-      rescue NameError
-        require 'sass'
-        retry
-      end
+ 
+  autoloads :Sass, 'sass'
+  
+  class SassEngine
+    def make(content, data)
+      Sass::Engine.new(content, :syntax => :sass).render
     end
-    
-    output 'css'
-    no_layout true
   end
   
-  module ScssFilter
-    include Henshin::Filter
-    
-    type 'scss'
-    pattern '**/*.scss'
-    
-    engine do |content, data|
-      begin
-        Sass::Engine.new(content, :syntax => :scss).render
-      rescue NameError
-        require 'sass'
-        retry
-      end
+  class ScssEngine
+    def make(content, data)
+      Sass::Engine.new(content, :syntax => :scss).render
     end
-    
-    output 'css'
-    no_layout true
   end
+  
 end

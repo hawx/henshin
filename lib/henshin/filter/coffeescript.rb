@@ -1,19 +1,11 @@
 module Henshin
-  module CoffeeScriptFilter
-    include Henshin::Filter
-    
-    type 'coffeescript'
-    pattern '**/*.coffee'
-    
-    engine do |content, data|
-      begin
-        CoffeeScript.compile(content)
-      rescue NameError
-        require 'coffee-script'
-        retry
-      end
+  
+  autoloads :CoffeeScript, 'coffee-script'
+  
+  class CoffeeScriptEngine
+    def make(content, data)
+      CoffeeScript.compile(content)
     end
-    
-    output 'js'
   end
+  
 end

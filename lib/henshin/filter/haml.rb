@@ -1,17 +1,11 @@
 module Henshin
-  module HamlFilter
-    include Henshin::Filter
-    
-    type 'haml'
-    pattern '**/*.haml'
-    
-    engine do |content, data|
-      begin
-        Haml::Engine.new(content).render(Object.new, data)
-      rescue NameError
-        require 'haml'
-        retry
-      end
+  
+  autoloads :Haml, 'haml'
+  
+  class HamlEngine
+    def make(content, data)
+      Haml::Engine.new(content).render(Object.new, data)
     end
   end
+  
 end

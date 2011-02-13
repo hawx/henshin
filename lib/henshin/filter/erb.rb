@@ -1,17 +1,11 @@
 module Henshin
-  module ErbFilter
-    include Henshin::Filter
-    
-    type 'erb'
-    patterns '**/*.erb', '**/*.rhtml'
-    
-    engine do |content, data|
-      begin
-        ERB.new(content).run(data)
-      rescue NameError
-        require 'erb'
-        retry
-      end
+  
+  autoloads :ERB, 'erb'
+  
+  class ErbEngine
+    def make(content, data)
+      ERB.new(content).run(data)
     end
   end
+  
 end
