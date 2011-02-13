@@ -9,6 +9,8 @@ require 'chronic'
 require 'attr_plus'
 require 'clive/output'
 
+require 'henshin/core_ext'
+
 require 'henshin/matcher'
 require 'henshin/filter'
 require 'henshin/file'
@@ -136,6 +138,7 @@ module Henshin
       end
       site = new(config)
       site.read
+      site.pre_render
       site.render
       site.write
     end
@@ -203,48 +206,7 @@ module Henshin
     def self.load_config(load_dirs=nil, load=true)
       new.load_config(load_dirs, load)
     end
-=begin
-    # Reads the files 
-    def read(dirs=nil)
-      @files = []
-      run(:before, :read, self)
-      
-      if dirs
-        glob_dir = Pathname.new("{"+dirs.join(',')+"}") + '**' + '*'
-      else
-        glob_dir = self.source + '**' + '*'
-      end
 
-      files = Pathname.glob(glob_dir)
-      files.reject! {|i| i.directory? }
-      
-      files.reject! do |f|
-        r = false
-        ignores.each do |m|
-          if f.fnmatch(m)
-            r = true
-            break
-          end
-        end
-        
-        @config['ignore'].each do |m|
-          if f.realpath == m
-            r = true
-            break
-          end
-        end
-        r
-      end
-      
-      files.each do |file|
-        @files << run_through_filters(file)
-      end
-      
-      run(:after, :read, self)
-      self
-    end
-=end
-    
     def read(dirs = [self.source.to_s]) 
       @files = []
       run :before, :read, self
@@ -290,87 +252,8 @@ module Henshin
       run :after, :read, self
       @files
     end
-    
-=begin
-    
-    # Run a path through @@filters
-    #
-    # @param [Pathname]
-    # @return [Henshin::File]
-    #
-    def run_through_filters(file)
-      found = []
-      k = nil
-      
-      filters.each do |filter|
-        if filter.matches?(file)
-          found << filter
-        end
-      end
-        
-      layout_paths.each do |m|
-        if file.fnmatch(m)
-          k = Henshin::Layout
-        end
-      end
-      
-      if k
-        instance = k.new(file, self)
-        found.each {|b| b.do_filter!(instance) }
-        instance
-      elsif found != []
-        k = found.map(&:klass).compact.last
-        if k
-          instance = k.new(file, self)
-          found.each {|b| b.do_filter!(instance) }
-          instance
-        else
-          instance = Henshin::File.new(file, self)
-          found.each {|b| b.do_filter!(instance) }
-          instance
-        end
-      else
-        Henshin::File.new(file, self)
-      end
-    end
 
-    # Run a file through @@filters
-    #
-    # @param [Henshin::File]
-    # @return [Henshin::File]
-    #
-    def run_file_through_filters(file)
-      found = []
-      
-      filters.each do |filter|
-        if filter.matches?(file.path)
-          found << filter
-        end
-      end
-      
-      found.each {|b| b.do_filter!(file)}
-      file
-    end
-    
-    def render
-      run(:before, :render, self)
-      @files.each do |file|
-        run(:before_each, :render, file)
-        file.render
-        
-        layout = file.layout(files)
-        if layout
-          file.rendered = layout.render_with(file)
-        end
-        run(:after_each, :render, file)
-      end
-      
-      run(:after, :render, self) 
-      self
-    end
-=end
-
-    def render(files=@files)
+    def pre_render(files=@files)
       files.each do |f|
         render_blocks.each do |(m,b)|
           if vals = m.matches(f.path.to_s)
@@ -386,21 +269,40 @@ module Henshin
           end
         end
       end
+      files
+    end
+    
+    def render(files=@files, layouts=@files, force=false)
+      run :before, :render, self
+      
+      files.each do |f|
+        run :before_each, :render, f
+        f.render
+        
+        layout = f.find_layout(layouts)
+        if layout
+          f.rendered = layout.render_with(f)
+        end
+        run :after_each, :render, f
+      end
+      
+      run :after, :render, self
+      files
     end
      
     # Writes the site to the correct directory, by calling the write 
     # methods of all files with the directory to write into.
-    def write
+    def write(files=@files)
       @write_path = self.dest # || others...
-      run(:before, :write, self)
+      run :before, :write, self
             
-      @files.each do |file|
-        run(:before_each, :write, file)
-        file.write(@write_path)
-        run(:after_each, :write, file)
+      files.each do |file|
+        run :before_each, :write, file
+        file.write @write_path
+        run :after_each, :write, file
       end
       
-      run(:after, :write, self)
+      run :after, :write, self
       self
     end
     
@@ -413,21 +315,11 @@ module Henshin
     #   Permalink of the file to render.
     #
     def render_file(permalink)
-      files = self.read.files
-      
-      file = files.find {|i| i.permalink == permalink }
-      
+      @files = self.pre_render(self.read)
+      file = @files.find {|i| i.permalink == permalink }
+
       if file
-        run(:before, :render, self)
-        file.render(true)
-        
-        layout = file.layout(files)
-        
-        if layout
-          file.rendered = layout.render_with(file)
-        end
-        run(:after, :render, self)
-        
+        file = self.render([file], files, true).first        
         [200, {"Content-Type" => file.mime}, [file.content]]
       else
         # Check the routes that have been set
@@ -770,23 +662,6 @@ module Henshin
   
   # @endgroup
     
-  end
-  
-end
-
-class String
-
-  # Turns the string to a slug
-  #
-  # @return [String] the created slug
-  def slugify
-    slug = self.clone
-    slug.gsub!(/[']+/, '')
-    slug.gsub!(/\W+/, ' ')
-    slug.strip!
-    slug.downcase!
-    slug.gsub!(' ', '-')
-    slug
   end
   
 end
