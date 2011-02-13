@@ -8,11 +8,17 @@ module Henshin
     end
     
     def render_with(file)
-      if self.engine
-        insert = file.payload
-        insert['yield'] = file.content
-        self.engine.call(self.content, insert)
+      r = ""
+      insert = file.payload
+      insert['yield'] = file.content
+    
+      if @applies
+        @applies.each do |engine|
+          r = engine.new.make(self.content, insert)
+        end
       end
+      
+      r
     end
     
     def can_write?

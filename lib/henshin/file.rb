@@ -67,17 +67,21 @@ module Henshin
       end
     end
     
+    attr_accessor :applies, :uses
+    
     # Use a rendering engine, though shouldn't be used immediately should be stored and
     # executed later.
     def apply(engine)
-      engine.new.make(content, data)
+      # engine.new.make(content, data)
+      (@applies ||= []) << engine
     end
     
     # Should store the class in a list to call at a later date but this will be pretty much
     # the implementation, only difference to #apply is the file itself is passed so the klass
     # can do anything it wants!
     def use(klass)
-      klass.new.make(self)
+      # klass.new.make(self)
+      (@uses ||= []) << klass
     end
     
     
@@ -91,12 +95,9 @@ module Henshin
       true
     end
     
+    # Don't layout files without yaml frontmatter, assume they are static!
     def can_layout?
-      if @no_layout || @engine.nil?
-        false
-      else
-        true
-      end
+      @can_layout || has_yaml?
     end
     
     def can_write?
@@ -144,10 +145,10 @@ module Henshin
     #   data of the file or the default set.
     #
     # @todo Use Defaults
-    #   At the moment this doesn't get the default set in Henshin::Base
+    #   At the moment this doesn't get the default layout set in Henshin::Base,
     #   it should.
     #
-    def layout(files)
+    def find_layout(files)
       if can_layout?
         d = self.data
         
@@ -364,11 +365,44 @@ module Henshin
     # @return [String]
     #
     def render(force=false)
-      if engine && can_render?
-        # Only render when needed otherwise it is a waste of resources
-        if !rendered? || force
-          @rendered = engine.call(raw_content, payload)
+      if can_render?
+        @rendered = raw_content
+        
+        if @applies
+          @applies.each do |engine|
+            @rendered = engine.new.make(content, payload)
+          end
         end
+        
+        if @uses
+          @uses.each do |klass|
+            klass.new.make(self)
+          end
+        end
+      
+        #if engine && can_render?
+        #  # Only render when needed otherwise it is a waste of resources
+        #  if !rendered? || force
+        #    @rendered = engine.call(raw_content, payload)
+        #  end
+        #end
+      end
+    end
+    
+    # @overload layout(bool)
+    #   Change whether this file can have a layout or not, ie. it effects
+    #   the return value of #can_layout?
+    #   @param bool [true, false]
+    #
+    # @overload layout(layout_file)
+    #   Render this file within the +layout_file+ passed, if this file #can_layout?.
+    #   @param layout_file [Henshin::Layout]
+    #
+    def layout(other)
+      if other.is_a? Henshin::Layout
+        other.render_with(self)
+      else
+        @can_layout = other
       end
     end
     
