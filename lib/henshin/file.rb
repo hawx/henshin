@@ -368,24 +368,30 @@ module Henshin
       if can_render?
         @rendered = raw_content
         
-        if @applies
-          @applies.each do |engine|
-            @rendered = engine.new.make(content, payload)
-          end
-        end
-        
-        if @uses
-          @uses.each do |klass|
-            klass.new.make(self)
-          end
-        end
-      
+        run_applies
+        run_uses
         #if engine && can_render?
         #  # Only render when needed otherwise it is a waste of resources
         #  if !rendered? || force
         #    @rendered = engine.call(raw_content, payload)
         #  end
         #end
+      end
+    end
+    
+    def run_applies
+      if @applies
+        @applies.each do |engine|
+          @rendered = engine.new.render(content, payload)
+        end
+      end
+    end
+    
+    def run_uses
+      if @uses
+        @uses.each do |klass|
+          klass.new.make(self)
+        end
       end
     end
     
