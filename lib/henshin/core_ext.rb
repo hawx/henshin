@@ -35,6 +35,8 @@ module Kernel
   def autoloads(const, path)
     (@@_autoloads ||= {})[const] = path
   end
+  
+  alias_method :autoload_gem, :autoloads
 
 end
 
