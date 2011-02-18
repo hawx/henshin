@@ -5,10 +5,7 @@ require 'henshin/file/archive'
 require 'henshin/file/label'
 require 'henshin/file/post'
 
-%w(coffeescript erb haml liquid maruku redcloth sass).each do |l|
-  require "henshin/filter/#{l}"
-end
-
+require_relative 'engine/basic'
 
 module Henshin
   
@@ -19,34 +16,39 @@ module Henshin
   #  - Archives
   #
   class Blog < Base
-
-    #class_attr_accessor :actions => {}
+  
+    include BasicRender
     
-    before :render do |site|
-      archive = Archive.new(site.source + 'archive.html', site)
-      
-      site.posts.each do |post|
-        archive << post
-      end
-      
-      site.archive = archive
+    ## Filters
+    
+    filter 'layouts/*.*', Layout, :internal
+    filter 'posts/*.*', Post, :high
+    filter '**/*.{liquid,md,mkd,markdown,erb,haml,textile}', Page
+    
+    ## Renders
+    
+    render 'posts/:title.*' do
+      set :title, keys[:title]
     end
     
-    before :write do |site|
-      site.archive.create_pages.each do |page|
-        page.render
-        page.write(site.write_path)
-      end
+    render 'posts/:category/:title.*' do
+      set :category, keys[:category]
+      set :title, keys[:title]
     end
     
-    include_filters ErbFilter, HamlFilter, MarukuFilter,
-                    RedClothFilter, LiquidFilter, :using => Henshin::Page
+    ## Others
     
-    include_filters CoffeeScriptFilter, SassFilter, ScssFilter
     set :layout_paths, ['layouts/*.*', '**/layouts/*.*']
-    ignore '_site/**', '**/_site/**'
-    ignore '*.yml', '**/*.yml'
-    attr_accessor :tags, :categories, :archive
+    
+    ignore '_site/**'
+    ignore '*.yml'
+    
+    after_each :write do |file|
+      if file.can_write?
+        puts "  #{'->'.green} #{file.write_path.to_s.grey}"
+      end
+    end
+
     
     def posts
       self.files.find_all {|i| i.class.name =~ /Post/}
