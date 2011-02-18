@@ -219,7 +219,7 @@ module Henshin
       files.reject! do |f|
         r = false
         ignores.each do |m|
-          if f.fnmatch(m)
+          if f.fnmatch(m) || f.fnmatch((source + m).to_s)
             r = true
             break
           end
@@ -236,15 +236,18 @@ module Henshin
       
       # Need to implement priorities      
       files.each do |f|
-        _k = _p = nil
-        filter_blocks.each do |(m,k,p)|
+        _k = nil
+        # Sort highest priority to lowest so as soon as a match is found we can break
+        # and continue.
+        filter_blocks.sort_by {|b| b.last }.reverse.each do |(m,k,p)|
           if m.matches?(f.relative_path_from(source).to_s)
             _k = k
+            break
           end
         end
         if _k
           @files << _k.new(f, self)
-        else
+        else # fallback to Henshin::File
           @files << Henshin::File.new(f, self)
         end
       end
@@ -256,7 +259,7 @@ module Henshin
     def pre_render(files=@files)
       files.each do |f|
         render_blocks.each do |(m,b)|
-          if vals = m.matches(f.path.to_s)
+          if vals = m.matches(f.relative_path.to_s)
             if vals['splat']
               f.class.send(:define_method, :splat) { v }
             end
@@ -323,28 +326,19 @@ module Henshin
         [200, {"Content-Type" => file.mime}, [file.content]]
       else
         # Check the routes that have been set
+        run :before, :render, self # tags need to be "defined" or get 404
+        
         routes.each do |pattern, action|
           m = pattern.match(permalink)
           if m && action
-            run(:before, :render, self)
-          
+
             file = action
             if action.respond_to?(:call)
               file = action.call(m, self)
-              break unless file
+              break unless file # 404 if no file created
             end
-            
-            file.render(true)
-            
-            layout = file.layout(files)
-            
-            if layout
-              layout = run_file_through_filters(layout)
-              file.rendered = layout.render_with(file)
-            end
-            run(:after, :render, self)
-            
-            # Force the return!!!
+            self.render([file], @files, true)
+      
             return [200, {"Content-Type" => file.mime}, [file.content]]
           end
         end
@@ -381,38 +375,7 @@ module Henshin
     end
     
     
-    
-    # Define new rendering phases, these are basically merges with FilterBody
-    # but supercharged because they were way too limited to do anything.
-    # Filters will now just set the class, #engine will be replaced with Engine
-    # which has #make defined which takes the content and data returning a string
-    # this will allow more flexibility like in the old plugin system which I 
-    # really liked.
-    # 
-    # Any way an example
-    #
-    #   # define an engine
-    #   class MarukuEngine
-    #     def make(content, data)
-    #       doc = Maruku.new(content)
-    #       doc.to_html
-    #     end
-    #   end
-    #   
-    #   # Use sinatra style route matching then pass in the results
-    #   render 'posts/:category/:title.*' do |m|
-    #     set :title, m[:title]
-    #     set :category, m[:category]
-    #     set :extension, m[:splat][0]
-    #   end
-    #   
-    #   # gets my-file.markdown
-    #   #   or something/siemtb/my-file.md, etc
-    #   render '**/*.{md,mkd,markdown}' do
-    #     # These steps all happen in order when this proc is #call-ed
-    #     set :output 'html' # set the output
-    #     apply MarukuEngine # use the engine
-    #   end
+
 
     class_attr_accessor :render_blocks, :filter_blocks, :default => []
     
@@ -420,14 +383,22 @@ module Henshin
       render_blocks << [Matcher.new(match), block]
     end
     
+    
+    FILTER_PRIORITIES = {
+      :low => 0,
+      :medium => 1,
+      :high => 2,
+      :internal => 3
+    }
+    
     # Set a klass filter for a path, set the priority as either :high, :medium
     # or :low. It is recommended not to overuse :high as it is for very specific 
     # purposes.
     #
-    # Internally you can set the :internal flag for guaranteed highest priority.
+    # Internally you can set the :internal flag for 'guaranteed' highest priority.
     #
     def self.filter(match, klass, priority=:low)
-      filter_blocks << [Matcher.new(match), klass, priority]
+      filter_blocks << [Matcher.new(match), klass, FILTER_PRIORITIES[priority]]
     end
     
     
@@ -437,60 +408,10 @@ module Henshin
     # These are the class methods to be used when setting up a sub-class of 
     # Henshin::Base.
     
-    class_attr_accessor :filters, :ignores, :default => []
+    class_attr_accessor :ignores, :default => []
     class_attr_accessor :pre_config, :const, :routes, :default => {}
 
-    # Create a new file filter, this controls the main logic behind reading,
-    # rendering and writing the actual files. With this you can take a more 
-    # generalised class and specify different parameters for the specific file
-    # that is being dealt with, instead of placing all of this extra logic 
-    # within the actual class itself.
-    #
-    # @example
-    #
-    #   class Page < Henshin::File
-    #     # general stuff
-    #     key = :page
-    #     output = 'html'
-    #   end
-    #
-    #   filter '**/*.md' => Page do |f|
-    #     # specifiy a engine to render with
-    #     f.engine = lambda do |content, data|
-    #       begin 
-    #         doc = Maruku.new(content)
-    #         doc.to_html
-    #       rescue NameError
-    #         require 'maruku'
-    #         retry
-    #       end
-    #     end
-    #   end
-    #
-    def self._filter(arg, &block)
-      patterns = *arg.keys[0]
-      klass = arg.values[0]
-      
-      ins = FilterBody.new
-      ins.klass = klass
-      ins.patterns = patterns
-      ins.body = block
-      
-      filters << ins
-    end
-    
-    # Inherit all filters from another class. The other class must obviously be a
-    # subclass of Henshin::Base as well.
-    #
-    # @example
-    #
-    #   class SiteClone < Henshin::Site
-    #     inherit_filters Henshin::Site
-    #   end
-    #
-    def self.inherit_filters(klass)
-      filters.concat klass.filters
-    end
+
     
     
     # Specify a glob pattern to ignore when reading, and then obviously writing
