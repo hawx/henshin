@@ -1,9 +1,13 @@
 module Henshin
   class Page < Henshin::File
-    def initialize(*args)
-      @key = :page
-      @output = 'html'
-      super
+      
+    def output
+      'html'
     end
+    
+    def key
+      :page
+    end
+      
   end
 end

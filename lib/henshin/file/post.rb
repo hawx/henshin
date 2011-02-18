@@ -11,8 +11,12 @@ module Henshin
     
     def url
       y = YAML.load(self.yaml)
-      date = Chronic.parse(y['date'])
-      "/#{date.year}/#{date.month}/#{date.day}/#{y['title'].slugify}"
+      begin
+        date = Chronic.parse(y['date'])
+        "/#{date.year}/#{date.month}/#{date.day}/#{y['title'].slugify}"
+      rescue
+        "/posts/#{y['title'].slugify}"
+      end
     end
     
     def permalink
@@ -21,6 +25,14 @@ module Henshin
   
     def write_path
       Pathname.new self.permalink[1..-1]
+    end
+    
+    def key
+      :post
+    end
+    
+    def output
+      'html'
     end
   end
 end
