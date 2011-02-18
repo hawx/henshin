@@ -1,6 +1,41 @@
 module Henshin
   
   class Archive < Henshin::File
+       
+    def self.create(site)
+    
+      if site.methods.include? :archive
+        warn "An Archive has already been created for #{site.name}"
+      else
+        site.send(:attr_accessor, :archive)
+      end
+    
+      site.before(:render) do |site|
+        archive = Archive.new(site.source + 'archive.html', site)
+        site.posts.each do |post|
+          archive << post
+        end
+        site.archive = archive
+      end
+    
+      site.before(:write) do |site|
+        site.archive.create_pages.each do |page|
+          page.render
+          page.write(site.write_path)
+        end
+      end
+      
+      site.resolve(/(\/\d\d\d\d)(\/\d\d){0,2}\/index\.html/) do |m, site|
+        site.archive.page_for(m[0])
+      end
+      
+      site.resolve(/\/archive\/index\.html/) do |m, site|
+        site.archive.main_page
+      end
+      
+    end
+       
+       
          
     def initialize(*args)
       @hash = {}

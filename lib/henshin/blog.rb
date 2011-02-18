@@ -63,19 +63,11 @@ module Henshin
     # At the moment the block is passed the MatchData object and the site object.
     # This is probably not the best way but we'll see later.
     #
-        
-    resolve /(\/\d\d\d\d)(\/\d\d){0,2}\/index\.html/ do |m, site|
-      site.archive.page_for(m[0])
-    end
     
-    resolve /\/archive\/index\.html/ do |m, site|
-      site.archive.main_page
-    end
+    Archive.create self
     
     Labels.define :tag, :tags, self
     Labels.define :category, :categories, self
-    
-    filter ['posts/*.*', '**/posts/*.*'] => Post
     
   end
 end
