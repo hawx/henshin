@@ -14,7 +14,7 @@ module Henshin
     
       if @applies
         @applies.each do |engine|
-          r = engine.new.make(self.content, insert)
+          r = engine.new.render(self.content, insert)
         end
       end
       

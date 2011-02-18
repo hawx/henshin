@@ -44,9 +44,14 @@ module Henshin
     #  - #resolve hooks
     #
     def self.define(single, plural, site)
+      unless site.methods.include? :labels
+        site.send(:attr_accessor, :labels)
+      end
+    
       site.before(:render) do |site|
+        site.labels ||= {}
         labels = Labels.create(single, plural, site)
-        labels = site.run_file_through_filters(labels)
+        labels = site.pre_render([labels]).first
         
         site.files.each do |file|
           if label_name = file.data[single.to_s]
@@ -61,7 +66,7 @@ module Henshin
         labels.inject_payload({ plural => labels.map {|i| i.to_h } })
         
         labels.each do |label|
-          label = site.run_file_through_filters(label)
+          label = site.pre_render([label]).first
           label.inject_payload({ single => label.data })
         end
         
@@ -91,11 +96,11 @@ module Henshin
       end
       
       site.resolve(/\/(#{plural})\/index.html/) do |m, site|
-        site.labels[m[1].to_sym]
+        (site.labels ||= {})[m[1].to_sym]
       end
       
       site.resolve(/\/(#{plural})\/(.+)\/index.html/) do |m, site|
-        site.labels[m[1].to_sym].find {|i| i.permalink == m[0] }
+        site.labels ? site.labels[m[1].to_sym].find {|i| i.permalink == m[0] } : nil
       end
     end
     
