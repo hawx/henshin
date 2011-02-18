@@ -14,6 +14,18 @@
 
 require 'clive'
 require 'henshin/base'
+require 'henshin/version'
+
+
+# I just need to get the "boot" process clear in my mind.
+#
+# 1) Get command arguments, then parse them
+# 2) If given the name of a specific class to use (eg. subclass of Henshin::Base
+#     first try to load it if path given, if not try loading 'henshin/#{name}'
+#     if these all fail raise exception.
+# 3) Require any files that have been added to the config
+# 4) Evaluate any files that have been added to load in the config
+# 5) continue
 
 
 module Henshin
@@ -94,28 +106,29 @@ module Henshin
     args = CLI.parse(argv)
     config = CLI.config
 
-    source, dest = nil, nil
+    source, dest = Henshin::DEFAULTS['source'], Henshin::DEFAULTS['dest']
     
     if args.size == 1
-      source = args[0]
+      source = Pathname.new(args[0])
+      dest = source + Henshin::DEFAULTS['dest_suffix']
     elsif args.size == 2
-      source = args[0]
-      dest = args[1]
+      source = Pathname.new(args[0])
+      dest = Pathname.new(args[1])
     end
     
     threads = []
     
-    loaded = Henshin::Base.load_config([Pathname.new(source), Pathname.pwd])
+    loaded = Henshin::Base.load_config([source, Pathname.pwd], false)
     config = deep_merge(config, loaded)
     
     # get the henshin builder to use
     builder = nil
     case config['type'].downcase
     when 'site'
-      require 'henshin/site'
+      require_relative 'site'
       builder = Henshin::Site
     when 'blog'
-      require 'henshin/blog'
+      require_relative 'blog'
       builder = Henshin::Blog
     when 'base'
       builder = Henshin::Base
@@ -137,7 +150,7 @@ module Henshin
        # use Rack::CommonLogger
         use Rack::ShowExceptions
        # use Rack::Lint
-        run Rack::Henshin.new(nil, {:root => Pathname.new(source), :builder => builder.name})
+        run Rack::Henshin.new(nil, {:root => source, :builder => builder.name})
       end
       
       handler.run(app)
