@@ -1,1 +1,3 @@
 type: site
+
+load: lib/main.rb
