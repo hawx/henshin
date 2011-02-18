@@ -58,7 +58,8 @@ module Henshin
     
     desc "Display current version"
     switch :version do
-      puts "0"
+      puts Henshin::VERSION
+      exit
     end
     
   end
