@@ -349,7 +349,7 @@ module Henshin
     end
     
     def singular_key
-      @key ? @key.to_s : 'file'
+      key ? key.to_s : 'file'
     end
     
 
