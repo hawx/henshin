@@ -2,16 +2,25 @@ module Henshin
   # Allows Sinatra style route matching
   class Matcher
   
+    # Most of this was ripped straight out of sinatra, remember to credit it!
+    puts 'Alert do not release, lib/henshin/matcher.rb:6'
+    
     def initialize(match)
+      @pretty = match
       if match.is_a? Regexp
         @match = match
         @keys = []
       else
         keys = []
         special_chars = %w{. + ( ) $}
-        pattern = 
-          match.to_str.gsub(/((:\w+)|\*\*|[\*#{special_chars.join}])/) do |match|
+        pattern = match.to_str.gsub(/((:\w+)|\*\*\/?|\{(\w+,?)*\}|[\*#{special_chars.join}])/) do |match|
             case match
+            when /\{(\w+,?)*\}/
+              items = match[1..-2].split(',')
+              "(#{items.join('|')})"
+            when '**/' # make the top directory optional!
+              keys << 'splat'
+              "(.+\/)?"
             when '**'
               keys << 'splat'
               "(.+)?"
@@ -21,7 +30,11 @@ module Henshin
             when *special_chars
               Regexp.escape(match)
             else
-              keys << $2[1..-1]
+              if $2
+                keys << $2[1..-1]
+              else
+                keys << match[1..-1]
+              end
               "([^/?#]+)"
             end
           end
@@ -64,5 +77,14 @@ module Henshin
         false
       end
     end
+    
+    def regex
+      @match
+    end
+    
+    def inspect
+      "#<Henshin::Matcher \"#{@pretty}\">"
+    end
+    
   end
 end
