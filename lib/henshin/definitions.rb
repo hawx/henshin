@@ -1,3 +1,5 @@
+require 'interface'
+
 module Henshin
 
   # Include this in a module so that it can be included in a subclass of Henshin::Base
@@ -14,6 +16,8 @@ module Henshin
   #     end
   #   end
   #
+  # @todo Give this a better name
+  #   
   module RenderDefinition
   
     def self.included(mod)
@@ -36,10 +40,30 @@ module Henshin
   
   end
   
-  
-  # Include this module to define an engine???
-  module EngineDefinition
-  
+  # @example Definition
+  #
+  #   # This is the preferred way to load gems as they won't be loaded until necessary
+  #   # Note: Module#autoload won't load gems so use this.
+  #   autoload_gem :Maruku, 'maruku'
+  #
+  #   class Maruku
+  #     implements Engine
+  #
+  #     def render(content, data)
+  #       ::Maruku.new(content).to_html
+  #     end
+  #   end
+  #
+  # @example Use
+  #
+  #   render '**/*.md' do
+  #     apply Maruku
+  #   end
+  #
+  module Engine
+    # renders the content (optionally using the data)
+    def render(content, data)
+    end
   end
   
 end
