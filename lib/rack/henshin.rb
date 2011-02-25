@@ -26,8 +26,54 @@ module Rack
         file = ::File.join(file, "index.html")
       end
     
-      @site.render_file(file)
+      @site.serve_file(file)
     end
   
+  end
+end
+
+module Henshin
+  class Base
+    # Renders a single file. This is used for the Rack interface. This
+    # should only load the files necessary to render the one file, so 
+    # instead of loading _every_ layout, we only load the one needed,
+    # and we do not load every other none related file.
+    #
+    # @param permalink [Pathname]
+    #   Permalink of the file to render.
+    #
+    def serve_file(permalink)
+      puts "Request for #{permalink.white}".grey
+    
+      @files = self.pre_render(self.read)
+      file = @files.find {|i| i.permalink == permalink }
+      
+      run :before, :render, self
+      if file
+        file = self.render_file(file, self.layouts, true)
+        run :after, :render, self
+        
+        [200, {"Content-Type" => file.mime}, [file.content]]
+      else
+        # Check the routes that have been set
+        routes.each do |pattern, action|
+          m = pattern.match(permalink)
+          if m && action
+
+            file = action
+            if action.respond_to?(:call)
+              file = action.call(m, self)
+              break unless file # 404 if no file created
+            end
+            self.render_file(file, self.layouts, true)
+            run :after, :render, self
+            
+            return [200, {"Content-Type" => file.mime}, [file.content]]
+          end
+        end
+      
+        [404, {}, ["404 page not found"]]
+      end
+    end
   end
 end
