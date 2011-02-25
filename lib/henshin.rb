@@ -1,8 +1,9 @@
+require 'henshin/base'
+
 require 'henshin/file'
 require 'henshin/file/layout'
 require 'henshin/cli'
 
-require 'henshin/base'
 require 'henshin/site'
 require 'henshin/blog'
 
