@@ -1,5 +1,12 @@
 module Henshin
 
+  # @todo Organise everything around a central hash
+  #   @data will hold the configuration, and will lazily call the required 
+  #   methods, store the results then act as a proxy so that the stored
+  #   value is returned. Unless a special force version is called (though
+  #   that is a thought in progress.
+
+
   # This is the basic file class that the other file types inherit, eg
   # Layout, Gen and Static. It may also be used as the base for other
   # types such as Post or Tag, but it may be better to use Gen.
@@ -32,7 +39,6 @@ module Henshin
     end
     
     attr_accessor :engine, :key, :type, :no_layout, :rendered, :output, :path
-    attribute :path
     
     def initialize(path, site)
       if path.respond_to? :extname
@@ -43,6 +49,9 @@ module Henshin
       @site = site
       @rendered = nil
       @injects = []
+      
+      @applies = []
+      @uses    = []
     end
     
     def inspect
@@ -51,6 +60,25 @@ module Henshin
     
     def inject_payload(hash)
       @injects << hash
+    end
+    
+    # This is the central data hash for the file. It stores all data that is needed
+    # for rendering purposes.
+    def data
+      @data ||= {}
+    end
+    
+    # Aliases the original method and creates a new one which caches the results
+    # so that it is only ever called once, unless forced by calling the __xyz
+    # version.
+    def self.store(key)
+      alias_method "__#{key}".to_sym, key
+      
+      self.class_eval <<-EOS
+        def #{key}
+          data[:#{key}] || (data[:#{key}] ||= self.send(:__#{key}))
+        end
+      EOS
     end
     
     
@@ -62,8 +90,7 @@ module Henshin
         send("#{key}=", value)
       else
         # store in the data hash
-        #
-        # Obviously first I need to set up the data hash
+        data[key] = value
       end
     end
     
@@ -72,16 +99,14 @@ module Henshin
     # Use a rendering engine, though shouldn't be used immediately should be stored and
     # executed later.
     def apply(engine)
-      # engine.new.make(content, data)
-      (@applies ||= []) << engine
+      @applies << engine
     end
     
     # Should store the class in a list to call at a later date but this will be pretty much
     # the implementation, only difference to #apply is the file itself is passed so the klass
     # can do anything it wants!
     def use(klass)
-      # klass.new.make(self)
-      (@uses ||= []) << klass
+      @uses << klass
     end
     
     
@@ -148,11 +173,10 @@ module Henshin
     #   At the moment this doesn't get the default layout set in Henshin::Base,
     #   it should.
     #
-    def find_layout(files)
+    def find_layout(files=@site.layouts)
       if can_layout?
         d = self.data
         
-        files = files.find_all {|f| f.class == Layout}
         if d['layout']
           files.find {|f| f.name == d['layout'] }
         else
@@ -184,23 +208,23 @@ module Henshin
     # @return [Hash{String=>Object}]
     #   Data taken from the file, usually from the YAML frontmatter
     #   but may also come from the file name, folders, etc.
-    #
+    #    
     def data
       return @override_data if @override_data
-          
-      r = {}
+      return @data if @data
       
+      r = {}
       payload_keys.each do |k|
         o = self.send(k)
         o = o.to_s if o.is_a? Pathname
         r[k.to_s] = o
       end
-    
+      
       if has_yaml?
-        r.merge YAML.load(self.yaml)
-      else
-        r
+        r.merge! self.yaml
       end
+      
+      @data = r
     end
 
     # @return [Hash{String=>Object}]
@@ -224,19 +248,26 @@ module Henshin
       @injects.each do |i|
         r.merge!(i)
       end
-      
+
       r
     end
-
+    
     # @return [String]
     #   The yaml frontmatter of the file.
     #
-    def yaml
+    def yaml_text
       if can_read?
         file = @path.read
         file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
         file[0..$1.size-1] || ""
       end
+    end
+
+    # @return [Hash]
+    #   The parsed yaml frontmatter of the file.
+    #
+    def yaml
+      YAML.load self.yaml_text
     end
     
     
@@ -294,10 +325,12 @@ module Henshin
         @override_content
       elsif can_read?
         if has_yaml?
-          @path.read[yaml.size..-1]
+          @path.read[yaml_text.size..-1]
         else
           @path.read
         end
+      else
+        ""
       end
     end
   
@@ -345,15 +378,25 @@ module Henshin
 
     # @todo Get this working properly
     def plural_key
-      singular_key.pluralize || 'files'
+      singular_key.pluralize
     end
     
     def singular_key
-      key ? key.to_s : 'file'
+      key.to_s
+    end
+    
+    def key
+      @key || :file
     end
     
 
   # @group Actions
+  
+    # Populate the data hash.
+    # I may not acutally implement this, it's just left here as an idea!
+    def read
+      
+    end
 
     # Renders the files contents using the hash, and maybe a layout.
     # Called by Henshin::Render.
@@ -366,46 +409,40 @@ module Henshin
     #
     def render(force=false)
       if can_render?
-        @rendered = raw_content
-        
-        run_applies
-        run_uses
-        #if engine && can_render?
-        #  # Only render when needed otherwise it is a waste of resources
-        #  if !rendered? || force
-        #    @rendered = engine.call(raw_content, payload)
-        #  end
-        #end
+        # Only render when needed otherwise it is a waste of resources
+        if !rendered? || force 
+          @rendered = raw_content
+          
+          run_applies
+          run_uses
+        end
       end
+      self.content
     end
     
     def run_applies
-      if @applies
-        @applies.each do |engine|
-          @rendered = engine.new.render(content, payload)
-        end
+      @applies.each do |engine|
+        @rendered = engine.new.render(content, payload)
       end
     end
     
     def run_uses
-      if @uses
-        @uses.each do |klass|
-          klass.new.make(self)
-        end
+      @uses.each do |klass|
+        klass.new.make(self)
       end
     end
     
     # @overload layout(bool)
     #   Change whether this file can have a layout or not, ie. it effects
-    #   the return value of #can_layout?
+    #   the return value of #can_layout? For use withing Base.render blocks.
     #   @param bool [true, false]
     #
     # @overload layout(layout_file)
     #   Render this file within the +layout_file+ passed, if this file #can_layout?.
     #   @param layout_file [Henshin::Layout]
     #
-    def layout(other)
-      if other.is_a? Henshin::Layout
+    def layout(other=find_layout)
+      if other.is_a?(Henshin::Layout)
         other.render_with(self)
       else
         @can_layout = other

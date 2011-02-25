@@ -147,7 +147,7 @@ module Henshin
             page = ArchivePage.new(t, @site)
             page.layout = 'archive_date'
             page.inject_payload(payload)
-            r << @site.run_file_through_filters(page)
+            r << @site.pre_render([page]).first
           end
         end
       end

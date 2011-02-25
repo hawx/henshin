@@ -16,6 +16,9 @@ require 'henshin/filter'
 require 'henshin/file'
 require 'henshin/file/layout'
 
+# dev
+require 'ap'
+
 
 module Henshin
 
@@ -207,6 +210,15 @@ module Henshin
       new.load_config(load_dirs, load)
     end
 
+
+    # Reads files from a set of directories, defaults to source directory. Removes all
+    # directories, then removes files that have been set to ignore either in the class
+    # or in the config. Then uses the filters to find the correct class to create 
+    # instances of. These are then added to +@files+.
+    #
+    # @param dirs [Array[String]]
+    # @return [Array[Henshin::File]]
+    #
     def read(dirs = [self.source.to_s]) 
       @files = []
       run :before, :read, self
@@ -233,8 +245,7 @@ module Henshin
         end
         r
       end
-      
-      # Need to implement priorities      
+           
       files.each do |f|
         _k = nil
         # Sort highest priority to lowest so as soon as a match is found we can break
@@ -255,42 +266,80 @@ module Henshin
       run :after, :read, self
       @files
     end
+    
+    # @return [Array[Henshin::Layout]]
+    def layouts
+      @layouts ||= @files.find_all {|i| i.class == Henshin::Layout }
+    end
 
+
+    # Runs the files given through the matching renders, that is blocks that were defined
+    # using +Henshin::Base.render+. 
+    #
+    # Methods relating to the matches are defined within the file's class.
+    # The block is then ran within this class, and is also passed the correct arguments.
+    # This allows the block to call +splat+, instead of using a block parameter.
+    #
+    # @param files [Array[Henshin::File]]
+    # @return [Array[Henshin::File]]
+    #
     def pre_render(files=@files)
       files.each do |f|
-        render_blocks.each do |(m,b)|
-          if vals = m.matches(f.relative_path.to_s)
-            if vals['splat']
-              f.class.send(:define_method, :splat) { v }
-            end
-            
-            if res = vals.select {|k,v| k != 'splat'}
-              f.class.send(:define_method, :keys) { res }
-            end
-            
-            f.instance_exec(*vals.values.flatten, &b)
-          end
-        end
+        pre_render_file(f)
       end
       files
     end
     
-    def render(files=@files, layouts=@files, force=false)
-      run :before, :render, self
-      
-      files.each do |f|
-        run :before_each, :render, f
-        f.render
-        
-        layout = f.find_layout(layouts)
-        if layout
-          f.rendered = layout.render_with(f)
+    def pre_render_file(file)
+      render_blocks.each do |(m,b)|
+        if vals = m.matches(file.relative_path.to_s)
+          if vals['splat']
+            file.class.send(:define_method, :splat) { v }
+          end
+          
+          if res = vals.select {|k,v| k != 'splat'}
+            file.class.send(:define_method, :keys) { res }
+          end
+          
+          file.instance_exec(*vals.values.flatten, &b)
         end
-        run :after_each, :render, f
+      end
+      
+      file
+    end
+    
+    
+    # Renders the file using the engines that were added when #pre_render ran. Then
+    # finds the correct layout and renders the file within that.
+    #
+    # @param files [Array[Henshin::File]]
+    # @param layouts [Array[Henshin::Layout]]
+    # @param force [true, false]
+    #
+    # @return [Array[Henshin::File]]
+    #
+    def render(files=@files, layouts=self.layouts, force=false)
+      run :before, :render, self
+
+      files.each do |f|
+        render_file f, layouts, force
       end
       
       run :after, :render, self
       files
+    end
+    
+    def render_file(file, layouts=self.layouts, force=false)
+      run :before_each, :render, file
+      file.render
+      
+      layout = file.find_layout(layouts)
+      if layout
+        file.rendered = layout.render_with(file)
+      end
+      
+      run :after_each, :render, file
+      file
     end
      
     # Writes the site to the correct directory, by calling the write 
@@ -299,52 +348,18 @@ module Henshin
       @write_path = self.dest # || others...
       run :before, :write, self
             
-      files.each do |file|
-        run :before_each, :write, file
-        file.write @write_path
-        run :after_each, :write, file
+      files.each do |f|
+        write_file(f)
       end
       
       run :after, :write, self
       self
     end
     
-    # Renders a single file. This is used for the Rack interface. This
-    # should only load the files necessary to render the one file, so 
-    # instead of loading _every_ layout, we only load the one needed,
-    # and we do not load every other none related file.
-    #
-    # @param permalink [Pathname]
-    #   Permalink of the file to render.
-    #
-    def render_file(permalink)
-      @files = self.pre_render(self.read)
-      file = @files.find {|i| i.permalink == permalink }
-
-      if file
-        file = self.render([file], files, true).first        
-        [200, {"Content-Type" => file.mime}, [file.content]]
-      else
-        # Check the routes that have been set
-        run :before, :render, self # tags need to be "defined" or get 404
-        
-        routes.each do |pattern, action|
-          m = pattern.match(permalink)
-          if m && action
-
-            file = action
-            if action.respond_to?(:call)
-              file = action.call(m, self)
-              break unless file # 404 if no file created
-            end
-            self.render([file], @files, true)
-      
-            return [200, {"Content-Type" => file.mime}, [file.content]]
-          end
-        end
-      
-        [404, {}, ["404 page not found"]]
-      end
+    def write_file(file)
+      run :before_each, :write, file
+      file.write @write_path
+      run :after_each, :write, file
     end
     
     
@@ -354,6 +369,7 @@ module Henshin
     # 
     def payload
       files_hash = Hash.new {|h, k| h[k] = [] }
+      
       @files.each do |file|
         if file.key
           files_hash[file.plural_key] << file.data
@@ -373,8 +389,6 @@ module Henshin
 
       r
     end
-    
-    
 
 
     class_attr_accessor :render_blocks, :filter_blocks, :default => []

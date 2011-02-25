@@ -9,18 +9,38 @@ module Henshin
     attr_accessor :tags, :categories
     attribute :tags, :categories
     
-    def url
-      y = YAML.load(self.yaml)
+    def date
       begin
-        date = Chronic.parse(y['date'])
-        "/#{date.year}/#{date.month}/#{date.day}/#{y['title'].slugify}"
+        Chronic.parse self.yaml['date']
       rescue
-        "/posts/#{y['title'].slugify}"
+        Time.parse self.yaml['date']
       end
+    end
+    attribute :date
+    
+    def url
+      "/#{date.year}/#{date.month}/#{date.day}/#{title.slugify}"
+    end
+    
+    def title
+      self.yaml['title'] || super
     end
     
     def permalink
       url << "/index.html"
+    end
+    
+    def data
+      b = super
+      if @tags
+        b['tags'] = @tags
+      end
+      
+      if @categories
+        b['categories'] = @categories
+      end
+            
+      b
     end
   
     def write_path

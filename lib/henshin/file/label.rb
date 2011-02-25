@@ -7,15 +7,7 @@ module Henshin
   #   Labels.define(:tag, :tags, self)
   #
   # This will then generate some hooks using Base#before and Base#after to allow it
-  # to render and write pages, for tags in this example. For it to work the files it
-  # is expected to work on will have to implement the correct attribute, so taking the
-  # same example in Post I add:
-  #
-  #   attribute :tags
-  #
-  # This will then be passed the correct data before rendering, and that will then be
-  # passed to the layout engine. (You could use #attr_accessor but wouldn't be able to
-  # access the data in your layouts!)
+  # to render and write pages, for tags in this example.
   #
   class Labels < Henshin::File
     attr_accessor :list
@@ -44,14 +36,19 @@ module Henshin
     #  - #resolve hooks
     #
     def self.define(single, plural, site)
+      
       unless site.methods.include? :labels
         site.send(:attr_accessor, :labels)
       end
-    
-      site.before(:render) do |site|
+      
+      site.before :render do |site|
+        unless site.respond_to? :labels
+          class << site; attr_accessor :labels; end
+        end
         site.labels ||= {}
+        
         labels = Labels.create(single, plural, site)
-        labels = site.pre_render([labels]).first
+        labels = site.pre_render_file(labels)
         
         site.files.each do |file|
           if label_name = file.data[single.to_s]
@@ -63,29 +60,39 @@ module Henshin
           end
         end
         
-        labels.inject_payload({ plural => labels.map {|i| i.to_h } })
+        labels.inject_payload({plural => labels.map {|i| i.data } })
         
         labels.each do |label|
-          label = site.pre_render([label]).first
-          label.inject_payload({ single => label.data })
+          label = site.pre_render_file(label)
+          label.inject_payload({single => label.safe_data})
         end
         
-        unless site.respond_to? :labels
-          class << site; attr_accessor :labels; end
-          site.labels = {}
-        end
         site.labels[plural] = labels
-        site.inject_payload({ plural => labels.data })
+        site.inject_payload({plural => labels.data})
         
         site.files.each do |file|
-          ls = labels.items_for(file).map {|i| i.to_h }
+          ls = labels.items_for(file).map {|i| i.data }
           unless ls.empty?
             file.send("#{plural}=", ls)
           end
         end
       end
       
-      site.before(:write) do |site|
+      site.after :render do |site|
+        l = site.labels[plural].find_layout
+        if l
+          site.labels[plural].rendered = l.render_with(site.labels[plural])
+        end
+        
+        site.labels[plural].each do |label|
+          l = label.find_layout
+          if l
+            label.rendered = l.render_with(label)
+          end
+        end
+      end
+      
+      site.before :write do |site|
         site.labels[plural].render
         site.labels[plural].write(site.write_path)
         
@@ -94,7 +101,7 @@ module Henshin
           label.write(site.write_path)
         end
       end
-      
+
       site.resolve(/\/(#{plural})\/index.html/) do |m, site|
         (site.labels ||= {})[m[1].to_sym]
       end
@@ -102,6 +109,7 @@ module Henshin
       site.resolve(/\/(#{plural})\/(.+)\/index.html/) do |m, site|
         site.labels ? site.labels[m[1].to_sym].find {|i| i.permalink == m[0] } : nil
       end
+
     end
     
     def <<(item)
@@ -110,7 +118,7 @@ module Henshin
       end
     end
     
-    def find_item(item_name)
+    def [](item_name)
       find {|i| i.name == item_name }
     end
     
@@ -121,7 +129,7 @@ module Henshin
     # @param item [Object]
     #
     def add_for(label, item)
-      if l = find_item(label)
+      if l = self[label]
         l.list << item
       else
         l = Label.define(@single, @plural, label, @site)
@@ -132,7 +140,7 @@ module Henshin
     end
     
     def create_or_find(item_name)
-      if item = find_item(item_name)
+      if item = self[item_name]
         item
       else
         new_item = Label.define(@single, @plural, item_name, @site)
@@ -141,25 +149,28 @@ module Henshin
       end
     end
     
-    def path
-      @site.source + "#{@plural}/index.#{layout.extension}"
-    rescue
-      @site.source + "#{@plural}/index.html"
-    end
-    
     def items_for(post)
       find_all do |item|
         item.posts.include?(post.data)
       end
     end
     
-    def has_yaml?; false; end
-    def raw_content; layout.path.read; end
-    attr_writer :layout
-    # Need to swallow all arguments up as it really expects to be given an array,
-    def layout(*args)
-      l_file = Dir.glob(@site.source + "layouts/#{single}_index.*")[0]
-      Henshin::Layout.new(l_file, @site)
+    def can_read?
+      false
+    end
+    
+    def raw_content
+      find_layout.path.read
+    end
+    
+    def payload
+      b = super
+      b[@plural.to_s] = map {|i| i.safe_data }
+      b
+    end
+
+    def find_layout(*args)
+      @site.layouts.find {|i| i.name == "#{single}_index"}
     end
   
     def method_missing(sym, *args, &block)
@@ -170,7 +181,7 @@ module Henshin
         @list = args
       when "#{plural}_for"
         items_for(*args)
-      when 'each', 'map', 'find', 'find_all', 'include?'
+      when 'each', 'map', 'find', 'find_all', 'include?', '[]', 'first', 'last'
         @list.send(sym, *args, &block)
       else
         super # Raise the correct error!
@@ -178,6 +189,7 @@ module Henshin
     end
   
   end
+  
   
   class Label < Henshin::File
     attr_accessor :single, :plural
@@ -204,7 +216,7 @@ module Henshin
       @site.source + "tags/#{@name.slugify}/index.html"
     end
     
-    def safe_to_h
+    def safe_data
       {
         'name'      => @name,
         'url'       => url,
@@ -212,8 +224,14 @@ module Henshin
       }
     end
     
-    def to_h
-      safe_to_h.merge({'posts' => posts})
+    def data
+      safe_data.merge({'posts' => posts})
+    end
+    
+    def payload
+      b = super
+      b[@single.to_s] = self.data
+      b
     end
     
     def posts
@@ -222,7 +240,7 @@ module Henshin
     attribute :posts
     
     def url
-      "/#{@plural}/#{@name.slugify}"
+      "/#{plural}/#{@name.slugify}"
     end
     
     def permalink
@@ -233,22 +251,23 @@ module Henshin
       Pathname.new permalink[1..-1]
     end
     
+    # Use layout as the content?
     def raw_content
-      layout.path.read
+      find_layout.path.read
     rescue
       ""
     end
     
-    def has_yaml?; false; end
-    # @see Labels#layout
-    def layout(*args)
-      return @layout if @layout
-      l_file = Dir.glob(@site.source + "layouts/#{single}_page.*")[0]
-      @layout = Henshin::Layout.new(Pathname.new(l_file), @site)
+    def can_read?
+      false
+    end
+        
+    def find_layout(files=@site.layouts)
+      files.find {|i| i.name == "#{single}_page"}
     end
     
     def inspect
-      "#<Henshin::Blog::Tags #{@name}, #{@posts.size} posts>"
+      "#<Henshin::Blog::Tags #{@name}, #{@list.size} posts>"
     end
   end
 

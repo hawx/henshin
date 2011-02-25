@@ -16,7 +16,7 @@ module Henshin
       apply Liquid
     end
     
-    render '**/*.(md|mkd|markdown)' do
+    render '**/*.{md,mkd,markdown}' do
       apply Maruku
     end
 
