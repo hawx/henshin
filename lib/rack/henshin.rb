@@ -43,7 +43,7 @@ module Henshin
     #   Permalink of the file to render.
     #
     def serve_file(permalink)
-      puts "Request for #{permalink.white}".grey
+      puts "Request for ".grey + permalink
     
       @files = self.pre_render(self.read)
       file = @files.find {|i| i.permalink == permalink }
