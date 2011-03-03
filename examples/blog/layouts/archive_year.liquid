@@ -10,14 +10,22 @@
     <h1>Archive for {{ archive.year }}</h1>
 
     <ul>
-      {% for day in (1..31) %}
-        {% for month in (1..12) %}
-          {% if archive.posts[archive.year][month][day] %}
-            {% for post in archive.posts[archive.year][month][day] %}
-              <li><a href="{{ post.url }}">{{ post.title }}</a></li>
-            {% endfor %}
-          {% endif %}
-        {% endfor %}
+      {% for month in (1..12) %}
+        {% if archive.posts[archive.year][month] %}
+        <li>{{ month }}</li>
+        <ul>
+          {% for day in (1..31) %}
+            {% if archive.posts[archive.year][month][day] %}
+            <li>{{ day }}</li>
+            <ul>
+              {% for post in archive.posts[archive.year][month][day] %}
+                <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          {% endfor %}
+        </ul>
+        {% endif %}
       {% endfor %}
     </ul>
 

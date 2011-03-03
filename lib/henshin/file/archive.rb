@@ -36,15 +36,14 @@ module Henshin
     end
        
        
-         
     def initialize(*args)
       @hash = {}
       super
     end
     
     def <<(post)
-      return nil unless post.data['date']
-      date = Time.parse(post.data['date'])
+      return nil unless post.respond_to?(:date)
+      date = post.date
       year, month, day = date.year, date.month, date.day
       
       @hash[year] ||= {}
@@ -169,14 +168,20 @@ module Henshin
       end
     end
     
-    def has_yaml?; false; end
-    def raw_content; layout.path.read; end
-    attr_writer :layout
-    # Need to swallow all arguments up as it really expects to be given an array,
-    def layout(*args)
-      l_file = Dir.glob(@site.source + "layouts/#{@layout}.*")[0]
-      Henshin::Layout.new(l_file, @site)
+    def can_read?
+      false
     end
+    
+    def raw_content
+      find_layout.path.read
+    end
+    
+    attr_writer :layout
+    
+    def find_layout(files=@site.layouts)
+      files.find {|i| i.name == @layout }
+    end
+    
   end
 
 end
