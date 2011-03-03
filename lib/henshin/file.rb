@@ -64,23 +64,9 @@ module Henshin
     
     # This is the central data hash for the file. It stores all data that is needed
     # for rendering purposes.
-    def data
-      @data ||= {}
-    end
-    
-    # Aliases the original method and creates a new one which caches the results
-    # so that it is only ever called once, unless forced by calling the __xyz
-    # version.
-    def self.store(key)
-      alias_method "__#{key}".to_sym, key
-      
-      self.class_eval <<-EOS
-        def #{key}
-          data[:#{key}] || (data[:#{key}] ||= self.send(:__#{key}))
-        end
-      EOS
-    end
-    
+    # def data
+    #   @data ||= {}
+    # end
     
   # @group Filter Methods
     
@@ -90,7 +76,7 @@ module Henshin
         send("#{key}=", value)
       else
         # store in the data hash
-        data[key] = value
+        # data[key] = value
       end
     end
     
@@ -99,14 +85,14 @@ module Henshin
     # Use a rendering engine, though shouldn't be used immediately should be stored and
     # executed later.
     def apply(engine)
-      @applies << engine
+      @applies << engine.new
     end
     
     # Should store the class in a list to call at a later date but this will be pretty much
     # the implementation, only difference to #apply is the file itself is passed so the klass
     # can do anything it wants!
     def use(klass)
-      @uses << klass
+      @uses << klass.new
     end
     
     
@@ -115,19 +101,23 @@ module Henshin
     def can_read?
       true
     end
+    alias_method :readable?, :can_read?
     
     def can_render?
       true
     end
+    alias_method :renderable?, :can_render?
     
     # Don't layout files without yaml frontmatter, assume they are static!
     def can_layout?
       @can_layout || has_yaml?
     end
+    alias_method :layoutable?, :can_layout?
     
     def can_write?
       true
     end
+    alias_method :writeable?, :can_write?
     
     # @return [true, false]
     #   Whether the file contains YAML frontmatter.
@@ -176,7 +166,7 @@ module Henshin
     def find_layout(files=@site.layouts)
       if can_layout?
         d = self.data
-        
+
         if d['layout']
           files.find {|f| f.name == d['layout'] }
         else
@@ -202,7 +192,7 @@ module Henshin
     #   not work with this method of calculation, which is bad.
     #
     def relative_path
-      @path.relative_path_from @site.config['source']
+      @path.relative_path_from @site.source
     end
     
     # @return [Hash{String=>Object}]
@@ -282,9 +272,7 @@ module Henshin
     def content=(val)
       @override_content = val
     end
-    
-    # Override the data loading if necessary
-    
+        
     # Override the data with +val+. This will be preferred over any other 
     # value so will prevent the data from being loaded.
     #
@@ -393,7 +381,7 @@ module Henshin
   # @group Actions
   
     # Populate the data hash.
-    # I may not acutally implement this, it's just left here as an idea!
+    # I may not actually implement this, it's just left here as an idea!
     def read
       
     end
@@ -409,7 +397,7 @@ module Henshin
     #
     def render(force=false)
       if can_render?
-        # Only render when needed otherwise it is a waste of resources
+        # Only render when needed
         if !rendered? || force 
           @rendered = raw_content
           
@@ -422,13 +410,13 @@ module Henshin
     
     def run_applies
       @applies.each do |engine|
-        @rendered = engine.new.render(content, payload)
+        @rendered = engine.render(content, payload)
       end
     end
     
     def run_uses
       @uses.each do |klass|
-        klass.new.make(self)
+        klass.make(self)
       end
     end
     
@@ -443,7 +431,7 @@ module Henshin
     #
     def layout(other=find_layout)
       if other.is_a?(Henshin::Layout)
-        other.render_with(self)
+        @rendered = other.render_with(self)
       else
         @can_layout = other
       end
