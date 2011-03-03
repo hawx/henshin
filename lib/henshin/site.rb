@@ -23,8 +23,8 @@ module Henshin
     
     set :layout_paths, ['layouts/*.*', '**/layouts/*.*']
     
-    ignore '_site/**', '**/_site/**' # sort these out!
-    ignore '*.yml', '**/*.yml'
+    ignore '_site/**'
+    ignore '*.yml'
     
     after_each :write do |file|
       if file.can_write?
