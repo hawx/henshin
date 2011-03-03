@@ -36,7 +36,7 @@ module Henshin
       'serve' => {
         'address' => "0.0.0.0",
         'port'    => 5555,
-        'handler' => 'webrick',
+        'handler' => nil,
         'use'     => false
       }
     }
@@ -157,7 +157,7 @@ module Henshin
       
     else # If no server is needed then just build the site.
       start = Time.now
-      puts "Building site..."
+      puts "Building site using #{builder.name}..."
       site = builder.build(source, dest)
       puts "Site created in #{site.dest} (#{Time.now - start}s)"
     end
