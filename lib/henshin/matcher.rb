@@ -82,6 +82,10 @@ module Henshin
       @match
     end
     
+    def to_s
+      @pretty
+    end
+    
     def inspect
       "#<Henshin::Matcher \"#{@pretty}\">"
     end
