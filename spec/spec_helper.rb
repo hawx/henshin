@@ -13,3 +13,8 @@ RSpec.configure do |config|
   config.before(:each) do
   end
 end
+
+def mock_file(file, content="")
+  file.path.stub!(:read).and_return(content)
+  file
+end
