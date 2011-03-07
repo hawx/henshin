@@ -1,8 +1,8 @@
 $: << File.join(File.dirname(__FILE__), '..', 'lib')
 $: << File.dirname(__FILE__)
 
-#require 'duvet'
-#Duvet.start :filter => 'lib/henshin'
+require 'duvet'
+Duvet.start :filter => 'lib/henshin'
 
 require 'henshin'
 require 'rspec'
