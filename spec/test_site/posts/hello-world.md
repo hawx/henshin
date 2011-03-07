@@ -1,5 +1,0 @@
----
-title: Hello World
----
-
-Wow
