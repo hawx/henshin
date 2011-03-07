@@ -7,9 +7,7 @@ describe Henshin::File do
   let(:site)   { Henshin::Base.new({'dest' => dest, 'source' => source}) }
 
   subject { 
-    file = Henshin::File.new(source + 'test.txt', site) 
-    file.path.stub!(:read).and_return("Hello I am a test")
-    file
+    mock_file Henshin::File.new(source + 'test.txt', site), "Hello I am a test"
   }
   
   
