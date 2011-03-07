@@ -2,12 +2,14 @@ require 'spec_helper'
 
 describe Henshin::File do
 
-  let(:source) { Pathname.new(File.dirname(__FILE__)) + '..' + 'test_site' }
+  let(:source) { Pathname.new(File.dirname(__FILE__)) + '..' }
   let(:dest)   { source + '_site' }
   let(:site)   { Henshin::Base.new({'dest' => dest, 'source' => source}) }
 
   subject { 
-    Henshin::File.new(source + 'test.txt', site) 
+    file = Henshin::File.new(source + 'test.txt', site) 
+    file.path.stub!(:read).and_return("Hello I am a test")
+    file
   }
   
   
@@ -428,25 +430,29 @@ describe Henshin::File do
   end
   
   describe "#write" do
-    let(:file) { ::File.new(site.source + subject.path, 'w') }
-  
-    before {
+    
+    before { 
+      # Tried let but it wasn't working, so fell back to @var
+      @file = File.new(site.source + subject.path, 'w')
       FileUtils.stub!(:mkdir_p).and_return(nil)
-      ::File.stub!(:new).and_return(file)
+      File.stub!(:new).and_return(@file)
     }
+    
+    # Remove the file that gets written
+    after { FileUtils.rm(site.source + subject.path) }
   
     it "creates the directories" do
       FileUtils.should_receive(:mkdir_p).with (site.source + subject.write_path).dirname
       subject.write(site.source)
     end
     
-    it "writes the file" do
-      File.should_receive(:new).with(site.source + site.write_path, 'w')
+    it "creates a new file" do
+      File.should_receive(:new).with(site.source + subject.write_path, 'w')
       subject.write(site.source)
     end
     
     it "writes the content" do
-      file.should_receive(:puts).with(subject.content)
+      @file.should_receive(:puts).with(subject.content)
       subject.write(site.source)
     end
   end
