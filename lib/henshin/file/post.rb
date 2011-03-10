@@ -10,16 +10,20 @@ module Henshin
     attribute :tags, :categories
     
     def date
-      begin
-        Chronic.parse self.yaml['date']
-      rescue
-        Time.parse self.yaml['date']
-      end
+      Chronic.parse self.yaml['date']
+    rescue
+      Time.parse self.yaml['date']
+    rescue
+      nil
     end
     attribute :date
     
     def url
-      "/#{date.year}/#{date.month}/#{date.day}/#{title.slugify}"
+      if date
+        "/#{date.year}/#{date.month}/#{date.day}/#{title.slugify}"
+      else
+        "/posts/#{title.slugify}"
+      end
     end
     
     def title
