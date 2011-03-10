@@ -53,7 +53,7 @@ module Henshin
         site.archive.page_for m
       end
       
-      site.resolve(/\/archive\/index\.html/) do |m, site|
+      site.resolve(/\/archive\/index\.html/) do |site|
         site.archive.main_page
       end
       
