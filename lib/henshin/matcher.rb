@@ -2,12 +2,17 @@ module Henshin
   # Allows Sinatra style route matching
   class Matcher
   
+    attr_accessor :keys
+  
     # Most of this was ripped straight out of sinatra, remember to credit it!
     puts 'Alert do not release, lib/henshin/matcher.rb:6'
     
     def initialize(match)
-      @pretty = match
-      if match.is_a? Regexp
+      @pretty = match.to_s
+      if match.is_a? Matcher
+        @match = match.regex
+        @keys = match.keys
+      elsif match.is_a? Regexp
         @match = match
         @keys = []
       else
