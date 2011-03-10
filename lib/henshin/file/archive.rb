@@ -25,22 +25,6 @@ module Henshin
         end
       end
       
-      #site.resolve '/:name.html' do |n, site|
-      #  unless n == 'test'
-      #  
-      #  else
-      #    pass
-      #  end
-      #end
-      
-      #site.resolve '/:year/:month/:date/index.html' do |y, m, d, site|
-      #  return :pass unless y =~ /\d{4}/ && m =~ /\d{2}/ && d =~ /\d{2}/
-      #end
-      
-      #site.resolve '/\d{4}/\d{2}/\d{2}/index.html' do |m, site|
-      #  p 'hi'
-      #end
-      
       site.resolve(/(\d{4})\/(\d{2})\/(\d{2})\/index.html/) do |m, site|
         site.archive.page_for m
       end
