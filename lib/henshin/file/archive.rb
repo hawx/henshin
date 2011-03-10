@@ -25,8 +25,32 @@ module Henshin
         end
       end
       
-      site.resolve(/(\/\d\d\d\d)(\/\d\d){0,2}\/index\.html/) do |m, site|
-        site.archive.page_for(m[0])
+      #site.resolve '/:name.html' do |n, site|
+      #  unless n == 'test'
+      #  
+      #  else
+      #    pass
+      #  end
+      #end
+      
+      #site.resolve '/:year/:month/:date/index.html' do |y, m, d, site|
+      #  return :pass unless y =~ /\d{4}/ && m =~ /\d{2}/ && d =~ /\d{2}/
+      #end
+      
+      #site.resolve '/\d{4}/\d{2}/\d{2}/index.html' do |m, site|
+      #  p 'hi'
+      #end
+      
+      site.resolve(/(\d{4})\/(\d{2})\/(\d{2})\/index.html/) do |m, site|
+        site.archive.page_for m
+      end
+      
+      site.resolve(/(\d{4})\/(\d{2})\/index.html/) do |m, site|
+        site.archive.page_for m
+      end
+      
+      site.resolve(/(\d{4})\/index.html/) do |m, site|
+        site.archive.page_for m
       end
       
       site.resolve(/\/archive\/index\.html/) do |m, site|
@@ -68,14 +92,15 @@ module Henshin
       r
     end
     
-    # @param [String]
-    #   "/2009/10/05" for example
+    # @param [Array]
+    #   ['2009', '12', '25'] for example
+    #   or ['2009', '12']
+    #   or ['2009']
     #
     # @return [ArchivePage]
     #
-    def page_for(date_string)
-      pages = create_pages
-      pages.find {|i| i.permalink == date_string }
+    def page_for(d)
+      (@pages ||= create_pages).find {|i| i.url == "/#{d.join("/")}" }
     end
     
     def main_page
@@ -88,7 +113,7 @@ module Henshin
       }
       
       page = ArchivePage.new(t, @site)
-      page.layout = 'archive'
+      page.layout_name = 'archive'
       page.inject_payload(payload)
       page
     end
@@ -111,7 +136,7 @@ module Henshin
         }
         
         page = ArchivePage.new(t, @site)
-        page.layout = 'archive_year'
+        page.layout_name = 'archive_year'
         page.inject_payload(payload)
         r << page
       
@@ -127,7 +152,7 @@ module Henshin
           }
           
           page = ArchivePage.new(t, @site)
-          page.layout = 'archive_month'
+          page.layout_name = 'archive_month'
           page.inject_payload(payload)
           r << page
         
@@ -144,7 +169,7 @@ module Henshin
             }
             
             page = ArchivePage.new(t, @site)
-            page.layout = 'archive_date'
+            page.layout_name = 'archive_date'
             page.inject_payload(payload)
             r << @site.pre_render([page]).first
           end
@@ -176,10 +201,10 @@ module Henshin
       find_layout.path.read
     end
     
-    attr_writer :layout
+    attr_writer :layout_name
     
     def find_layout(files=@site.layouts)
-      files.find {|i| i.name == @layout }
+      @layout ||= files.find {|i| i.name == @layout_name }
     end
     
   end

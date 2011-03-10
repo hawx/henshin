@@ -44,7 +44,8 @@ module Henshin
     #
     def serve_file(permalink)
       puts "Request for ".grey + permalink
-    
+      
+      @files = []
       @files = self.pre_render(self.read)
       file = @files.find {|i| i.permalink == permalink }
       
@@ -57,12 +58,13 @@ module Henshin
       else
         # Check the routes that have been set
         routes.each do |pattern, action|
-          m = pattern.match(permalink)
+          m = pattern.matches(permalink)
           if m && action
 
             file = action
             if action.respond_to?(:call)
-              file = action.call(m, self)
+              file = action.call(*m.values, self)
+              p 'passed' if file == :pass
               break unless file # 404 if no file created
             end
             self.render_file(file, self.layouts, true)
