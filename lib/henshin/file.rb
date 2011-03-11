@@ -49,10 +49,15 @@ module Henshin
       @site = site
       @rendered = nil
       @injects = []
+      @lazy_injects = []
+      @data_injects = []
+      @lazy_data_injects = []
       
       @applies = []
       @uses    = []
     end
+    
+    attr_accessor :injects, :lazy_injects, :data_injects, :lazy_data_injects
     
     def inspect
       "#<#{self.class} #{self.relative_path}>"
@@ -60,6 +65,20 @@ module Henshin
     
     def inject_payload(hash)
       @injects << hash
+    end
+    
+    def inject_lazy_payload(proc=nil)
+      proc = Proc.new if block_given?
+      @lazy_injects << proc
+    end
+    
+    def inject_data(hash)
+      @data_injects << hash
+    end
+    
+    def inject_lazy_data(proc=nil)
+      proc = Proc.new if block_given?
+      @lazy_data_injects << proc
     end
     
     # This is the central data hash for the file. It stores all data that is needed
@@ -199,9 +218,11 @@ module Henshin
     #   Data taken from the file, usually from the YAML frontmatter
     #   but may also come from the file name, folders, etc.
     #    
-    def data
+    def data(force=false)
       return @override_data if @override_data
-      return @data if @data
+      unless force
+        return @data if @data
+      end
       
       r = {}
       payload_keys.each do |k|
@@ -212,6 +233,14 @@ module Henshin
       
       if has_yaml?
         r.merge! self.yaml
+      end
+    
+      @data_injects.each do |i|
+        r.merge!(i)
+      end
+      
+      @lazy_data_injects.each do |i|
+        r.merge!(i.call(self))
       end
       
       @data = r
@@ -231,14 +260,18 @@ module Henshin
       end
       
       r = site_payload.merge({
-        singular_key => self.data, # makes it easier to create layouts
-        'file'   => self.data      # if all files share the key, "file".
+        singular_key => self.data(true), # makes it easier to create layouts
+        'file'   => self.data(true)      # if all files share the key, "file".
       })
       
       @injects.each do |i|
         r.merge!(i)
       end
-
+      
+      @lazy_injects.each do |i|
+        r.merge!(i.call(self))
+      end
+      
       r
     end
     
@@ -249,7 +282,7 @@ module Henshin
       if can_read?
         file = @path.read
         file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
-        file[0..$1.size-1] || ""
+        $1 ? file[0..$1.size-1] : ""
       end
     end
 
@@ -257,7 +290,7 @@ module Henshin
     #   The parsed yaml frontmatter of the file.
     #
     def yaml
-      YAML.load self.yaml_text
+      YAML.load(self.yaml_text) || {}
     end
     
     

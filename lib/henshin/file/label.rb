@@ -51,29 +51,35 @@ module Henshin
         labels = site.pre_render_file(labels)
         
         site.files.each do |file|
-          if label_name = file.data[single.to_s]
+          if label_name = file.yaml[single.to_s]
             labels.add_for(label_name, file)
-          elsif label_names = file.data[plural.to_s]
+          elsif label_names = file.yaml[plural.to_s]
             label_names.each do |label_name|
               labels.add_for(label_name, file)
             end
           end
         end
         
-        labels.inject_payload({plural => labels.map {|i| i.data } })
+        labels.inject_lazy_payload do |file|
+          { plural.to_s => site.labels[plural].map {|i| i.data} }
+        end
+        
+        # labels.inject_payload({plural => labels.map {|i| i.data } })
         
         labels.each do |label|
           label = site.pre_render_file(label)
-          label.inject_payload({single => label.safe_data})
+          label.inject_payload({single.to_s => label.safe_data})
         end
         
         site.labels[plural] = labels
-        site.inject_payload({plural => labels.data})
+        site.inject_lazy_payload do |site|
+          { plural.to_s => site.labels[plural].map {|i| i.data} }
+        end
         
         site.files.each do |file|
-          ls = labels.items_for(file).map {|i| i.data }
-          unless ls.empty?
-            file.send("#{plural}=", ls)
+          ls = labels.items_for(file)
+          file.inject_lazy_data do |file|
+            { plural.to_s => ls.map {|i| i.safe_data} }
           end
         end
       end
@@ -103,11 +109,15 @@ module Henshin
       end
 
       site.resolve(/\/(#{plural})\/index.html/) do |m, site|
-        (site.labels ||= {})[m[1].to_sym]
+        (site.labels ||= {})[m[0].to_sym]
       end
       
       site.resolve(/\/(#{plural})\/(.+)\/index.html/) do |m, site|
-        site.labels ? site.labels[m[1].to_sym].find {|i| i.permalink == m[0] } : nil
+        if site.labels
+          site.labels[m[0].to_sym].find {|i| i.url == "/#{m[0]}/#{m[1]}" }
+        else
+          nil
+        end
       end
 
     end
@@ -160,7 +170,11 @@ module Henshin
     end
     
     def raw_content
-      find_layout.path.read
+      if l = find_layout
+        l.path.read
+      else
+        ""
+      end
     end
     
     def payload
@@ -224,7 +238,7 @@ module Henshin
       }
     end
     
-    def data
+    def data(*args)
       safe_data.merge({'posts' => posts})
     end
     

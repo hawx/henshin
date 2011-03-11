@@ -9,9 +9,14 @@ module Henshin
     attr_accessor :tags, :categories
     attribute :tags, :categories
     
+    
+    def tags=(val)
+      #ap val
+    end
+    
     def date
-      Chronic.parse self.yaml['date']
-    rescue
+      # Chronic.parse self.yaml['date']
+    # rescue
       Time.parse self.yaml['date']
     rescue
       nil
@@ -32,19 +37,6 @@ module Henshin
     
     def permalink
       url << "/index.html"
-    end
-    
-    def data
-      b = super
-      if @tags
-        b['tags'] = @tags
-      end
-      
-      if @categories
-        b['categories'] = @categories
-      end
-            
-      b
     end
   
     def write_path
