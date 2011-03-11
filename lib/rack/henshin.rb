@@ -34,10 +34,19 @@ end
 
 module Henshin
   class Base
+  
     # Renders a single file. This is used for the Rack interface. This
     # should only load the files necessary to render the one file, so 
     # instead of loading _every_ layout, we only load the one needed,
     # and we do not load every other none related file.
+    #
+    # Note(s): #route defintions made will not be passed a match object
+    #  from matches with the regex given, instead they will receive an
+    #  array of any +()+ matches that were made.
+    #
+    #    route /[ab]+.html/ do |site| # no match
+    #
+    #    route /([ab]+).html/ do |m, site| # match, m, for ([ab]+)
     #
     # @param permalink [Pathname]
     #   Permalink of the file to render.
