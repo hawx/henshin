@@ -1,7 +1,7 @@
 # Load the basic filters and include basic #renders for them.
 
 require_relative '../definitions'
-%w(coffeescript erb haml liquid maruku redcloth sass).each do |l|
+%w(coffeescript erb haml liquid maruku redcloth sass highlight).each do |l|
   require_relative l
 end
 
@@ -11,6 +11,10 @@ module Henshin
 
   module BasicRender
     include RenderDefinition
+    
+    render '**/*.*' do
+      apply Highlight
+    end
   
     render '**/*.liquid' do
       apply Liquid
