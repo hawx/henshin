@@ -6,6 +6,7 @@ module Henshin
     implements Engine
     
     def render(content, data)
+      content = Henshin::HighlightScanner.highlight(content)
       ::RedCloth.new(content).to_html
     end
   end

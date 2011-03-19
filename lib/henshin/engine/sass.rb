@@ -1,12 +1,18 @@
 module Henshin
  
-  autoload_gem :Sass, 'sass'
+  #autoload_gem :Sass, 'sass'
+  require 'sass' # for some reason .autoload_gem is being annoying
   
   class Sass
     implements Engine
     
     def render(content, data)
-      ::Sass::Engine.new(content, :syntax => :sass).render
+      source = data['site']['source']
+      ::Sass::Engine.new(
+        content, 
+        :syntax => :sass,
+        :load_paths => [source.to_s]
+      ).render
     end
   end
   
@@ -14,7 +20,12 @@ module Henshin
     implements Engine
     
     def render(content, data)
-      ::Sass::Engine.new(content, :syntax => :scss).render
+      source = data['site']['source']
+      ::Sass::Engine.new(
+        content, 
+        :syntax => :scss,
+        :load_paths => [source.to_s]
+      ).render
     end
   end
   
