@@ -48,37 +48,41 @@ module Henshin
       end
       @site = site
       @rendered = nil
-      @injects = []
-      @lazy_injects = []
-      @data_injects = []
-      @lazy_data_injects = []
+      
+      @payload_injects = []
+      @data_injects    = []
       
       @applies = []
       @uses    = []
     end
     
-    attr_accessor :injects, :lazy_injects, :data_injects, :lazy_data_injects
+    attr_accessor :data_injects, :payload_injects
     
     def inspect
       "#<#{self.class} #{self.relative_path}>"
     end
     
-    def inject_payload(hash)
-      @injects << hash
+    
+    # Add a hash into the return value of #payload. If block/proc given it is
+    # passed the file as an argument.
+    # 
+    # @see Base#inject_payload
+    # 
+    def inject_payload(arg=nil)
+      arg = Proc.new if block_given? && arg.nil?
+      raise ArgumentError unless arg
+      @payload_injects << arg
     end
     
-    def inject_lazy_payload(proc=nil)
-      proc = Proc.new if block_given?
-      @lazy_injects << proc
-    end
-    
-    def inject_data(hash)
-      @data_injects << hash
-    end
-    
-    def inject_lazy_data(proc=nil)
-      proc = Proc.new if block_given?
-      @lazy_data_injects << proc
+    # Add a hash into the return value of #data. If block/proc given it is
+    # passed the file as an argument.
+    #
+    # @see Base#inject_payload
+    #
+    def inject_data(arg=nil)
+      arg = Proc.new if block_given? && arg.nil?
+      raise ArgumentError unless arg
+      @data_injects << arg
     end
     
     # This is the central data hash for the file. It stores all data that is needed
@@ -236,11 +240,11 @@ module Henshin
       end
     
       @data_injects.each do |i|
-        r.merge!(i)
-      end
-      
-      @lazy_data_injects.each do |i|
-        r.merge!(i.call(self))
+        if i.respond_to?(:call)
+          r.merge!(i.call(self))
+        else
+          r.merge!(i)
+        end
       end
       
       @data = r
@@ -264,14 +268,14 @@ module Henshin
         'file'   => self.data(true)      # if all files share the key, "file".
       })
       
-      @injects.each do |i|
-        r.merge!(i)
+      @payload_injects.each do |i|
+        if i.respond_to?(:call)
+          r.merge!(i.call(self))
+        else
+          r.merge!(i)
+        end
       end
-      
-      @lazy_injects.each do |i|
-        r.merge!(i.call(self))
-      end
-      
+
       r
     end
     
