@@ -12,7 +12,6 @@ require 'clive/output'
 require 'henshin/core_ext'
 
 require 'henshin/matcher'
-require 'henshin/filter'
 require 'henshin/file'
 require 'henshin/file/layout'
 
@@ -39,7 +38,7 @@ module Henshin
     'load'         => []
   }
   
-  module_attr_accessor :registered => {'base' => Henshin::Base}
+  # module_attr_accessor :registered => {'base' => Henshin::Base}
   
   # Register a subclass of Henshin::Base that can be used for building sites
   # it should implement all the necessary protocols.
@@ -51,7 +50,7 @@ module Henshin
   # @param klass [Class]
   #
   def self.register(key, klass)
-    registered[key] = klass
+    # registered[key] = klass
   end
   
   # @abstract
@@ -158,7 +157,6 @@ module Henshin
       load_config
       @files   = []
       @injects = []
-      @lazy_injects = []
     end
     
     # Check each of the +load_dirs+ for a config.yml file. When found use
@@ -383,11 +381,11 @@ module Henshin
       }.merge(files_hash)
       
       @injects.each do |i|
-        r.merge!(i)
-      end
-      
-      @lazy_injects.each do |i|
-        r.merge!(i.call(self))
+        if i.respond_to?(:call)
+          r.merge!(i.call(self))
+        else
+          r.merge!(i)
+        end
       end
       
       r
@@ -404,15 +402,15 @@ module Henshin
     #   inject_payload {'site' => {'one' => 1}}
     #   # Add to the main site hash, eg. {{ site.one }}
     #
-    def inject_payload(hash)
-      @injects << hash
-    end
-    
-    # Add a payload which is a proc, when called it should return a hash, this is
-    # merged into the payload.
-    def inject_lazy_payload(proc=nil)
-      proc = Proc.new if block_given?
-      @lazy_injects << proc
+    # @param arg [Hash, #call]
+    #   If passed a hash, that is merged normally; if passed an object that 
+    #   responds to #call ie. a proc (or block) then that is passed the site
+    #   object and is expected to return a hash to be merged in.
+    #  
+    def inject_payload(arg=nil)
+      arg = Proc.new if block_given? && arg.nil?
+      raise ArgumentError unless arg
+      @injects << arg
     end
 
 
