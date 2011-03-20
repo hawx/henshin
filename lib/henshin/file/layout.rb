@@ -21,15 +21,15 @@ module Henshin
       r
     end
     
-    def can_write?
+    def writeable?
       false
     end
     
-    def can_render?
+    def renderable?
       false
     end
     
-    def can_layout?
+    def layoutable?
       false
     end
     

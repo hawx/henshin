@@ -165,7 +165,7 @@ module Henshin
       end
     end
     
-    def can_read?
+    def readable?
       false
     end
     
@@ -272,7 +272,7 @@ module Henshin
       ""
     end
     
-    def can_read?
+    def readable?
       false
     end
         
