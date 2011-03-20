@@ -1,10 +1,5 @@
 require_relative 'base'
 require_relative 'file/page'
-
-#%w(coffeescript erb haml liquid maruku redcloth sass).each do |l|
-#  require_relative "filter/#{l}"
-#end
-
 require_relative 'engine/basic'
 
 module Henshin

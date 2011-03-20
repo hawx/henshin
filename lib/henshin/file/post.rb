@@ -9,14 +9,7 @@ module Henshin
     attr_accessor :tags, :categories
     attribute :tags, :categories
     
-    
-    def tags=(val)
-      #ap val
-    end
-    
     def date
-      # Chronic.parse self.yaml['date']
-    # rescue
       Time.parse self.yaml['date']
     rescue
       nil
