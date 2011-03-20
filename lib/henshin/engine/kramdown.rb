@@ -3,7 +3,7 @@ module Henshin
   autoload_gem :Kramdown, 'kramdown'
   
   class Kramdown
-    implements Engine
+    implement Engine
     
     def render(content, data)
       content = Henshin::HighlightScanner.highlight(content)

@@ -3,7 +3,7 @@ module Henshin
   autoload_gem :Maruku, 'maruku'
   
   class Maruku
-    implements Engine
+    implement Engine
     
     def render(content, data)
       content = Henshin::HighlightScanner.highlight(content)

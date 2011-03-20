@@ -3,7 +3,7 @@ module Henshin
   autoload_gem :CoffeeScript, 'coffee-script'
   
   class CoffeeScript
-    implements Engine
+    implement Engine
     
     def render(content, data)
       ::CoffeeScript.compile(content)

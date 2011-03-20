@@ -3,7 +3,7 @@ module Henshin
   autoload_gem :ERB, 'erb'
   
   class ERB
-    implements Engine
+    implement Engine
     
     def render(content, data)
       box = MagicBox.new(data).context
