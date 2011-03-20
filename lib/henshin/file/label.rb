@@ -60,11 +60,9 @@ module Henshin
           end
         end
         
-        labels.inject_lazy_payload do |file|
+        labels.inject_payload do |file|
           { plural.to_s => site.labels[plural].map {|i| i.data} }
         end
-        
-        # labels.inject_payload({plural => labels.map {|i| i.data } })
         
         labels.each do |label|
           label = site.pre_render_file(label)
@@ -72,13 +70,13 @@ module Henshin
         end
         
         site.labels[plural] = labels
-        site.inject_lazy_payload do |site|
+        site.inject_payload do |site|
           { plural.to_s => site.labels[plural].map {|i| i.data} }
         end
         
         site.files.each do |file|
           ls = labels.items_for(file)
-          file.inject_lazy_data do |file|
+          file.inject_data do |file|
             { plural.to_s => ls.map {|i| i.safe_data} }
           end
         end
