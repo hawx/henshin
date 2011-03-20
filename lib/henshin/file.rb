@@ -121,32 +121,28 @@ module Henshin
     
   # @group Questions
     
-    def can_read?
+    def readable?
       true
     end
-    alias_method :readable?, :can_read?
     
-    def can_render?
+    def renderable?
       true
     end
-    alias_method :renderable?, :can_render?
     
     # Don't layout files without yaml frontmatter, assume they are static!
-    def can_layout?
+    def layoutable?
       @can_layout || has_yaml?
     end
-    alias_method :layoutable?, :can_layout?
     
-    def can_write?
+    def writeable?
       true
     end
-    alias_method :writeable?, :can_write?
     
     # @return [true, false]
     #   Whether the file contains YAML frontmatter.
     #
     def has_yaml?
-      if can_read?
+      if readable?
         @path.read(3) == "---"
       else
         false
@@ -187,7 +183,7 @@ module Henshin
     #   it should.
     #
     def find_layout(files=@site.layouts)
-      if can_layout?
+      if layoutable?
         d = self.data
 
         if d['layout']
@@ -283,7 +279,7 @@ module Henshin
     #   The yaml frontmatter of the file.
     #
     def yaml_text
-      if can_read?
+      if readable?
         file = @path.read
         file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
         $1 ? file[0..$1.size-1] : ""
@@ -348,7 +344,7 @@ module Henshin
     def raw_content
       if @override_content
         @override_content
-      elsif can_read?
+      elsif readable?
         if has_yaml?
           @path.read[yaml_text.size..-1]
         else
@@ -433,7 +429,7 @@ module Henshin
     # @return [String]
     #
     def render(force=false)
-      if can_render?
+      if renderable?
         # Only render when needed
         if !rendered? || force 
           @rendered = raw_content
@@ -484,7 +480,7 @@ module Henshin
     #   Whether write was successful.
     #
     def write(dir)
-      if can_write?
+      if writeable?
         FileUtils.mkdir_p (dir + write_path).dirname
         f = ::File.new(dir + write_path, 'w')
         f.puts(self.content)
