@@ -39,7 +39,7 @@ module Henshin
       code = scan_until(CLOSE)  # match before '$end'
       @scanner.scan(CLOSE)         # remove the '$end' bit
       
-      "<pre class=\"highlight #{lang}\"><code>" + Henshin::Highlighter.highlight(code, lang) + "</code></pre>"
+      Henshin::Highlighter.highlight(code, lang) 
     end
     
     def scan_text

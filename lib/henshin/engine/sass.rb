@@ -7,11 +7,11 @@ module Henshin
     implement Engine
     
     def render(content, data)
-      source = data['site']['source']
+      source = data['site']['source'].to_s rescue nil
       ::Sass::Engine.new(
         content, 
         :syntax => :sass,
-        :load_paths => [source.to_s]
+        :load_paths => [source]
       ).render
     end
   end
@@ -20,11 +20,11 @@ module Henshin
     implement Engine
     
     def render(content, data)
-      source = data['site']['source']
+      source = data['site']['source'].to_s rescue nil
       ::Sass::Engine.new(
         content, 
         :syntax => :scss,
-        :load_paths => [source.to_s]
+        :load_paths => [source]
       ).render
     end
   end

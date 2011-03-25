@@ -20,7 +20,7 @@ module Henshin
         @highlighter = prefs.map {|k| LIBRARIES[k]}.find {|l| l.available? }
       end
       
-      @highlighter.highlight(code, lang)
+      "<pre class=\"highlight #{lang}\"><code>" + @highlighter.highlight(code, lang) + "</code></pre>"
     end
 
   end

@@ -6,9 +6,9 @@ module Henshin
     implement Engine
     
     def render(content, data)
-      box = MagicBox.new(data).context
-      ::ERB.new(content, nil, nil, "@output").run(box)
-      eval("@output", box)
+      box = MagicBox.new(data)
+      ::ERB.new(content, nil, nil, "@output").run(box.context)
+      box.output
     end
     
     # Beware witchcraft. ERB is quite annoying, it won't take a hash
@@ -17,7 +17,17 @@ module Henshin
     # for each pair, then call #context on that to get the binding for
     # it. Afterwards though, as highlight appends to @output, remember
     # to collect that variable and return it.
+    #
+    # @todo Allow recursive calling of variables
+    #   For instance, if a hash of {'site' => {'pages' => [x, y, z]}} is
+    #   passed and I try to do <%= site.pages.x.url %> it will fail, this
+    #   will require traversing the hash and setting up objects for each
+    #   key in the hash.
+    #
     class MagicBox
+    
+      attr_reader :output
+    
       def initialize(hash)
         hash.each do |k, v|
           instance_variable_set("@#{k}", v)
@@ -26,6 +36,15 @@ module Henshin
       
       def context
         binding
+      end
+      
+      # This allows you to use @vars or method calls in 
+      def method_missing(sym, *args, &block)
+        if ivar = instance_variable_get("@#{sym}")
+          ivar
+        else
+          super
+        end
       end
       
       # Adds highlighting block for code.
@@ -42,7 +61,13 @@ module Henshin
       # http://blog.jayfields.com/2007/01/appending-to-erb-output-from-block.html
       #
       def highlight(lang)
-        @output << Henshin::Highlighter.highlight(yield, lang)
+        pre = @output.dup
+        post = yield
+        code = post[pre.size..-1]
+        res = Henshin::Highlighter.highlight(code, lang)
+
+        @output = pre + res
+        
       end
     end
   end
