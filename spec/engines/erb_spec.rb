@@ -9,7 +9,7 @@ describe Henshin::ERB do
       text = <<EOS
 <h1>Foods</h1>
 <ul>
-  <% array.each do |i| %><li>Item: <%= i %></li>
+  <% site.array.each do |i| %><li>Item: <%= i %></li>
   <% end %>
 </ul>
 
@@ -40,7 +40,7 @@ EOS
 <p>That's all folks</p>
 EOS
       
-      subject.render(text, {'array' => %w(apple banana carrot)}).should == result
+      subject.render(text, {'site' => {'array' => %w(apple banana carrot)}}).should == result
     
     end
   end

@@ -18,9 +18,16 @@ describe Henshin::File do
   end
   
   describe "#inject_payload" do
-    it "adds the hash to the injects list" do
+    it "adds the hash to the payload injects list" do
       subject.inject_payload({:test => true})
-      subject.instance_variable_get("@injects").should include({:test => true})
+      subject.payload_injects.should include({:test => true})
+    end
+  end
+  
+  describe "#inject_data" do
+    it "adds the hash to the data injects list" do
+      subject.inject_data({:test => true})
+      subject.data_injects.should include({:test => true})
     end
   end
   
@@ -119,7 +126,7 @@ describe Henshin::File do
     let(:test_layout) { Henshin::Layout.new(source + 'test.liquid', site) }
     let(:default_layout) { Henshin::Layout.new(source + 'main.liquid', site) }
     
-    before { subject.stub!(:can_layout?).and_return(true) }
+    before { subject.stub!(:layoutable?).and_return(true) }
   
     context "when layout set in data" do
       it "returns the correct layout" do
@@ -154,11 +161,36 @@ describe Henshin::File do
       subject.data.keys.should == keys
     end
     
+    it "should include injected data hashes" do
+      subject.inject_data({:test => true})
+      subject.data.should include({:test => true})
+    end
+    
     context "when override data is set" do
       it "returns override data" do
         subject.data = {'override' => true}
         subject.data.should == {'override' => true}
       end
+    end
+  end
+  
+  describe "#payload" do
+    it "should include site payload" do
+      subject.payload.should include site.payload
+    end
+    
+    it "should include file data" do
+      subject.payload['file'].should == subject.data
+    end
+    
+    it "should include file data using correct key" do
+      subject.key = :test
+      subject.payload['test'].should == subject.data
+    end
+    
+    it "should include injected payload hashes" do
+      subject.inject_payload({:test => true})
+      subject.payload.should include({:test => true})
     end
   end
   
@@ -220,9 +252,9 @@ describe Henshin::File do
       end
     end
     
-    context "when has can't be read" do
+    context "when not readable" do
       it "returns an empty string" do
-        subject.stub!(:can_read?).and_return(false)
+        subject.stub!(:readable?).and_return(false)
         subject.raw_content.should == ""
       end
     end
@@ -422,7 +454,7 @@ describe Henshin::File do
     context "when passed a boolean" do
       it "sets whether the file can use a layout" do
         subject.layout(true)
-        subject.can_layout?.should == true
+        subject.should be_layoutable
       end
     end
   end

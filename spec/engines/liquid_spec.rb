@@ -9,7 +9,7 @@ describe Henshin::Liquid do
       text = <<EOS
 <h1>Foods</h1>
 <ul>
-{% for i in array %}
+{% for i in site.array %}
   <li>Item: {{ i }}</li>
 {% endfor %}
 </ul>
@@ -45,7 +45,7 @@ EOS
 EOS
 
       
-      subject.render(text, {'array' => %w(apple banana carrot)}).should == result
+      subject.render(text, {'site' => {'array' => %w(apple banana carrot)}}).should == result
     end
   end
 

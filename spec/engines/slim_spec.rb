@@ -10,7 +10,7 @@ describe Henshin::Slim do
       text = <<EOS
 h1 Foods
 ul
-  - @array.each do |i|
+  - site.array.each do |i|
     li Item: \#{i}
       
 h1 Code
@@ -28,7 +28,7 @@ EOS
   <span class="n">x</span> <span class="o">*</span> <span class="n">x</span>
 <span class="k">end</span></code></pre><p>That\'s all folks</p>'
 
-      subject.render(text, {'array' => %w(apple banana carrot)}).should == result
+      subject.render(text, {'site' => {'array' => %w(apple banana carrot)}}).should == result
     end
   end
 
