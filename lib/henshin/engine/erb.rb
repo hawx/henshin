@@ -24,27 +24,11 @@ module Henshin
     #   will require traversing the hash and setting up objects for each
     #   key in the hash.
     #
-    class MagicBox
-    
+    class MagicBox < MagicHash
       attr_reader :output
     
-      def initialize(hash)
-        hash.each do |k, v|
-          instance_variable_set("@#{k}", v)
-        end
-      end
-      
       def context
         binding
-      end
-      
-      # This allows you to use @vars or method calls in 
-      def method_missing(sym, *args, &block)
-        if ivar = instance_variable_get("@#{sym}")
-          ivar
-        else
-          super
-        end
       end
       
       # Adds highlighting block for code.

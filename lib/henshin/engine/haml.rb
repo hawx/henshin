@@ -6,7 +6,7 @@ module Henshin
     implement Engine
     
     def render(content, data)
-      ::Haml::Engine.new(content).render(Object.new, data)
+      ::Haml::Engine.new(content).render(MagicHash.new(data), {})
     end
     
     # Adds a highlight filter to haml.

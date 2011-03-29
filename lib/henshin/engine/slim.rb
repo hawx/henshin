@@ -7,15 +7,7 @@ module Henshin
     
     def render(content, data)
       t = ::Slim::Template.new { content }
-      t.render(MagicBox.new(data), data)
-    end
-    
-    class MagicBox
-      def initialize(hash)
-        hash.each do |k, v|
-          instance_variable_set("@#{k}", v)
-        end
-      end
+      t.render(MagicHash.new(data), {})
     end
     
     class HighlightEngine < ::Slim::EmbeddedEngine
