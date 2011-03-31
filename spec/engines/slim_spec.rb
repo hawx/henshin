@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'henshin/engine/slim'
 
-describe Henshin::Slim do
+describe Henshin::Engine::Slim do
   
-  subject { Henshin::Slim.new }
+  subject { Henshin::Engine::Slim.new }
   
   describe "#render" do
     it "returns the rendered content" do

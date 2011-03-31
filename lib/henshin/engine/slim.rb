@@ -1,9 +1,9 @@
-module Henshin
+module Henshin::Engine
 
   autoload_gem :Slim, 'slim'
   
   class Slim
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       t = ::Slim::Template.new { content }
@@ -15,7 +15,7 @@ module Henshin
         lines = collect_text(body).split("\n")
         lang = lines[0][1..-1]
         code = lines[1..-1].join("\n")
-        [:static, Henshin::Highlighter.highlight(code, lang)]
+        [:static, Support::Highlighter.highlight(code, lang)]
       end
     end
     

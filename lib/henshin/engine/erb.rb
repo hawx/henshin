@@ -1,9 +1,9 @@
-module Henshin
+module Henshin::Engine
   
   autoload_gem :ERB, 'erb'
   
   class ERB
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       box = MagicBox.new(data)
@@ -48,7 +48,7 @@ module Henshin
         pre = @output.dup
         post = yield
         code = post[pre.size..-1]
-        res = Henshin::Highlighter.highlight(code, lang)
+        res = Support::Highlighter.highlight(code, lang)
 
         @output = pre + res
         

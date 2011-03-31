@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::RedCloth do
+describe Henshin::Engine::RedCloth do
 
-  subject { Henshin::RedCloth.new }
+  subject { Henshin::Engine::RedCloth.new }
   
   describe "#render" do
     it "returns the rendered content" do

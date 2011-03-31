@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::CoffeeScript do
+describe Henshin::Engine::CoffeeScript do
   
-  subject { Henshin::CoffeeScript.new }
+  subject { Henshin::Engine::CoffeeScript.new }
   
   describe "#render" do
     it "returns the rendered content" do

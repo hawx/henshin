@@ -1,9 +1,9 @@
-module Henshin
+module Henshin::Engine
 
   autoload_gem :Liquid, 'liquid'
   
   class Liquid
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       ::Liquid::Template.parse(content).render(data)
@@ -27,11 +27,11 @@ module Henshin
       end
       
       def render(context)
-        Henshin::Highlighter.highlight(super[0], @lang)
+        Support::Highlighter.highlight(super[0], @lang)
       end
     end
     
-    ::Liquid::Template.register_tag('highlight', Henshin::Liquid::Highlight)
+    ::Liquid::Template.register_tag('highlight', Highlight)
   end
   
 end

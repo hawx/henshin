@@ -1,12 +1,12 @@
-module Henshin
+module Henshin::Engine
   
   autoload_gem :RDiscount, 'rdiscount'
   
   class RDiscount
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
-      content = Henshin::HighlightScanner.highlight(content)
+      content = Support::HighlightScanner.highlight(content)
       ::RDiscount.new(content).to_html
     end
   end

@@ -1,10 +1,10 @@
-module Henshin
+module Henshin::Engine
  
   #autoload_gem :Sass, 'sass'
   require 'sass' # for some reason .autoload_gem is being annoying
   
   class Sass
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       source = data['site']['source'].to_s rescue nil
@@ -17,7 +17,7 @@ module Henshin
   end
   
   class Scss
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       source = data['site']['source'].to_s rescue nil

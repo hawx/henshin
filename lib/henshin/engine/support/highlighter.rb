@@ -1,21 +1,22 @@
-require_relative 'pygments'
-require_relative 'ultraviolet'
-require_relative 'highlight_scanner'
+%w(pygments uv coderay syntax highlight_scanner).each do |l|
+  require_relative l
+end
 
-module Henshin
+module Henshin::Engine::Support
   class Highlighter
   
     LIBRARIES = {
-      :pygments    => Pygments,
-      :uv          => UltraViolet,
-      :ultraviolet => UltraViolet
+      :coderay  => CodeRay,
+      :pygments => Pygments,
+      :syntax   => Syntax,
+      :uv       => Uv      
     }
     
     def self.highlight(*args)
       new.highlight(*args)
     end
   
-    def highlight(code, lang, prefs=[:pygments, :uv])
+    def highlight(code, lang, prefs=[:pygments, :uv, :syntax, :coderay])
       unless @highlighter
         @highlighter = prefs.map {|k| LIBRARIES[k]}.find {|l| l.available? }
       end

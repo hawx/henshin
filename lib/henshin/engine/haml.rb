@@ -1,9 +1,9 @@
-module Henshin
+module Henshin::Engine
 
   autoload_gem :Haml, 'haml'
   
   class Haml
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       ::Haml::Engine.new(content).render(MagicHash.new(data), {})
@@ -30,7 +30,7 @@ module Henshin
         lines = text.split("\n")
         lang = lines[0][1..-1]
         code = lines[1..-1].join("\n")
-        Henshin::Highlighter.highlight(code, lang)
+        Support::Highlighter.highlight(code, lang)
       end
     end
     

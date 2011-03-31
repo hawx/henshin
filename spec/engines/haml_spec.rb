@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::Haml do
+describe Henshin::Engine::Haml do
   
-  subject { Henshin::Haml.new }
+  subject { Henshin::Engine::Haml.new }
   
   describe "#render" do
     it "returns the rendered content" do

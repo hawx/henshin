@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::ERB do
+describe Henshin::Engine::ERB do
 
-  subject { Henshin::ERB.new }
+  subject { Henshin::Engine::ERB.new }
   
   describe "#render" do
     it "returns the rendered content" do

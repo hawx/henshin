@@ -1,4 +1,4 @@
-module Henshin
+module Henshin::Engine::Support
   
   # Wrapper for pygments
   #

@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'henshin/engine/rdiscount'
 
-describe Henshin::RDiscount do
+describe Henshin::Engine::RDiscount do
 
-  subject { Henshin::RDiscount.new }
+  subject { Henshin::Engine::RDiscount.new }
   
   describe "#render" do
     it "returns the rendered content" do

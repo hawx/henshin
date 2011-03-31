@@ -1,9 +1,9 @@
-module Henshin
+module Henshin::Engine::Support
 
-  autoload_gem :Uv, 'uv'
+  autoload_gem :Syntax, 'syntax'
   
   # @see Henshin::Pygments
-  class UltraViolet
+  class Syntax
 
     def self.highlight(*args)
       new(*args).highlight
@@ -17,11 +17,11 @@ module Henshin
     end
     
     def highlight
-      Uv.parse(@code, "xhtml", @lang, false, "amy")
+      Syntax::Convertors::HTML.for_syntax(@lang).convert(@code)
     end
     
     def self.available?
-      require 'uv'
+      require 'syntax'
       true
     rescue LoadError
       false

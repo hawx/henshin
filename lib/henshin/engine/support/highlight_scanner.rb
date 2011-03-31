@@ -1,4 +1,4 @@
-module Henshin
+module Henshin::Engine::Support
 
   autoload_gem :StringScanner, 'strscan'
   
@@ -39,7 +39,7 @@ module Henshin
       code = scan_until(CLOSE)  # match before '$end'
       @scanner.scan(CLOSE)         # remove the '$end' bit
       
-      Henshin::Highlighter.highlight(code, lang) 
+      Henshin::Engine::Support::Highlighter.highlight(code, lang) 
     end
     
     def scan_text

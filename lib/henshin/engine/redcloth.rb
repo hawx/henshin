@@ -1,9 +1,9 @@
-module Henshin
+module Henshin::Engine
 
   autoload_gem :RedCloth, 'redcloth'
   
   class RedCloth
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       # content = Henshin::HighlightScanner.highlight(content)
@@ -34,7 +34,7 @@ module Henshin
         lang = text.split("\n")[0]
         code = text.split("\n")[1..-1].join("\n")
         
-        Highlighter.highlight(code, lang)
+        Support::Highlighter.highlight(code, lang)
       end
     end
     

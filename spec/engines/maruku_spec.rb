@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::Maruku do
+describe Henshin::Engine::Maruku do
   
-  subject { Henshin::Maruku.new }
+  subject { Henshin::Engine::Maruku.new }
   
   describe "#render" do
     it "returns the rendered content" do

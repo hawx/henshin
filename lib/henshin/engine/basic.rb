@@ -1,13 +1,11 @@
 # Load the basic filters and include basic #renders for them.
 
 require_relative '../definitions'
-%w(coffeescript erb haml liquid maruku redcloth sass).each do |l|
+%w(coffeescript erb haml liquid maruku redcloth sass builder nokogiri rdoc).each do |l|
   require_relative l
 end
 
 require_relative 'support/highlighter'
-
-
 
 module Henshin
 
@@ -32,6 +30,24 @@ module Henshin
     
     render '**/*.textile' do
       apply RedCloth
+    end
+    
+    render '**/*.rdoc' do
+      apply RDoc
+    end
+    
+    render '**/*.builder' do
+      apply Builder
+      
+      set :output, 'xml'
+      set :layout, false
+    end
+    
+    render '**/*.nokogiri' do
+      apply Nokogiri
+      
+      set :output, 'xml'
+      set :layout, false
     end
     
     render '**/*.sass' do

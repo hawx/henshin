@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::Liquid do
+describe Henshin::Engine::Liquid do
 
-  subject { Henshin::Liquid.new }
+  subject { Henshin::Engine::Liquid.new }
   
   describe "#render" do
     it "returns the rendered content" do

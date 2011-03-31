@@ -1,9 +1,9 @@
-module Henshin
+module Henshin::Engine
 
   autoload_gem :CoffeeScript, 'coffee-script'
   
   class CoffeeScript
-    implement Engine
+    implement Henshin::Engine
     
     def render(content, data)
       ::CoffeeScript.compile(content)

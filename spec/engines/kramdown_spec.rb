@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'henshin/engine/kramdown'
 
-describe Henshin::Kramdown do
+describe Henshin::Engine::Kramdown do
   
-  subject { Henshin::Kramdown.new }
+  subject { Henshin::Engine::Kramdown.new }
   
   describe "#render" do
     it "returns the rendered content" do

@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::Sass do
+describe Henshin::Engine::Sass do
 
-  subject { Henshin::Sass.new }
+  subject { Henshin::Engine::Sass.new }
   
   describe "#render" do
     it "returns the rendered content" do
@@ -22,9 +22,9 @@ EOS
 
 end
 
-describe Henshin::Scss do
+describe Henshin::Engine::Scss do
 
-  subject { Henshin::Scss.new }
+  subject { Henshin::Engine::Scss.new }
 
   describe "#render" do
     it "returns the rendered content" do
