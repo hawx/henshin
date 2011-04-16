@@ -24,6 +24,7 @@ class << Object
       _const_missing(const)
     end
   end
+
 end
 
 module Kernel
@@ -39,8 +40,6 @@ module Kernel
 end
 
 
-# Make a plain string into a slug, usable on the web.
-
 class String
 
   # Turns the string to a slug
@@ -55,6 +54,20 @@ class String
     slug.downcase!
     slug.gsub!(' ', '-')
     slug
+  end
+  
+end
+
+
+class Hash
+  
+  # The _why way, I hadn't seen this until here 'http://timelessrepo.
+  # com/when-in-doubt', the most succinct implementation ever of a 
+  # recursive hash merge.
+  #
+  def r_merge(other)
+    m = proc {|_,o,n| o.merge(n, &m) }
+    merge(other, &m)
   end
   
 end
