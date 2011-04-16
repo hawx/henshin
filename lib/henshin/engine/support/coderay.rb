@@ -17,7 +17,7 @@ module Henshin::Engine::Support
     
     def highlight
       tokens = ::CodeRay.scan(code, lang)
-      tokens.div(:css => :class)
+      tokens.div(:css => :class)[47..-21]
     end
     
     def self.available?

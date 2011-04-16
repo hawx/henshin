@@ -17,7 +17,7 @@ module Henshin::Engine::Support
     end
     
     def highlight
-      ::Uv.parse(@code, "xhtml", @lang, false, "amy")
+      ::Uv.parse(@code, "xhtml", @lang, false, "amy")[17..-7]
     end
     
     def self.available?
