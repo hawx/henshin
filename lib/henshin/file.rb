@@ -253,10 +253,12 @@ module Henshin
     def payload
       site_payload = @site.payload
       
-      # Don't include self in list of files      
-      site_payload['files'].reject! {|i| i['url'] == url }
-      unless plural_key == "files"
-        site_payload[plural_key].reject! {|i| i['url'] == url }
+      # Don't include self in list of files
+      unless site_payload['files'].empty?
+        site_payload['files'].reject! {|i| i['url'] == url }
+        unless plural_key == "files"
+          site_payload[plural_key].reject! {|i| i['url'] == url }
+        end
       end
       
       r = site_payload.merge({
