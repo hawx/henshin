@@ -7,7 +7,7 @@ describe Henshin::Engine::Support::CodeRay do
   describe "#highlight" do
     it "returns marked up html" do
     
-      result = "<div class=\"CodeRay\">\n  <div class=\"code\"><pre><span class=\"r\">def</span> <span class=\"fu\">sq</span>(x)\nx * x\n<span class=\"r\">end</span>\n</pre></div>\n</div>\n"
+      result = "<span class=\"r\">def</span> <span class=\"fu\">sq</span>(x)\nx * x\n<span class=\"r\">end</span>\n"
 
       subject.highlight.should == result
     end
@@ -20,7 +20,7 @@ describe Henshin::Engine::Support::CodeRay do
     end
     
     it "returns false if gem not installed" do
-      Kernel.stub!(:require).and_raise(LoadError)
+      subject.should_receive(:require).with("coderay").and_raise(LoadError)
       described_class.should_not be_available
     end
   end

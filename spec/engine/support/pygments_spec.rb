@@ -16,12 +16,12 @@ describe Henshin::Engine::Support::Pygments do
   
   describe ".available?" do
     it "returns true if pygments installed" do
-      Kernel.stub!(:`).and_return("/some/path/pygmentize")
+      subject.stub!(:`).and_return("/usr/bin/pygmentize")
       described_class.should be_available
     end
     
     it "returns false if pygments not installed" do
-      Kernel.stub!(:`).and_return("pygmentize not found")
+      subject.stub!(:`).and_return("pygmentize not found")
       described_class.should_not be_available
     end
   end
