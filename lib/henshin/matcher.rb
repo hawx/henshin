@@ -1,11 +1,36 @@
 module Henshin
-  # Allows Sinatra style route matching
+
+  # Allows Sinatra style route matching.
+  #
+  # +:keys+: match any words and are returned by #matches within the hash with
+  # the name of the key given.
+  #
+  # +*+: wildcard matches any words and is returned by #matches in the +splat+
+  # array.
+  #
+  # +**+: recursive wildcard __optionally__ matches multiple directories.
+  #
+  # +{a,b,c}+: matches any of the items given, only.
+  #
+  # @example
+  #
+  #   m = Matcher.new('/{site,blog}/**/:title.:ext')
+  #   m.matches? '/a/b/c.d'         #=> false
+  #   m.matches? '/site/index.html' #=> true
+  #   m.matches '/blog/post/coding/matchers.md'
+  #   #=> {
+  #   #     "group" => "blog"
+  #   #     "splat" => ["post/condig/"],
+  #   #     "title" => "matchers",
+  #   #     "ext"   => "md"
+  #   #   }
+  #
+  # @see https://github.com/sinatra/sinatra/blob/1632f24b7d15e846d676dfd93d2cfeeafbaf03fb/lib/sinatra/base.rb#L738
+  #   Which this is heavily based on
+  #
   class Matcher
   
     attr_accessor :keys
-  
-    # Most of this was ripped straight out of sinatra, remember to credit it!
-    puts 'Alert do not release, lib/henshin/matcher.rb:6'
     
     def initialize(match)
       @pretty = match.to_s
@@ -22,6 +47,7 @@ module Henshin
             case match
             when /\{(\w+,?)*\}/
               items = match[1..-2].split(',')
+              keys << 'group'
               "(#{items.join('|')})"
             when '**/' # make the top directory optional!
               keys << 'splat'
