@@ -5,13 +5,24 @@ describe Henshin::Base do
   let(:source) { Pathname.new(File.dirname(__FILE__)) + '..' + 'test_site' }
   let(:dest)   { source + '_site' }
   let(:config) { {'source' => source, 'dest' => dest} }
-
+  
   subject { Henshin::Base.new(config) }
   
-  let(:file_txt)  { mock_file Henshin::File.new(source + 'file.txt', subject), 'Hello' }
-  let(:file_sass) { mock_file Henshin::File.new(source + 'file.sass', subject), "body\n  color: red" }
-  let(:page_md)   { mock_file Henshin::Page.new(source + 'page.md', subject), "# Header\ncontent" }
-  let(:layout)    { mock_file Henshin::Layout.new(source + 'layouts/main.liquid', subject) }
+  let(:file_txt)  { 
+    mock_file Henshin::File.new(source + 'file.txt', subject), 
+                'Hello' }
+                
+  let(:file_sass) { 
+    mock_file Henshin::File.new(source + 'file.sass', subject), 
+                "body\n  color: red" }
+                
+  let(:page_md)   { 
+    mock_file Henshin::Page.new(source + 'page.md', subject), 
+                "# Header\ncontent" }
+                
+  let(:layout)    { 
+    mock_file Henshin::Layout.new(source + 'layouts/main.liquid', subject) }
+    
   let(:files)     { [file_txt, file_sass, page_md, layout] }
   
   
@@ -48,14 +59,36 @@ describe Henshin::Base do
   end
   
   describe ".load_config" do
-    it "calls #load_config on a new instance of Base"
+    it "calls #load_config on a new instance of Base" do
+      instance = Henshin::Base.new
+      Henshin::Base.stub!(:new).and_return(instance)
+      instance.should_receive(:load_config)
+    end
   end
   
   describe "#read" do
-    it "reads the files from the directories given"
-    it "removes directories"
-    it "removes ignored files"
-    it "creates instances of correct classes"
+    it "reads the files from the directories given" do
+      all_of(subject.read.map {|i| i.path.to_s }).should match /#{source.to_s}/
+    end
+    
+    it "removes directories" do
+      all_of(subject.read.map(&:path)).should_not be_directory
+    end
+    
+    it "removes ignored files" do
+      subject.ignore 'about.liquid'
+      all_of(subject.read.map {|i| i.path.to_s }).should_not match /about\.liquid/
+    end
+    
+    it "creates instances of correct classes" do
+      subject.read.each do |f|
+        if f.path.to_s =~ /layout/
+          f.class.should == Henshin::Layout
+        else
+          f.class.should == Henshin::File
+        end
+      end
+    end
   end
   
   describe "#layouts" do
@@ -66,18 +99,55 @@ describe Henshin::Base do
   end
   
   describe "#pre_render" do
-    it "calls #pre_render_file on each file"
+    it "calls #pre_render_file on each file" do
+      files = subject.read
+      files.each do |i|
+        subject.should_receive(:pre_render_file).with(i)
+      end
+      subject.pre_render(files)
+    end
   end
   
   describe "#pre_render_file" do
-    it "runs matching blocks"
-    it "defines splat method on file"
-    it "defines keys method on file"
-    it "executes the block within the file"
+    before { subject.class.rules = [] }
+  
+    it "runs matching blocks" do
+      subject.rule('*.txt') { puts 'yes' }
+      subject.rule('*.md')  { puts 'no' }
+      $stdout.should_receive(:puts).with('yes')
+      $stdout.should_not_receive(:puts).with('no')
+      subject.pre_render_file(file_txt)
+    end
+    
+    it "defines splat method on file for length of block" do
+      subject.rule('*.*') { puts splat }
+      $stdout.should_receive(:puts).with(["file", "txt"])
+      subject.pre_render_file(file_txt)
+      file_txt.should_not respond_to :splat
+    end
+    
+    it "defines keys method on file" do
+      subject.rule(':name.:ext') { puts keys }
+      $stdout.should_receive(:puts).with({'name' => 'file', 'ext' => 'txt'})
+      subject.pre_render_file(file_txt)
+      file_txt.should_not respond_to :keys
+    end
+    
+    it "executes the block within the file" do
+      subject.rule('*.*') { puts self.class }
+      $stdout.should_receive(:puts).with(Henshin::File)
+      subject.pre_render_file(file_txt)
+    end
   end
   
   describe "#render" do
-    it "calls #render_file on each file"
+    it "calls #render_file on each file" do
+      files = subject.read
+      files.each do |i|
+        subject.should_receive(:render_file).with(i)
+      end
+      subject.render(files)
+    end
   end
   
   describe "#render_file" do
@@ -154,12 +224,11 @@ describe Henshin::Base do
   
 # The DSL
   
-  describe ".render" do
-    it "adds a render block" do
+  describe ".rule" do
+    it "adds a rule" do
       proc = lambda {|f| puts 'hi' }
-      subject.class.render('file', &proc)
-      subject.render_blocks.map {|i| [i[0].to_s, i[1]]}.
-        should include ['file', proc]
+      subject.class.rule('file', &proc)
+      subject.rules.map {|i| [i[0].to_s, i[1]]}.should include ['file', proc]
     end
   end
   
