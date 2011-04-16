@@ -10,7 +10,9 @@ require 'attr_plus'
 require 'clive/output'
 
 require 'henshin/core_ext'
+require 'henshin/delegator'
 
+require 'henshin/engine'
 require 'henshin/matcher'
 require 'henshin/file'
 require 'henshin/file/layout'
@@ -51,6 +53,10 @@ module Henshin
   #
   def self.register(key, klass)
     # registered[key] = klass
+  end
+  
+  def self.register_engine(sym, klass)
+    puts "IMPLEMENT Henshin.register_engine!!!!"
   end
   
   # @abstract
@@ -417,9 +423,15 @@ module Henshin
   # @group DSL
   # 
   # These methods are all for use when building subclasses of Henshin::Base.
+  # I've delegated these methods so they are available for classes and instances
+  # though remember that affecting one instance of a class will affect all
+  # others.
+  #
+  # @todo Allow different instances to have different methods
+  #   ie. you make that last sentence false!!
   #
 
-    class_attr_accessor :render_blocks, :filter_blocks, :ignores, :default => []
+    class_attr_accessor :rules, :filter_blocks, :ignores, :default => []
     class_attr_accessor :pre_config, :constant, :routes, :default => {}
     class_attr_accessor :actions => {
       :before =>      { :read => [], :render => [], :write => [] },
@@ -442,7 +454,7 @@ module Henshin
     #
     # @example
     #
-    #   render '**/:title.md' do
+    #   rule '**/:title.md' do
     #     apply Maruku
     #     set :title, keys[:title]
     #   end
@@ -451,8 +463,8 @@ module Henshin
     #   This string will be used to create a new instance of Henshin::Matcher, see
     #   it's documentation for more information.
     #
-    def self.render(match, &block)
-      render_blocks << [Matcher.new(match), block]
+    def self.rule(match, &block)
+      rules << [Matcher.new(match), block]
     end
 
     # Set a specific class for matches to the pattern given. All files matching
@@ -565,6 +577,13 @@ module Henshin
         proc.call(*args)
       end
     end
+    
+    extend Delegator
+    
+    delegates :class, 
+              :after_each, :before_each, :after, :before, :rule,
+              :resolve, :const, :set, :ignore, :filter
+              
     
   end
 end

@@ -17,7 +17,7 @@ module Henshin
   #
   class Blog < Base
   
-    include BasicRender
+    include BasicRules
     
     ## Filters
     
@@ -27,16 +27,16 @@ module Henshin
     
     ## Renders
 
-    render 'posts/:title.*' do
+    rule 'posts/:title.*' do
       set :title, keys[:title]
     end
     
-    render 'posts/:category/:title.*' do
+    rule 'posts/:category/:title.*' do
       set :category, keys[:category]
       set :title, keys[:title]
     end
     
-    render 'posts/:year/:month/:date/:title.*' do |y,m,d,t|
+    rule 'posts/:year/:month/:date/:title.*' do |y,m,d,t|
       set :date, Chronic.parse("#{y}/#{m}/#{d}")
       set :title, t
     end

@@ -1,6 +1,6 @@
-# Load the basic filters and include basic #renders for them.
+# Load the basic filters and include basic #rules for them.
 
-require_relative '../definitions'
+require_relative '../rules'
 %w(coffeescript erb haml liquid maruku redcloth sass builder nokogiri rdoc).each do |l|
   require_relative l
 end
@@ -9,63 +9,63 @@ require_relative 'support/highlighter'
 
 module Henshin
 
-  module BasicRender
-    include RenderDefinition
+  module BasicRules
+    extend Rules
   
-    render '**/*.liquid' do
-      apply Liquid
+    rule '**/*.liquid' do
+      apply Engine::Liquid
     end
     
-    render '**/*.{md,mkd,markdown}' do
-      apply Maruku
+    rule '**/*.{md,mkd,markdown}' do
+      apply Engine::Maruku
     end
 
-    render '**/*.erb' do
-      apply Erb
+    rule '**/*.erb' do
+      apply Engine::Erb
     end
     
-    render '**/*.haml' do
-      apply Haml
+    rule '**/*.haml' do
+      apply Engine::Haml
     end
     
-    render '**/*.textile' do
-      apply RedCloth
+    rule '**/*.textile' do
+      apply Engine::RedCloth
     end
     
-    render '**/*.rdoc' do
-      apply RDoc
+    rule '**/*.rdoc' do
+      apply Engine::RDoc
     end
     
-    render '**/*.builder' do
-      apply Builder
+    rule '**/*.builder' do
+      apply Engine::Builder
       
       set :output, 'xml'
       set :layout, false
     end
     
-    render '**/*.nokogiri' do
-      apply Nokogiri
+    rule '**/*.nokogiri' do
+      apply Engine::Nokogiri
       
       set :output, 'xml'
       set :layout, false
     end
     
-    render '**/*.sass' do
-      apply Sass
+    rule '**/*.sass' do
+      apply Engine::Sass
       
       set :output, 'css'
       set :layout, false
     end
     
-    render '**/*.scss' do
-      apply Scss
+    rule '**/*.scss' do
+      apply Engine::Scss
       
       set :output, 'css'
       set :layout, false
     end
     
-    render '**/*.coffee' do
-      apply CoffeeScript
+    rule '**/*.coffee' do
+      apply Engine::CoffeeScript
       
       set :output, 'js'
       set :layout, false

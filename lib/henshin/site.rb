@@ -5,7 +5,7 @@ require_relative 'engine/basic'
 module Henshin
   class Site < Base
   
-    include BasicRender
+    include BasicRules
         
     ## Filters
     
@@ -22,7 +22,7 @@ module Henshin
     ignore '*.yml'
     
     after_each :write do |file|
-      if file.can_write?
+      if file.writeable?
         puts "  #{'->'.green} #{file.write_path.to_s.grey}"
       end
     end
