@@ -76,24 +76,20 @@ module Henshin
     
   end
   
-  
-  # Merges self with another hash, recursively.
-  # 
-  # This method doesn’t really belong here, could just be patched on Hash?
+  # Should search for 'henshin/#{name}' first, then check load paths,
+  # maybe add ability to set load path in config?
   #
-  # @see http://www.ruby-doc.org/core/classes/Hash.html#M000759
-  #   For more info on passing a block to Hash#merge.
+  # @return [Henshin::Base]
+  #   The subclass of Henshin::Base to build with.
   #
-  def self.deep_merge(target, other)
-    target.merge(other) do |k, oldval, newval|
-      if newval.is_a? Hash
-        deep_merge(oldval, newval)
-      else
-        newval
-      end
-    end
+  def self.require_builder(name)
+    require "henshin/#{name}"
+    c = Henshin.constants.find {|i| i.to_s.downcase == name }
+    Henshin.const_get(c)
+  rescue LoadError # try load paths
+    require name
+    const_get(name.to_sym)
   end
-
 
   # @param argv [Array]
   #   The command line arguments usually ARGV.
@@ -119,20 +115,10 @@ module Henshin
     threads = []
     
     loaded = Henshin::Base.load_config([source, Pathname.pwd], false)
-    config = deep_merge(config, loaded)
+    config = config.r_merge(loaded)
     
     # get the henshin builder to use
-    builder = nil
-    case config['type'].downcase
-    when 'site'
-      require_relative 'site'
-      builder = Henshin::Site
-    when 'blog'
-      require_relative 'blog'
-      builder = Henshin::Blog
-    when 'base'
-      builder = Henshin::Base
-    end
+    builder = require_builder config['type'].downcase
     
     if config['serve']['use']
       require 'rack/henshin'
