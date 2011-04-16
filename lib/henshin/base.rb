@@ -291,10 +291,10 @@ module Henshin
     end
     
     def pre_render_file(file)
-      render_blocks.each do |(m,b)|
+      rules.each do |(m,b)|
         if vals = m.matches(file.relative_path.to_s)
           if vals['splat']
-            file.class.send(:define_method, :splat) { v }
+            file.class.send(:define_method, :splat) { vals['splat'] }
           end
           
           if res = vals.select {|k,v| k != 'splat'}
@@ -304,6 +304,9 @@ module Henshin
           file.instance_exec(*vals.values.flatten, &b)
         end
       end
+
+      file.class.send(:remove_method, :splat) if file.respond_to? :splat      
+      file.class.send(:remove_method, :keys) if file.respond_to? :keys
       
       file
     end
