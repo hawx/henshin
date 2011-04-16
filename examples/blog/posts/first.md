@@ -1,6 +1,6 @@
 ---
 title: First Post
-date: 11:04 14/12/2010
+date: 2010-12-14 11:04
 layout: post
 tag: init
 ---

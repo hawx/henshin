@@ -6,11 +6,12 @@
     <link rel="stylesheet" href="/css/screen.css" type="text/css" />
   </head>
   <body>
+    <a href="/">Home</a>
+  
     <header>
       <h1>{{ post.title }}</h1>
       <h2>{{ post.date }}</h2>
-      <a href="/">Home</a>
-      <ul>
+      <ul class="tags">
         {% for tag in post.tags %}
           <li><a href="{{ tag.url }}">{{ tag.name }}</a></li>
         {% endfor %}

@@ -9,12 +9,13 @@
     <a href="/">Home</a>
   
     <h2>A List of categories</h2>
-    <ul>
-      {% for categories in categories %}
+    <ul class="list">
+      {% for category in categories %}
         <li>
-          <a href="{{ categories.url }}">{{ categories.name }}</a>
+          <a href="{{ category.url }}">{{ category.name }}</a>
+          {{ category.posts.length }}
           <ul>
-          {% for post in categories.posts %}
+          {% for post in category.posts %}
             <li><time>{{ post.date }}</time> - <a href="{{ post.url }}">{{ post.title }}</a></li>
           {% endfor %}
           </ul>
