@@ -1,0 +1,12 @@
+---
+title: A Site For Testing
+---
+
+Welcome to the test site
+
+<h3>Files</h3>
+<ul class="list">
+  {% for file in files %}
+    <li><a href="{{ file.url }}">{{ file.title }}</a><time>{{ file.date }}</time></li>
+  {% endfor %}
+</ul>
