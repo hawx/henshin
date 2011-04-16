@@ -1,6 +1,6 @@
 module Henshin::Engine::Support
 
-  autoload_gem :Syntax, 'syntax'
+  autoload_gem :Syntax, 'syntax/convertors/html'
   
   # @see Henshin::Pygments
   class Syntax
@@ -17,7 +17,7 @@ module Henshin::Engine::Support
     end
     
     def highlight
-      Syntax::Convertors::HTML.for_syntax(@lang).convert(@code)
+      ::Syntax::Convertors::HTML.for_syntax(@lang.to_s).convert(@code)[5..-7]
     end
     
     def self.available?
