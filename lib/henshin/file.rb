@@ -119,7 +119,7 @@ module Henshin
     end
     
     
-  # @group Questions
+  # @group Predicates
     
     def readable?
       true
@@ -435,7 +435,7 @@ module Henshin
         # Only render when needed
         if !rendered? || force 
           @rendered = raw_content
-          
+
           run_applies
           run_uses
         end
@@ -445,7 +445,7 @@ module Henshin
     
     def run_applies
       @applies.each do |engine|
-        @rendered = engine.render(content, payload)
+        @rendered = engine.render(@rendered, payload)
       end
     end
     

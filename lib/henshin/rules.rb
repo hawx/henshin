@@ -26,7 +26,7 @@ module Henshin
       @_rule << [path, block]
     end
     
-    def self.included(klass)
+    def included(klass)
       # set the rules
       @_rule.each do |(path, block)|
         klass.rule(path, &block)

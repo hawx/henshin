@@ -66,7 +66,7 @@ class Hash
   # recursive hash merge.
   #
   def r_merge(other)
-    m = proc {|_,o,n| o.merge(n, &m) }
+    m = proc {|_,o,n| o.respond_to?(:merge) ? o.merge(n, &m) : n }
     merge(other, &m)
   end
   

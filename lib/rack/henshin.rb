@@ -55,14 +55,13 @@ module Henshin
       puts "Request for ".grey + permalink
       
       @files = []
-      @files = self.pre_render(self.read)
+      @files = pre_render(self.read)
       file = @files.find {|i| i.permalink == permalink }
       
       run :before, :render, self
       if file
-        file = self.render_file(file, self.layouts, true)
+        file = render_file(file, self.layouts, true)
         run :after, :render, self
-        
         [200, {"Content-Type" => file.mime}, [file.content]]
       else
         # Check the routes that have been set
@@ -76,7 +75,7 @@ module Henshin
               p 'passed' if file == :pass
               break unless file # 404 if no file created
             end
-            self.render_file(file, self.layouts, true)
+            render_file(file, self.layouts, true)
             run :after, :render, self
             
             return [200, {"Content-Type" => file.mime}, [file.content]]
