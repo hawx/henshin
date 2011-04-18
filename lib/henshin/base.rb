@@ -245,7 +245,7 @@ module Henshin
         end
         r
       end
-           
+      
       found.each do |f|
         _k = nil
         # Sort highest priority to lowest so as soon as a match is found we can break
@@ -262,7 +262,7 @@ module Henshin
           @files << Henshin::File.new(f, self)
         end
       end
-      
+
       run :after, :read, self
       @files
     end
@@ -284,13 +284,18 @@ module Henshin
     # @return [Array[Henshin::File]]
     #
     def pre_render(files=@files)
+      run :before, :pre_render, self
+    
       files.each do |f|
         pre_render_file(f)
       end
+      
+      run :after, :pre_render, self
       files
     end
     
     def pre_render_file(file)
+      run :before_each, :pre_render, file
       rules.each do |(m,b)|
         if vals = m.matches(file.relative_path.to_s)
           if vals['splat']
@@ -308,6 +313,7 @@ module Henshin
       file.class.send(:remove_method, :splat) if file.respond_to? :splat      
       file.class.send(:remove_method, :keys) if file.respond_to? :keys
       
+      run :after_each, :pre_render, file
       file
     end
     
@@ -437,10 +443,10 @@ module Henshin
     class_attr_accessor :rules, :filter_blocks, :ignores, :default => []
     class_attr_accessor :pre_config, :constant, :routes, :default => {}
     class_attr_accessor :actions => {
-      :before =>      { :read => [], :render => [], :write => [] },
-      :after =>       { :read => [], :render => [], :write => [] },
-      :before_each => { :read => [], :render => [], :write => [] },
-      :after_each =>  { :read => [], :render => [], :write => [] }
+      :before =>      { :read => [], :pre_render => [], :render => [], :write => [] },
+      :after =>       { :read => [], :pre_render => [], :render => [], :write => [] },
+      :before_each => { :read => [], :pre_render => [], :render => [], :write => [] },
+      :after_each =>  { :read => [], :pre_render => [], :render => [], :write => [] }
     }
     
     FILTER_PRIORITIES = {
