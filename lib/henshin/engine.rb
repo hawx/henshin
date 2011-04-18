@@ -1,3 +1,5 @@
+require 'interface'
+
 module Henshin
 
   # @example Definition

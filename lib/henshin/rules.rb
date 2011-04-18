@@ -1,5 +1,3 @@
-require 'interface'
-
 module Henshin
 
   # Include this in a module so that it can be included in a subclass of Henshin::Base
