@@ -10,14 +10,7 @@ module Rack
     attr_accessor :site
   
     def initialize(app, opts={})
-      case opts[:builder]
-      when 'Henshin::Base'
-        @site ||= ::Henshin::Base.new('source' => opts[:root])
-      when 'Henshin::Site'
-        @site ||= ::Henshin::Site.new('source' => opts[:root])
-      when 'Henshin::Blog'
-        @site ||= ::Henshin::Blog.new('source' => opts[:root])
-      end
+      @site ||= opts[:builder].new('source' => opts[:root])
     end
     
     def call(env)

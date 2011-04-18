@@ -136,7 +136,7 @@ module Henshin
        # use Rack::CommonLogger
         use Rack::ShowExceptions
        # use Rack::Lint
-        run Rack::Henshin.new(nil, {:root => source, :builder => builder.name})
+        run Rack::Henshin.new(nil, {:root => source, :builder => builder})
       end
       
       handler.run(app)
