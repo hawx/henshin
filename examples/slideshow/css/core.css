@@ -1,0 +1,88 @@
+body, html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font: 1.5em/2em Helvetica;
+}
+
+.slide {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  display: block;
+}
+
+h1 {
+  margin: 0;
+  padding: 1em 0.5em 0;
+}
+
+p {
+  margin: 0;
+  padding: 1em;
+}
+
+ul {
+  list-style: none;
+  text-align: center;
+  padding: 0;
+}
+  
+code {
+  font-family: Menlo, 'Bitstream Vera Sans Mono', Consolas, 'Lucida Console', monospace;
+  font-size: 0.8em;
+}  
+  
+/* QUOTE SLIDE */
+
+.quote {
+  height: 100%;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-box-pack: center;}
+  
+  .quote blockquote {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font: italic 1.2em Georgia;}
+  
+  .quote em {
+    display: block;
+    text-align: right;
+    padding-right: 3em;
+    font: normal 0.7em Helvetica;}
+
+/* CENTER SLIDE */
+
+.center {
+  height: 100%;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;}
+  
+  .center h1 {
+    margin: 0;
+    padding: 0;}
+    
+/* CODE SLIDE */
+
+.code {
+  text-align: left;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;}
+  
+  .code pre {
+    line-height: 1.2em;
+    padding: 0 2em;}
+    
+
+

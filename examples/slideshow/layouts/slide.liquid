@@ -1,0 +1,15 @@
+<div class="slide {% if slide.bullets %}bullets {% endif %}{% if slide.incremental %}incremental {% endif %}">
+{% if slide.quote %}
+  <div class="quote">
+{% elsif slide.center %}
+  <div class="center">
+{% elsif slide.code %}
+  <div class="code">
+{% endif %}
+
+  {{ yield }}
+
+{% if slide.quote or slide.center or slide.code %}
+  </div>
+{% endif %}
+</div>
