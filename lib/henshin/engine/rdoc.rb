@@ -1,3 +1,5 @@
+require 'henshin/engine/support/highlighter'
+
 module Henshin::Engine
 
   autoload_gem :RDoc, 'rdoc/markup'
@@ -12,5 +14,5 @@ module Henshin::Engine
       markup.res.join("")
     end
   
-  end
+  end 
 end

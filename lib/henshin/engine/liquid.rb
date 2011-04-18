@@ -1,3 +1,5 @@
+require 'henshin/engine/support/highlighter'
+
 module Henshin::Engine
 
   autoload_gem :Liquid, 'liquid'
