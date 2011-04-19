@@ -12,5 +12,6 @@ module Henshin::Engine
       ::RDiscount.new(content).to_html
     end
   end
-  
 end
+
+Henshin.register_engine :rdiscount, Henshin::Engine::RDiscount

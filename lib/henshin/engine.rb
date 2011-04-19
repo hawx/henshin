@@ -4,7 +4,6 @@ module Henshin
 
   # @example Definition
   #
-  #   # This is the preferred way to load gems as they won't be loaded until necessary
   #   # Note: Module#autoload won't load gems so use this.
   #   autoload_gem :Maruku, 'maruku'
   #
@@ -23,8 +22,20 @@ module Henshin
   #   end
   #
   module Engine
-    # renders the content (optionally using the data)
+  
+    # renders the content using the data
     def render(content, data)
+    end
+    
+    # Make .render go to #render
+    def self.included(klass)
+      klass.extend(ClassMethods)
+    end
+    
+    module ClassMethods
+      def render(*args)
+        (@instance ||= new).render(*args)
+      end
     end
     
     # This is useful for some types of engines, if it uses the data eg. ERB
@@ -56,6 +67,7 @@ module Henshin
         end
       end
     end
+    
   end
   
 end

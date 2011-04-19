@@ -12,5 +12,6 @@ module Henshin::Engine
       ::Kramdown::Document.new(content).to_html
     end
   end
-  
 end
+
+Henshin.register_engine :kramdown, Henshin::Engine::Kramdown

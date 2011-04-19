@@ -37,5 +37,6 @@ module Henshin::Engine
     end
     
   end
-  
 end
+
+Henshin.register_engine :haml, Henshin::Engine::Haml

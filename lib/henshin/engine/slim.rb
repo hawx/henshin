@@ -24,3 +24,5 @@ module Henshin::Engine
     ::Slim::EmbeddedEngine.register(:highlight, HighlightEngine)
   end
 end
+
+Henshin.register_engine :slim, Henshin::Engine::Slim

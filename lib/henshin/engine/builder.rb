@@ -11,5 +11,6 @@ module Henshin::Engine
       xml.target!
     end
   end
-
 end
+
+Henshin.register_engine :builder, Henshin::Engine::Builder

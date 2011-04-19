@@ -108,7 +108,11 @@ module Henshin
     # Use a rendering engine, though shouldn't be used immediately should be stored and
     # executed later.
     def apply(engine)
-      @applies << engine.new
+      if engine.respond_to?(:new)
+        @applies << engine
+      elsif e = Henshin.registered_engines[engine]
+        @applies << e
+      end
     end
     
     # Should store the class in a list to call at a later date but this will be pretty much

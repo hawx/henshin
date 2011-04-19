@@ -9,5 +9,6 @@ module Henshin::Engine
       ::CoffeeScript.compile(content)
     end
   end
-  
 end
+
+Henshin.register_engine :coffeescript, Henshin::Engine::CoffeeScript

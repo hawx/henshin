@@ -30,3 +30,6 @@ module Henshin::Engine
   end
   
 end
+
+Henshin.register_engine :sass, Henshin::Engine::Sass
+Henshin.register_engine :scss, Henshin::Engine::Scss

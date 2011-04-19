@@ -16,3 +16,5 @@ module Henshin::Engine
   
   end 
 end
+
+Henshin.register_engine :rdoc, Henshin::Engine::RDoc

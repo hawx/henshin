@@ -35,5 +35,6 @@ module Henshin::Engine
     
     ::Liquid::Template.register_tag('highlight', Highlight)
   end
-  
 end
+
+Henshin.register_engine :liquid, Henshin::Engine::Liquid

@@ -1,7 +1,8 @@
 # Load the basic filters and include basic #rules for them.
 
 require_relative '../rules'
-%w(coffeescript erb haml liquid maruku redcloth sass builder nokogiri rdoc).each do |l|
+%w(coffeescript erb haml liquid maruku redcloth sass builder nokogiri 
+rdoc).each do |l|
   require_relative l
 end
 
@@ -13,59 +14,59 @@ module Henshin
     extend Rules
   
     rule '**/*.liquid' do
-      apply Engine::Liquid
+      apply :liquid
     end
     
     rule '**/*.{md,mkd,markdown}' do
-      apply Engine::Maruku
+      apply :maruku
     end
 
     rule '**/*.erb' do
-      apply Engine::Erb
+      apply :erb
     end
     
     rule '**/*.haml' do
-      apply Engine::Haml
+      apply :haml
     end
     
     rule '**/*.textile' do
-      apply Engine::RedCloth
+      apply :redcloth
     end
     
     rule '**/*.rdoc' do
-      apply Engine::RDoc
+      apply :rdoc
     end
     
     rule '**/*.builder' do
-      apply Engine::Builder
+      apply :builder
       
       set :output, 'xml'
       set :layout, false
     end
     
     rule '**/*.nokogiri' do
-      apply Engine::Nokogiri
+      apply :nokogiri
       
       set :output, 'xml'
       set :layout, false
     end
     
     rule '**/*.sass' do
-      apply Engine::Sass
+      apply :sass
       
       set :output, 'css'
       set :layout, false
     end
     
     rule '**/*.scss' do
-      apply Engine::Scss
+      apply :scss
       
       set :output, 'css'
       set :layout, false
     end
     
     rule '**/*.coffee' do
-      apply Engine::CoffeeScript
+      apply :coffeescript
       
       set :output, 'js'
       set :layout, false

@@ -56,8 +56,10 @@ module Henshin
   end
   
   def self.register_engine(sym, klass)
-    puts "IMPLEMENT Henshin.register_engine!!!!"
+    registered_engines[sym] = klass
   end
+  
+  module_attr_accessor :registered_engines => {}
   
   # @abstract
   #

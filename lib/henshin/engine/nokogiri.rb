@@ -12,5 +12,6 @@ module Henshin::Engine
       builder.to_xml.gsub(/^<\?xml version=\"1\.0\"\?>\n?/, "")
     end
   end
-
 end
+
+Henshin.register_engine :nokogiri, Henshin::Engine::Nokogiri

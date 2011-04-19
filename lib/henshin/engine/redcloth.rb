@@ -39,8 +39,8 @@ module Henshin::Engine
         Support::Highlighter.highlight(code, lang)
       end
     end
-    
-    
+
   end
-  
 end
+
+Henshin.register_engine :redcloth, Henshin::Engine::RedCloth

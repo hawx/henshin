@@ -12,5 +12,6 @@ module Henshin::Engine
       ::Maruku.new(content).to_html
     end
   end
-  
 end
+
+Henshin.register_engine :maruku, Henshin::Engine::Maruku
