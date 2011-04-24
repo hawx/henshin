@@ -46,6 +46,7 @@ module Henshin
     #
     class MagicHash
       def initialize(hash)
+        @__hash = hash
         hash.each do |k, v|
           if v.is_a?(Hash)
             instance_variable_set("@#{k}", MagicHash.new(v))
@@ -57,6 +58,10 @@ module Henshin
       
       def [](key)
         instance_variable_get("@#{key}")
+      end
+      
+      def to_h
+        @__hash
       end
       
       def method_missing(sym, *args, &block)
