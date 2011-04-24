@@ -10,6 +10,11 @@ describe Henshin::File do
     mock_file Henshin::File.new(source + 'test.txt', site), "Hello I am a test"
   }
   
+  describe "#new" do
+    it "converts path to pathname" do
+      Henshin::File.new('somewhere.txt', site).path.should be_kind_of Pathname
+    end
+  end
   
   describe "#inspect" do
     it "returns a string with the class and path" do
@@ -43,6 +48,13 @@ describe Henshin::File do
       test_klass = Class.new
       subject.apply(test_klass)
       subject.applies.map {|i| i.class}.should == [test_klass]
+    end
+    
+    it "gets the class for symbol and adds to applies list" do
+      klass = Class.new
+      Henshin.register_engine :whatever, klass
+      subject.apply(:whatever)
+      subject.applies.map {|i| i.class}.should == [klass]
     end
   end
   
