@@ -257,17 +257,9 @@ module Henshin
     def payload
       site_payload = @site.payload
       
-      # Don't include self in list of files
-      unless site_payload['files'].empty?
-        site_payload['files'].reject! {|i| i['url'] == url }
-        unless plural_key == "files"
-          site_payload[plural_key].reject! {|i| i['url'] == url }
-        end
-      end
-      
       r = site_payload.merge({
         singular_key => self.data(true), # makes it easier to create layouts
-        'file'   => self.data(true)      # if all files share the key, "file".
+        'file'       => self.data(true)  # if all files share the key, "file".
       })
       
       @payload_injects.each do |i|
@@ -449,7 +441,7 @@ module Henshin
     
     def run_applies
       @applies.each do |engine|
-        @rendered = engine.render(@rendered, payload)
+        @rendered = engine.render(content, payload)
       end
     end
     

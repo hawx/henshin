@@ -47,14 +47,14 @@ describe Henshin::File do
     it "adds the class to the applies list" do
       test_klass = Class.new
       subject.apply(test_klass)
-      subject.applies.map {|i| i.class}.should == [test_klass]
+      subject.applies.should == [test_klass]
     end
     
     it "gets the class for symbol and adds to applies list" do
       klass = Class.new
       Henshin.register_engine :whatever, klass
       subject.apply(:whatever)
-      subject.applies.map {|i| i.class}.should == [klass]
+      subject.applies.should == [klass]
     end
   end
   
@@ -67,7 +67,7 @@ describe Henshin::File do
   end
   
   it { should be_readable }
-  it { should be_renderable }  
+  it { should be_renderable }
   it { should be_writeable }
   
   describe "#layoutable?" do
@@ -87,6 +87,10 @@ describe Henshin::File do
   end
   
   describe "#has_yaml?" do
+    subject { 
+      Henshin::File.new(source + 'test.txt', site)
+    }
+  
     context "when file begins '---'" do
       before { subject.path.stub!(:read).and_return("---") }
       it { should have_yaml }
@@ -94,6 +98,11 @@ describe Henshin::File do
     
     context "when file doesn't begin '---'" do
       before { subject.path.stub!(:read).and_return("xyz") }
+      it { should_not have_yaml }
+    end
+    
+    context "when file is not readable" do
+      before { subject.stub!(:readable?).and_return(false) }
       it { should_not have_yaml }
     end
   end
@@ -174,14 +183,19 @@ describe Henshin::File do
     end
     
     it "should include injected data hashes" do
-      subject.inject_data({:test => true})
-      subject.data.should include({:test => true})
+      subject.inject_data({:test => Hash})
+      subject.data.should include({:test => Hash})
+    end
+    
+    it "should include injected procs" do
+      subject.inject_data { {:test => Proc} }
+      subject.data.should include({:test => Proc})
     end
     
     context "when override data is set" do
       it "returns override data" do
-        subject.data = {'override' => true}
-        subject.data.should == {'override' => true}
+        subject.data = {'override' => 3}
+        subject.data.should == {'override' => 3}
       end
     end
   end
@@ -201,8 +215,13 @@ describe Henshin::File do
     end
     
     it "should include injected payload hashes" do
-      subject.inject_payload({:test => true})
-      subject.payload.should include({:test => true})
+      subject.inject_payload({:test => Hash})
+      subject.payload.should include({:test => Hash})
+    end
+    
+    it "should include injected payload procs" do
+      subject.inject_payload { {:test => Proc} }
+      subject.payload.should include({:test => Proc})
     end
   end
   
@@ -416,10 +435,11 @@ describe Henshin::File do
         def render(c, d)
           "#{c} done"
         end
-      }.new
+      }
     }
   
-    before { subject.instance_variable_set("@applies", [engine]) }
+    before { subject.apply(engine) }
+    # before { subject.instance_variable_set("@applies", [engine]) }
   
     it "runs each engine" do
       engine.should_receive(:render)

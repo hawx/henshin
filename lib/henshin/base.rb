@@ -376,6 +376,9 @@ module Henshin
       run :after_each, :write, file
     end
     
+    def created_at
+      @_created_at ||= Time.now
+    end
     
     # The main hash which will be mixed in with specific page hashes.
     #
@@ -393,7 +396,7 @@ module Henshin
       r = {
         'files' => @files.map(&:data).uniq,
         'site' => {
-          'created_at' => Time.now
+          'created_at' => created_at
         }.merge(@config)
       }.merge(files_hash)
       

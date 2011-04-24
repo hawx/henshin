@@ -16,7 +16,7 @@ end
 
 def mock_file(file, content="")
   file.path.stub!(:read).and_return(content)
-  file.stub!(:has_yaml?).and_return { content[0..2] == "---" ? true : false }
+  file.stub!(:has_yaml?).and_return { subject.path.read[0..2] == "---" }
   file
 end
 
