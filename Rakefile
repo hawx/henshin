@@ -1,24 +1,10 @@
-require 'rubygems'
 require 'rake'
+require 'rspec/core/rake_task'
 
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
+RSpec::Core::RakeTask.new(:fast) do |t|
+  t.rspec_opts = "--tag \\~renders"
 end
 
+RSpec::Core::RakeTask.new(:spec)
 
-namespace :console do
-  task :default => :basic
-
-  desc "Load stuff in IRB."
-  task :basic do
-    exec "irb -rubygems -I lib -r henshin"
-  end
-  
-  desc "Load and read site into IRB"
-  task :load do
-    exec "irb -rubygems -I lib -r henshin -r henshin/irb"
-  end
-end
+task :default => :spec
