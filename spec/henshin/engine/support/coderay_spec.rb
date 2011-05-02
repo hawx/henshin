@@ -5,7 +5,7 @@ describe Henshin::Engine::Support::CodeRay do
   subject { Henshin::Engine::Support::CodeRay.new("def sq(x)\nx * x\nend\n", :ruby) }
 
   describe "#highlight" do
-    it "returns marked up html" do
+    it "returns marked up html", :renders => true do
     
       result = "<span class=\"r\">def</span> <span class=\"fu\">sq</span>(x)\nx * x\n<span class=\"r\">end</span>\n"
 

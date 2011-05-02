@@ -5,7 +5,7 @@ describe Henshin::Engine::RedCloth do
   subject { Henshin::Engine::RedCloth.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 h1. Textile
 

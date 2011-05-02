@@ -5,7 +5,7 @@ describe Henshin::Engine::Haml do
   subject { Henshin::Engine::Haml.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 %h1 Foods
 %ul

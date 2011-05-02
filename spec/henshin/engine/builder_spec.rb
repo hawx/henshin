@@ -5,7 +5,7 @@ describe Henshin::Engine::Builder do
   subject { Henshin::Engine::Builder.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 node {
   leaf(:size => 2)

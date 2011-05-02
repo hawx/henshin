@@ -6,7 +6,7 @@ describe Henshin::Engine::RDiscount do
   subject { Henshin::Engine::RDiscount.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 # Header
 

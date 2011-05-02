@@ -5,7 +5,7 @@ describe Henshin::Engine::Support::Pygments do
   subject { Henshin::Engine::Support::Pygments.new("def sq(x)\nx * x\nend\n", :ruby) }
 
   describe "#highlight" do
-    it "returns marked up html" do
+    it "returns marked up html", :renders => true do
     
       result = "<span class=\"k\">def</span> <span class=\"nf\">sq</span><span class=\"p\">(</span><span class=\"n\">x</span><span class=\"p\">)</span>\n<span class=\"n\">x</span> <span class=\"o\">*</span> <span class=\"n\">x</span>\n<span class=\"k\">end</span>"
 

@@ -6,7 +6,7 @@ describe Henshin::Engine::Kramdown do
   subject { Henshin::Engine::Kramdown.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 # Header
 

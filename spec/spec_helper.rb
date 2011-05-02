@@ -9,9 +9,6 @@ require 'rspec'
 
 RSpec.configure do |config|
   config.color_enabled = true
-  
-  config.before(:each) do
-  end
 end
 
 def mock_file(file, content="")

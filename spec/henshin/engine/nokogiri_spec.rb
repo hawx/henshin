@@ -5,7 +5,7 @@ describe Henshin::Engine::Nokogiri do
   subject { Henshin::Engine::Nokogiri.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 node {
   leaf(:size => 2)

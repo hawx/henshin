@@ -5,7 +5,7 @@ describe Henshin::Engine::RDoc do
   subject { Henshin::Engine::RDoc.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 = Header
 

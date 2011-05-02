@@ -5,7 +5,7 @@ describe Henshin::Engine::Sass do
   subject { Henshin::Engine::Sass.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 body
   color: red 
@@ -27,7 +27,7 @@ describe Henshin::Engine::Scss do
   subject { Henshin::Engine::Scss.new }
 
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 body {
   color: red 

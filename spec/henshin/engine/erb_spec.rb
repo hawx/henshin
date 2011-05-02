@@ -5,7 +5,7 @@ describe Henshin::Engine::ERB do
   subject { Henshin::Engine::ERB.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 <h1>Foods</h1>
 <ul>

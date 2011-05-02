@@ -6,7 +6,7 @@ describe Henshin::Engine::Slim do
   subject { Henshin::Engine::Slim.new }
   
   describe "#render" do
-    it "returns the rendered content" do
+    it "returns the rendered content", :renders => true do
       text = <<EOS
 h1 Foods
 ul
