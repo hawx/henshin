@@ -36,6 +36,16 @@ describe Henshin::File do
     end
   end
   
+  describe "#<=>" do
+    let(:a)  { Henshin::File.new(source + 'a', site) }
+    let(:a2) { Henshin::File.new(source + 'a', site) }
+    let(:b)  { Henshin::File.new(source + 'b', site) }
+  
+    specify { (a <=> b).should == -1 }
+    specify { (b <=> a).should == 1 }
+    specify { (a <=> a2).should == 0 }
+  end
+  
   describe "#set" do
     it "calls the setter for the symbol given" do
       subject.should_receive(:content=).with("test")
@@ -118,12 +128,6 @@ describe Henshin::File do
     end
   end
   
-  describe "#mime" do
-    it "returns the mime type for the output" do
-      subject.stub!(:output).and_return('html')
-      subject.mime.should == "text/html"
-    end
-  end
   
   describe "#write_path" do
     specify { subject.write_path.should be_kind_of Pathname }
@@ -142,6 +146,7 @@ describe Henshin::File do
       end
     end
   end
+  
   
   describe "#find_layout" do
     let(:test_layout) { Henshin::Layout.new(source + 'test.liquid', site) }
@@ -300,6 +305,23 @@ describe Henshin::File do
     it "returns the file's extension" do
       subject.extension.should == "txt"
     end
+    
+    it "should be possible to set the extension" do
+      subject.set :extension, 'md'
+      subject.extension.should == 'md'
+    end
+  end
+  
+  describe "#mime" do
+    it "returns the mime type for the output" do
+      subject.stub!(:output).and_return('html')
+      subject.mime.should == "text/html"
+    end
+    
+    it "should be possible to set mime type" do
+      subject.set :mime, 'text/css'
+      subject.mime.should == "text/css"
+    end
   end
   
   describe "#url" do
@@ -315,11 +337,21 @@ describe Henshin::File do
         subject.url.should == "/test.txt"
       end
     end
+    
+    it "should be possible to set url" do
+      subject.set :url, '/somewhere.md'
+      subject.url.should == '/somewhere.md'
+    end
   end
   
   describe "#permalink" do
     it "returns the write path prepended with a /" do
       subject.permalink == "/test.txt"
+    end
+    
+    it "should be possible to set permalink" do
+      subject.set :permalink, '/somewhere.md'
+      subject.permalink.should == '/somewhere.md'
     end
   end
   
@@ -327,20 +359,21 @@ describe Henshin::File do
     it "returns a capitalised name for the file" do
       subject.title.should == "Test"
     end
+    
+    it "should be possible to set title" do
+      subject.set :title, 'hey'
+      subject.title.should == 'hey'
+    end
   end
   
   describe "#output" do
-    context "when the output has been set" do
-      it "returns the output" do
-        subject.output = "changed"
-        subject.output == "changed"
-      end
+    it "returns the extension" do
+      subject.output.should == "txt"
     end
     
-    context "when no output has been set" do
-      it "returns the extension" do
-        subject.output.should == "txt"
-      end
+    it "should be possible to set output" do
+      subject.set :output, 'other'
+      subject.output.should == 'other'
     end
   end
   
@@ -348,11 +381,21 @@ describe Henshin::File do
     it "returns the pluralised singular_key" do
       subject.plural_key.should == "files"
     end
+    
+    it "should be possible to set" do
+      subject.set :plural_key, 'others'
+      subject.plural_key.should == 'others'
+    end
   end
   
   describe "#singular_key" do
     it "returns the key as a string" do
       subject.singular_key.should == "file"
+    end
+    
+    it "should be possible to set" do
+      subject.set :singular_key, 'other'
+      subject.singular_key.should == 'other'
     end
   end
   
@@ -439,7 +482,6 @@ describe Henshin::File do
     }
   
     before { subject.apply(engine) }
-    # before { subject.instance_variable_set("@applies", [engine]) }
   
     it "runs each engine" do
       engine.should_receive(:render)

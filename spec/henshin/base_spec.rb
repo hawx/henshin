@@ -247,12 +247,10 @@ describe Henshin::Base do
     end
   end
   
-  {'pre_config' => 'set', 'constant' => 'const'}.each do |getter, setter|
-    describe ".#{setter}" do
-      it "sets a #{getter} value" do
-        subject.class.send(setter.to_sym, :a, 'b')
-        subject.send(getter)['a'].should == 'b'
-      end
+  describe ".set" do
+    it "sets a pre_config value" do
+      subject.set :a, 'b'
+      subject.pre_config['a'].should == 'b'
     end
   end
   
