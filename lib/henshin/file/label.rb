@@ -98,11 +98,11 @@ module Henshin
       
       site.before :write do |site|
         site.labels[plural].render
-        site.labels[plural].write(site.write_path)
+        site.labels[plural].write(site.dest)
         
         site.labels[plural].each do |label|
           label.render
-          label.write(site.write_path)
+          label.write(site.dest)
         end
       end
 

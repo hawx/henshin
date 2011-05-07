@@ -43,5 +43,38 @@ module Henshin
     def output
       'html'
     end
+    
+    def <=>(other)
+      if self.date == other.date
+        super
+      else
+        self.date <=> other.date
+      end
+    end
+    
+    attribute :next, :previous
+    
+    def next
+      posts = @site.posts.sort
+      pos = posts.index(self)
+      
+      if pos && pos < posts.size - 1
+        posts[pos + 1]
+      else
+        nil
+      end
+    end
+    
+    def previous
+      posts = @site.posts.sort
+      pos = posts.index(self)
+      
+      if pos && pos < posts.size - 1
+        posts[pos - 1]
+      else
+        nil
+      end
+    end
+    
   end
 end

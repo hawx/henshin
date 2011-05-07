@@ -1,6 +1,6 @@
 module Henshin
   # Layouts don't get written directly they are evaluated with a
-  # Gen's hash of data.
+  # File's hash of data.
   class Layout < Henshin::File
   
     def name

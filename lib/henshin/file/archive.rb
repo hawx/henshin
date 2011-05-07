@@ -21,7 +21,7 @@ module Henshin
       site.before(:write) do |site|
         site.archive.create_pages.each do |page|
           page.render
-          page.write(site.write_path)
+          page.write(site.dest)
         end
       end
       
@@ -183,6 +183,8 @@ module Henshin
     
     def raw_content
       find_layout.path.read
+    rescue
+      warn 'no layout for archive present'
     end
     
     attr_writer :layout_name
