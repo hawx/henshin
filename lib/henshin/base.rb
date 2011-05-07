@@ -1,17 +1,21 @@
+# stdlib
 require 'pathname'
-require 'yaml'
-require 'ostruct'
-require 'titlecase'
+begin
+  require 'pysch' 
+rescue LoadError 
+  require 'yaml'
+end
 require 'fileutils'
-require 'active_support/inflector'
-require 'chronic'
 
-require 'attr_plus'
+# 3rd party
+require 'titlecase'
+require 'linguistics'; Linguistics.use :en
 require 'clive/output'
+require 'attr_plus'
 
+# 1st party
 require 'henshin/core_ext'
 require 'henshin/delegator'
-
 require 'henshin/engine'
 require 'henshin/matcher'
 require 'henshin/file'
