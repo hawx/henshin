@@ -39,7 +39,6 @@ module Henshin
     'source'       => Pathname.pwd,
     'dest'         => Pathname.pwd + '_site',
     'root'         => '',
-    'layout_paths' => ['layouts/*.*', '**/layouts/*.*'],
     'ignore'       => [],
     'load'         => []
   }
@@ -79,10 +78,9 @@ module Henshin
   
     @config = {}
     attr_accessor :files, :config, :write_path, :injects, :lazy_injects
-    
-    def source;       @config['source'];       end # Just a couple of basic helpers
-    def dest;         @config['dest'];         end # for common config stuff
-    def layout_paths; @config['layout_paths']; end
+    # hash_attr_reader :@config, :source, :dest
+    def source; @config['source']; end
+    def dest;   @config['dest'];   end
     
     # This is the recommended way of building a site, it can easily be
     # a one-liner. It creates the configuration hash from the options 
@@ -159,14 +157,16 @@ module Henshin
     # @param config [Hash] configuration for new site
     #
     def initialize(config={})
-      # Precedence:
-      # @@const > +config+ > @@pre_config > DEFAULTS
+      # +config+ > @@pre_config > DEFAULTS
       begin
-        @config = DEFAULTS.merge pre_config.merge config.merge constant
+        @config = DEFAULTS.merge pre_config.merge config
       rescue
         @config = DEFAULTS
       end
-      load_config
+      @config.merge load_config
+      
+      load_files
+      
       @files   = []
       @injects = []
     end
@@ -177,15 +177,15 @@ module Henshin
     # @param load_dirs [Array[Pathname]]
     # @return [Hash{String=>Object}]
     #
-    def load_config(load_dirs=nil, load=true)
+    def load_config(load_dirs=nil)
       load_dirs ||= [self.source, Pathname.pwd]
+      loaded = {}
       
       load_dirs.each do |d|
         file = d + 'config.yml'
         if file.exist?
           begin
             loaded = YAML.load_file(file)
-            @config.merge!(loaded)
           rescue => e
             warn "Could not read configuration, using defaults..."
             puts "-> #{e.to_s}"
@@ -194,8 +194,12 @@ module Henshin
         end
       end
       
+      loaded
+    end
+      
+    def load_files
       # If any requires require them, do that before loading!
-      if @config['require'] && load
+      if @config['require']
         [@config['require']].flatten.each do |i|
           require (source + i).realpath
           @config['ignore'] << (source + i).realpath
@@ -203,18 +207,21 @@ module Henshin
       end
       
       # If any loads have been set load the files
-      if @config['load'] && load
+      if @config['load']
         [@config['load']].flatten.each do |i|
           self.class.class_eval (source + i).realpath.read
           @config['ignore'] << (source + i).realpath
         end
       end
-      
-      @config
     end
     
     def self.load_config(load_dirs=nil, load=true)
-      new.load_config(load_dirs, load)
+      i = new
+      i.load_config(load_dirs)
+      if load
+        i.load_files
+      end
+      i.config
     end
 
 
@@ -357,10 +364,6 @@ module Henshin
       file
     end
     
-    def write_path
-      self.dest # || others...
-    end
-     
     # Writes the site to the correct directory, by calling the write 
     # methods of all files with the directory to write into.
     def write(files=@files)
@@ -376,7 +379,7 @@ module Henshin
     
     def write_file(file)
       run :before_each, :write, file
-      file.write(write_path)
+      file.write(self.dest)
       run :after_each, :write, file
     end
     
@@ -525,28 +528,16 @@ module Henshin
     end
     
     # Set a specific value for a configuration variable. This will then be used 
-    # above the value in Henshin::DEFAULT but below any user set value, for that 
-    # use +.const+.
+    # above the value in Henshin::DEFAULT but below any user set value. This
+    # means everything set in this way _can_ be overriden by the user. If you
+    # want to set a constant value for the class use CONSTANTS!
     #
-    # @see .const
     # @example
     #
     #   set :write_path, '~/dest'
     #
     def self.set(key, value)
       pre_config[key.to_s] = value
-    end
-    
-    # Set a specific value for a configuration variable. This will be the value
-    # that is used, it will not be overridden by a users value.
-    #
-    # @see .set
-    # @example
-    #
-    #   const :write_path, '~/dest'
-    #
-    def self.const(key, value)
-      constant[key.to_s] = value
     end
     
     # Set up a file to be rendered when a particular path is hit when serving.
