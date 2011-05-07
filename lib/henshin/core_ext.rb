@@ -56,6 +56,10 @@ class String
     slug
   end
   
+  def pluralize
+    self.en.plural
+  end
+  
 end
 
 
