@@ -31,13 +31,10 @@ module Henshin
   class Matcher
   
     attr_accessor :keys
-    
+
     def initialize(match)
       @pretty = match.to_s
-      if match.is_a? Matcher
-        @match = match.regex
-        @keys = match.keys
-      elsif match.is_a? Regexp
+      if match.is_a? Regexp
         @match = match
         @keys = []
       else

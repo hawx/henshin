@@ -5,7 +5,7 @@ describe Henshin::Matcher do
   subject {
     Henshin::Matcher.new('/:first/**/:second/*/:name.*')
   }
-  
+
   describe "#matches?" do
     it "returns true when match" do
       subject.matches?('/something/many/folders/2/a folder/I-am.md').should be_true
