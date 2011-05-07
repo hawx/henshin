@@ -1,3 +1,5 @@
+require 'rack/mime'
+
 module Henshin
 
   # @todo Organise everything around a central hash
@@ -29,19 +31,27 @@ module Henshin
   # itself is determined by the path.
   #
   class File
+  
+    include Comparable
     
     inheritable_class_attr_accessor :payload_keys => []
     
     def self.attribute(*attrs)
       attrs.each do |i|
         payload_keys << i
+        
+        # don't overwrite existing methods!
+        unless instance_methods.include?("#{i}=".to_sym)
+          attr_writer i
+          # private "#{i}=".to_sym
+        end
       end
     end
     
-    attr_accessor :engine, :key, :type, :no_layout, :rendered, :output, :path
+    attr_accessor :engine, :key, :type, :no_layout, :rendered, :path
     
     def initialize(path, site)
-      if path.respond_to? :extname
+      if path.is_a? Pathname
         @path = path
       elsif path
         @path = Pathname.new(path)
@@ -91,6 +101,10 @@ module Henshin
     #   @data ||= {}
     # end
     
+    def <=>(other)
+      self.permalink <=> other.permalink
+    end
+    
   # @group Filter Methods
     
     # Set a property for the file
@@ -98,7 +112,7 @@ module Henshin
       if respond_to?("#{key}=")
         send("#{key}=", value)
       else
-        # store in the data hash
+        # store in the data hash?
         # data[key] = value
       end
     end
@@ -159,11 +173,6 @@ module Henshin
     
   # @endgroup
     
-    # Get the mime type for the output file.
-    def mime
-      ::Rack::Mime.mime_type("." + output)
-    end
-    
     # @return [Pathname]
     #   Relative path to write the file to, this needs to have the 
     #   correct directory prepended to it.
@@ -215,18 +224,17 @@ module Henshin
     #   not work with this method of calculation, which is bad.
     #
     def relative_path
+      "#{@site.source.inspect} - #{@path.inspect}"
       @path.relative_path_from @site.source
     end
+    puts "You have added a fix that needs removing in henshin/file.rb:#{__LINE__}"
     
     # @return [Hash{String=>Object}]
     #   Data taken from the file, usually from the YAML frontmatter
     #   but may also come from the file name, folders, etc.
     #    
     def data(force=false)
-      return @override_data if @override_data
-      unless force
-        return @data if @data
-      end
+      return @data if @data unless force
       
       r = {}
       payload_keys.each do |k|
@@ -249,6 +257,13 @@ module Henshin
       
       @data = r
     end
+    
+    # Override the data with +val+. This will be preferred over any other 
+    # value so will prevent the data from being loaded.
+    #
+    # @param val [Hash]
+    #
+    attr_writer :data
 
     # @return [Hash{String=>Object}]
     #   Hash from #data with content. This will be used in the Sites 
@@ -292,33 +307,11 @@ module Henshin
     end
     
     
-
-  # @group Overrides
-  
-    # Override the content with +val+. Note if +@rendered+ is present it 
-    # will be preferred over this.
-    #
-    # @param val [String]
-    #
-    def content=(val)
-      @override_content = val
-    end
-        
-    # Override the data with +val+. This will be preferred over any other 
-    # value so will prevent the data from being loaded.
-    #
-    # @param val [Hash]
-    #
-    def data=(val)
-      @override_data = val
-    end
-
-    
   # @group Attributes
   
     # These are the attributes a basic file has access to in layouts.
     attribute :content, :raw_content, :extension, :url, :permalink, :title, :output, 
-              :plural_key, :singular_key
+              :plural_key, :singular_key, :mime
               
               
     # @return [String]
@@ -330,18 +323,20 @@ module Henshin
     def content
       if rendered?
         @rendered
-      elsif @override_content
-        @override_content
       else
         raw_content
       end
     end
+    
+    # Set the content or rendered, if rendered is set it is used, otherwise
+    # falls back to content, and finally just reads the file.
+    attr_writer :content, :rendered
 
     # This is kind of like #content, but will never return rendered content
     # under any circumstances.
     def raw_content
-      if @override_content
-        @override_content
+      if @content
+        @content
       elsif readable?
         if has_yaml?
           @path.read[yaml_text.size..-1]
@@ -357,7 +352,12 @@ module Henshin
     #   Extension of the original file.
     #
     def extension
-      @path.extname[1..-1]
+      @extension || @path.extname[1..-1]
+    end
+    
+    # Get the mime type for the output file.
+    def mime
+      @mime || ::Rack::Mime.mime_type("." + output)
     end
 
     # @return [String]
@@ -365,7 +365,7 @@ module Henshin
     #   +/my_file/index.html+.
     #
     def url
-      if output == "html"
+      @url || if output == "html"
         permalink.split('/')[0..-2].join('/')
       else
         permalink
@@ -376,14 +376,14 @@ module Henshin
     #   Full url to the file itself.
     #
     def permalink
-      "/" + write_path.to_s
+     @permalink || "/" + write_path.to_s
     end
     
     # @return [String]
     #   Base name of file, eg. /my_site/somefile/about.liquid -> about
     #
     def title
-      @path.basename.to_s.split('.')[0].titlecase
+      @title || @path.basename.to_s.split('.')[0].titlecase
     end
 
     # If the output has been set during rendering return that value otherwise
@@ -397,11 +397,11 @@ module Henshin
 
     # @todo Get this working properly
     def plural_key
-      singular_key.pluralize
+      @plural_key || singular_key.pluralize
     end
     
     def singular_key
-      key.to_s
+      @singular_key || key.to_s
     end
     
     def key
