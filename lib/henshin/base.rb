@@ -183,6 +183,7 @@ module Henshin
       
       load_dirs.each do |d|
         file = d + 'config.yml'
+        
         if file.exist?
           begin
             loaded = YAML.load_file(file)
@@ -215,13 +216,8 @@ module Henshin
       end
     end
     
-    def self.load_config(load_dirs=nil, load=true)
-      i = new
-      i.load_config(load_dirs)
-      if load
-        i.load_files
-      end
-      i.config
+    def self.load_config(load_dirs=nil)
+      new.load_config(load_dirs)
     end
 
 

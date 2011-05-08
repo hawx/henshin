@@ -114,7 +114,7 @@ module Henshin
     
     threads = []
     
-    loaded = Henshin::Base.load_config([source, Pathname.pwd], false)
+    loaded = Henshin::Base.load_config([source])
     config = config.r_merge(loaded)
     
     # get the henshin builder to use
