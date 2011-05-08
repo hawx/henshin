@@ -1,3 +1,8 @@
+---
+name: Intro
+---
+
+
 $$$ center
 # Intro
 
@@ -42,14 +47,6 @@ $$$
 To show the next item instead of advancing page
  
     $$$ incremental bullets
-
-
-$$$
-# Formatting/Transitions????
-  
-    $$$ fade-in
-    $$$ fade-out
-    $$$ fade
 
 
 $$$

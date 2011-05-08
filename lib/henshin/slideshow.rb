@@ -23,6 +23,27 @@ module Henshin
         :slide
       end
       
+      def id
+        0
+      end
+      attribute :id
+      
+      def name
+        @name if @name
+      
+        if code
+          @name = "- Code"
+        elsif quote
+          @name = "- Quote"
+        else
+          line = content.split("\n").find {|i| i[0] == "#"}
+          if line
+            @name = line.gsub(/#\s*/, '')
+          end
+        end
+      end
+      attribute :name
+      
       def readable?; false; end
       def writeable?; false; end
       
@@ -40,7 +61,7 @@ module Henshin
     end
   
     # May contain multiple slides in one file by breaking them up using $$$.
-    class Slides < Henshin::File
+    class Slides < Henshin::File    
       def key
         :slides
       end
@@ -64,6 +85,11 @@ module Henshin
           s
         end
       end
+      
+      def name
+        yaml['name']
+      end
+      attribute :name
 
       def text
         slides.map {|s|
@@ -93,6 +119,20 @@ module Henshin
       
       def find_layout(files=@site.layouts)
         files.find {|f| f.name == "main" }
+      end
+      
+      def payload(*args)
+        o = super(*args)
+
+        o['site']['sections'] = slides.map {|slides|
+          {
+            'id'   => 0,
+            'name' => slides.name,
+            'slides' => slides.slides.map {|slide| slide.data }
+          }
+        }
+        
+        o
       end
       
       def raw_content
