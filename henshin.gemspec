@@ -8,7 +8,6 @@ Gem::Specification.new do |s|
   s.author      = "Joshua Hawxwell"
   s.email       = "m@hawx.me"
   s.homepage    = "http://github.com/hawx/henshin"
-  s.has_rdoc    = false
   s.summary     = "An abstracted static site generator"
   s.description = <<-EOD
     Henshin is an abstracted static site generator, use it to build a personal
