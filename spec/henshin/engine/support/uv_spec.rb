@@ -13,5 +13,17 @@ describe Henshin::Engine::Support::Uv do
     
     end
   end
+  
+  describe ".available?" do
+    it "returns true if gem installed" do
+      described_class.should_receive(:require).with("uv").and_return(true)
+      described_class.should be_available
+    end
+    
+    it "returns false if gem not installed" do
+      described_class.should_receive(:require).with("uv").and_raise(LoadError)
+      described_class.should_not be_available
+    end
+  end
 
 end

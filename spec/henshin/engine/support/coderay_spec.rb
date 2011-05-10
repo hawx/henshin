@@ -15,12 +15,12 @@ describe Henshin::Engine::Support::CodeRay do
   
   describe ".available?" do
     it "returns true if gem installed" do
-      Kernel.stub!(:require).and_return(true)
+      described_class.should_receive(:require).with("coderay").and_return(true)
       described_class.should be_available
     end
     
     it "returns false if gem not installed" do
-      subject.should_receive(:require).with("coderay").and_raise(LoadError)
+      described_class.should_receive(:require).with("coderay").and_raise(LoadError)
       described_class.should_not be_available
     end
   end
