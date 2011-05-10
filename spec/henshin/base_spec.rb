@@ -44,12 +44,6 @@ describe Henshin::Base do
     end
   end
   
-  describe "#layout_paths" do
-    it "returns the paths to search for layouts" do
-      subject.layout_paths.should == Henshin::DEFAULTS['layout_paths']
-    end
-  end
-  
   describe "#load_config" do
     before {
       YAML.stub!(:load_file).and_return({'loaded' => true})
@@ -81,8 +75,9 @@ describe Henshin::Base do
     end
     
     it "creates instances of correct classes" do
+      subject.class.filter 'layouts/*.*', Henshin::Layout, :internal
       subject.read.each do |f|
-        if f.path.to_s =~ /layout/
+        if f.path.to_s =~ /layouts/
           f.class.should == Henshin::Layout
         else
           f.class.should == Henshin::File
@@ -176,10 +171,6 @@ describe Henshin::Base do
     end
   end
   
-  describe "#write_path" do
-    specify { subject.write_path.should be_kind_of Pathname }
-  end
-  
   describe "#write" do
     it "calls #write_file for each file" do
       files.each {|i|
@@ -192,7 +183,7 @@ describe Henshin::Base do
   
   describe "#write_file" do
     it "calls the file's write method with the write path" do
-      file_txt.should_receive(:write).with(subject.write_path)
+      file_txt.should_receive(:write).with(subject.dest)
       subject.write_file(file_txt)
     end
   end
