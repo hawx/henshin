@@ -139,6 +139,7 @@ module Henshin
         run Rack::Henshin.new(nil, {:root => source, :builder => builder})
       end
       
+      puts "Serving site using #{builder.name}..."
       handler.run(app)
       
     else # If no server is needed then just build the site.

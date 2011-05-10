@@ -12,11 +12,9 @@ module Henshin
     filter 'layouts/*.*', Layout, :internal
     filter '**/*.{liquid,md,mkd,markdown,erb,haml,textile}', Page
     
-    ## Renders
+    ## Rules
     
     ## Others
-    
-    set :layout_paths, ['layouts/*.*', '**/layouts/*.*']
     
     ignore '_site/**'
     ignore '*.yml'

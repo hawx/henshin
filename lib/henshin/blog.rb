@@ -25,7 +25,7 @@ module Henshin
     filter 'posts/*.*', Post, :high
     filter '**/*.{liquid,md,mkd,markdown,erb,haml,textile}', Page
     
-    ## Renders
+    ## Rules
 
     rule 'posts/:title.*' do
       set :title, keys[:title]
@@ -42,9 +42,7 @@ module Henshin
     end
     
     ## Others
-    
-    set :layout_paths, ['layouts/*.*', '**/layouts/*.*']
-    
+        
     ignore '_site/**'
     ignore '*.yml'
     

@@ -11,6 +11,7 @@ module Rack
   
     def initialize(app, opts={})
       @site ||= opts[:builder].new('source' => opts[:root])
+      @site.server = true
     end
     
     def call(env)

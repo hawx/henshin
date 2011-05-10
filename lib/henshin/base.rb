@@ -30,7 +30,6 @@ module Henshin
   #  'source' source location
   #  'dest' build location
   #  'root' prefix for urls
-  #  'layout_paths' paths to find layouts
   #  'ignore' array of files to ignore
   #  'load' array of files to load (then ignore)
   #
@@ -77,10 +76,14 @@ module Henshin
   class Base
   
     @config = {}
-    attr_accessor :files, :config, :write_path, :injects, :lazy_injects
+    attr_accessor :files, :config, :injects, :lazy_injects
     # hash_attr_reader :@config, :source, :dest
-    def source; @config['source']; end
-    def dest;   @config['dest'];   end
+    def source;  @config['source']; end
+    def dest;    @config['dest'];   end
+    
+    # Whether a server is running or not
+    attr_writer :server
+    def server?; @server || false; end
     
     # This is the recommended way of building a site, it can easily be
     # a one-liner. It creates the configuration hash from the options 
@@ -397,7 +400,7 @@ module Henshin
       end
 
       r = {
-        'files' => @files.map(&:data).uniq,
+        'files' => @files.map(&:data),
         'site' => {
           'created_at' => created_at
         }.merge(@config)
@@ -501,9 +504,6 @@ module Henshin
     def self.filter(match, klass, priority=:low)
       filter_blocks << [Matcher.new(match), klass, FILTER_PRIORITIES[priority]]
     end
-    
-    # Set the default layouts path!
-    filter 'layouts/*.*', Layout, :internal
        
     # Specify a Matcher pattern to ignore when reading, and then obviously writing
     # files.
@@ -530,7 +530,7 @@ module Henshin
     #
     # @example
     #
-    #   set :write_path, '~/dest'
+    #   set :dest, '~/dest'
     #
     def self.set(key, value)
       pre_config[key.to_s] = value
