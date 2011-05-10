@@ -42,22 +42,22 @@ module Henshin
         special_chars = %w{. + ( ) $}
         pattern = match.to_str.gsub(/((:\w+)|\*\*\/?|\{(\w+,?)*\}|[\*#{special_chars.join}])/) do |match|
             case match
-            when /\{(\w+,?)*\}/
+            when /\{(\w+,?)*\}/ # capture "{a,b,c}" style lists
               items = match[1..-2].split(',')
               keys << 'group'
               "(#{items.join('|')})"
-            when '**/' # make the top directory optional!
+            when '**/' # captures multiple directories, also makes them optional!
               keys << 'splat'
               "(.+\/)?"
-            when '**'
+            when '**' # captures multiple directories
               keys << 'splat'
               "(.+)?"
-            when "*"
+            when "*" # captures any text
               keys << 'splat'
               "([^/?#]+)?"
-            when *special_chars
+            when *special_chars # captures special characters to escape
               Regexp.escape(match)
-            else
+            else # just text
               if $2
                 keys << $2[1..-1]
               else
