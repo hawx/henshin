@@ -6,7 +6,7 @@ module Henshin
   # @example
   #
   #   module LiquidRender
-  #     extend RenderDefinition
+  #     extend Rules
   #
   #     rule '**/:title.liquid' do
   #       apply LiquidEngine
