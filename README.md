@@ -7,7 +7,7 @@ archives.
 
 ## How To
 
-Install with
+Install with (requires ruby 1.9.x)
 
     (sudo) gem install henshin
 

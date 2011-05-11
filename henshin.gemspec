@@ -5,6 +5,7 @@ Gem::Specification.new do |s|
   s.name        = "henshin"
   s.version     = Henshin::VERSION
   s.platform    = Gem::Platform::RUBY
+  s.required_ruby_version = '>= 1.9'
   s.author      = "Joshua Hawxwell"
   s.email       = "m@hawx.me"
   s.homepage    = "http://github.com/hawx/henshin"
