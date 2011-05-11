@@ -10,9 +10,15 @@ describe Henshin::File do
     mock_file Henshin::File.new(source + 'test.txt', site), "Hello I am a test"
   }
   
-  describe "#new" do
+  describe "#initialize" do
     it "converts path to pathname" do
       Henshin::File.new('somewhere.txt', site).path.should be_kind_of Pathname
+    end
+    
+    it "takes a block which is ran in the new instance" do
+      Henshin::File.new('somewhere.txt', site) do 
+        set :output, 'fake'
+      end.output.should == 'fake'
     end
   end
   
@@ -305,22 +311,12 @@ describe Henshin::File do
     it "returns the file's extension" do
       subject.extension.should == "txt"
     end
-    
-    it "should be possible to set the extension" do
-      subject.set :extension, 'md'
-      subject.extension.should == 'md'
-    end
   end
   
   describe "#mime" do
     it "returns the mime type for the output" do
       subject.stub!(:output).and_return('html')
       subject.mime.should == "text/html"
-    end
-    
-    it "should be possible to set mime type" do
-      subject.set :mime, 'text/css'
-      subject.mime.should == "text/css"
     end
   end
   
@@ -349,8 +345,8 @@ describe Henshin::File do
       subject.permalink == "/test.txt"
     end
     
-    it "should be possible to set permalink" do
-      subject.set :permalink, '/somewhere.md'
+    it "should be possible to set permalink indirectly" do
+      subject.set :url, '/somewhere.md'
       subject.permalink.should == '/somewhere.md'
     end
   end
@@ -382,8 +378,8 @@ describe Henshin::File do
       subject.plural_key.should == "files"
     end
     
-    it "should be possible to set" do
-      subject.set :plural_key, 'others'
+    it "should be possible to set indirectly" do
+      subject.set :key, 'other'
       subject.plural_key.should == 'others'
     end
   end
@@ -393,8 +389,8 @@ describe Henshin::File do
       subject.singular_key.should == "file"
     end
     
-    it "should be possible to set" do
-      subject.set :singular_key, 'other'
+    it "should be possible to set indirectly" do
+      subject.set :key, 'other'
       subject.singular_key.should == 'other'
     end
   end
