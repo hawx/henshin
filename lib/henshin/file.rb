@@ -2,34 +2,7 @@ require 'rack/mime'
 
 module Henshin
 
-  # @todo Organise everything around a central hash
-  #   @data will hold the configuration, and will lazily call the required 
-  #   methods, store the results then act as a proxy so that the stored
-  #   value is returned. Unless a special force version is called (though
-  #   that is a thought in progress.
-
-
-  # This is the basic file class that the other file types inherit, eg
-  # Layout, Gen and Static. It may also be used as the base for other
-  # types such as Post or Tag, but it may be better to use Gen.
-  #
   # @abstract
-  #
-  # Need to organise this file into
-  #
-  #  @group DSL
-  #    Which has methods for use in subclasses, eg. .attribute
-  #
-  #  @group Attributes
-  #    Which has the properties and attributes
-  #
-  #  @group Actions
-  #    Render, write, etc
-  #
-  # Also need to decide how path, url, permalink and write_path are determined
-  # really the url and permalink should be decided based on the write_path, which
-  # itself is determined by the path.
-  #
   class File
   
     include Comparable
@@ -39,17 +12,35 @@ module Henshin
     def self.attribute(*attrs)
       attrs.each do |i|
         payload_keys << i
+      end
+    end
+    
+    def self.settable_attribute(*attrs)
+      attrs.each do |i|
+        payload_keys << i
         
         # don't overwrite existing methods!
-        unless instance_methods.include?("#{i}=".to_sym)
+        m = "#{i}=".to_sym
+        unless instance_methods.include?(m)
           attr_writer i
-          # private "#{i}=".to_sym
+          # private m
         end
       end
     end
     
     attr_accessor :engine, :key, :type, :no_layout, :rendered, :path
     
+    
+    # @example
+    #
+    #   Henshin::File.new 'a-text-file.txt', @site
+    #
+    #   Henshin::File.new 'some-file.md', @site do
+    #     set :title, 'Some File'
+    #     apply :kramdown
+    #     unapply :maruku
+    #   end
+    #
     def initialize(path, site)
       if path.is_a? Pathname
         @path = path
@@ -64,6 +55,10 @@ module Henshin
       
       @applies = []
       @uses    = []
+      
+      if block_given?
+        self.instance_eval &Proc.new
+      end
     end
     
     attr_accessor :data_injects, :payload_injects
@@ -178,13 +173,7 @@ module Henshin
     #   correct directory prepended to it.
     # 
     def write_path
-      if output == 'html' && !@path.to_s.include?('index')
-        path, ext = relative_path.to_s.split('.')
-        Pathname.new(path << "/index.html")
-      else
-        r = relative_path.to_s.gsub ".#{extension}", ".#{output}"
-        Pathname.new(r)
-      end
+      Pathname.new(permalink[1..-1])
     end
 
     # @return [Layout]
@@ -224,7 +213,6 @@ module Henshin
     #   not work with this method of calculation, which is bad.
     #
     def relative_path
-      "#{@site.source.inspect} - #{@path.inspect}"
       @path.relative_path_from @site.source
     end
     puts "You have added a fix that needs removing in henshin/file.rb:#{__LINE__}"
@@ -310,8 +298,13 @@ module Henshin
   # @group Attributes
   
     # These are the attributes a basic file has access to in layouts.
-    attribute :content, :raw_content, :extension, :url, :permalink, :title, :output, 
-              :plural_key, :singular_key, :mime
+    attribute :raw_content, :extension, :permalink, :plural_key, :singular_key, :mime
+              
+    # NOTES
+    # - #url determines #permalink and #write_path
+    # - @key has an attr_accessor above, use this to set #plural_key and #singular_key
+    #
+    settable_attribute :url, :title, :content, :output
               
               
     # @return [String]
@@ -365,10 +358,10 @@ module Henshin
     #   +/my_file/index.html+.
     #
     def url
-      @url || if output == "html"
-        permalink.split('/')[0..-2].join('/')
+      @url || if output == 'html' && !@path.to_s.include?('index')
+        "/" + relative_path.to_s.split('.').first
       else
-        permalink
+        "/" + relative_path.to_s.gsub(".#{extension}", ".#{output}")
       end
     end
     
@@ -376,7 +369,11 @@ module Henshin
     #   Full url to the file itself.
     #
     def permalink
-     @permalink || "/" + write_path.to_s
+      if output == "html" && !@path.to_s.include?('index')
+        url + "/index.html"
+      else
+        url
+      end
     end
     
     # @return [String]

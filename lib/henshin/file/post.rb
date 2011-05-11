@@ -1,15 +1,10 @@
 module Henshin
-  class Post < Henshin::File
-    def initialize(*args)
-      @key = :post
-      @output = 'html'
-      super
-    end
-    
+  class Post < Henshin::File    
     attr_accessor :tags, :categories
     attribute :tags, :categories
     
     def date
+      return @date if @date
       Time.parse self.yaml['date']
     rescue
       nil
@@ -45,11 +40,7 @@ module Henshin
     end
     
     def <=>(other)
-      if self.date == other.date
-        super
-      else
-        self.date <=> other.date
-      end
+      (self.date <=> other.date).tap {|c| return super if c.zero? }
     end
     
     attribute :next, :previous
