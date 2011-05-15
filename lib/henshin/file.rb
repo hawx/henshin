@@ -28,7 +28,7 @@ module Henshin
       end
     end
     
-    attr_accessor :engine, :key, :type, :no_layout, :rendered, :path
+    attr_accessor :path, :applies, :uses
     
     
     # @example
@@ -48,7 +48,7 @@ module Henshin
         @path = Pathname.new(path)
       end
       @site = site
-      @rendered = nil
+      @rendered = false
       
       @payload_injects = []
       @data_injects    = []
@@ -64,7 +64,7 @@ module Henshin
     attr_accessor :data_injects, :payload_injects
     
     def inspect
-      "#<#{self.class} #{self.relative_path}>"
+      "#<#{self.class} #{url}>"
     end
     
     
@@ -77,6 +77,16 @@ module Henshin
       arg = Proc.new if block_given? && arg.nil?
       raise ArgumentError unless arg
       @payload_injects << arg
+      
+      # If payload exists put new stuff into cached version so it doesn't have
+      # to be reset.
+      if @payload
+        if arg.respond_to?(:call)
+          @payload.merge!(arg.call(self))
+        else
+          @payload.merge!(arg)
+        end
+      end
     end
     
     # Add a hash into the return value of #data. If block/proc given it is
@@ -88,34 +98,56 @@ module Henshin
       arg = Proc.new if block_given? && arg.nil?
       raise ArgumentError unless arg
       @data_injects << arg
+      
+      # If data exists put new data into cached hash so it doesn't totally
+      # have to be reset.
+      if @data
+        if arg.respond_to?(:call)
+          @data.merge!(arg.call(self))
+        else
+          @data.merge!(arg)
+        end
+      end
     end
-    
-    # This is the central data hash for the file. It stores all data that is needed
-    # for rendering purposes.
-    # def data
-    #   @data ||= {}
-    # end
     
     def <=>(other)
       self.permalink <=> other.permalink
     end
     
-  # @group Filter Methods
+  # @group DSL Methods
     
     # Set a property for the file
+    #
+    # @example
+    #  
+    #   file.set :url, '/somewhere/else'
+    #
     def set(key, value)
+      # Allow better looking names without messing other stuff up!
+      map = {
+        :read   => :readable,
+        :layout => :layoutable,
+        :render => :renderable,
+        :write  => :writeable
+      }
+      key = map[key] if map.has_key?(key)
+    
       if respond_to?("#{key}=")
         send("#{key}=", value)
       else
+        warn "Error, #{inspect} did not allow #{key} to be set to #{value}."
         # store in the data hash?
         # data[key] = value
       end
     end
     
-    attr_accessor :applies, :uses
-    
     # Use a rendering engine, though shouldn't be used immediately should be stored and
     # executed later.
+    #
+    # @example
+    #
+    #     file.apply :maruku
+    #
     def apply(engine)
       if engine.respond_to?(:new)
         @applies << engine
@@ -125,7 +157,7 @@ module Henshin
     end
     
     # Should store the class in a list to call at a later date but this will be pretty much
-    # the implementation, only difference to #apply is the file itself is passed so the klass
+    # the implementation, only difference to #apply is the file itself is passed so the class
     # can do anything it wants!
     def use(klass)
       @uses << klass.new
@@ -133,27 +165,31 @@ module Henshin
     
     
   # @group Predicates
+  
+    attr_writer :readable, :renderable, :layoutable, :writeable
     
+    # @return [true, false] Whether the file can be read.
     def readable?
-      true
+      @readable || true
     end
     
+    # @return [true, false] Whether the file can be rendered.
     def renderable?
-      true
+      @renderable || true
     end
     
-    # Don't layout files without yaml frontmatter, assume they are static!
+    # @return [true, false] Whether the file can be applied to a layout file.
+    #   Don't layout files without YAML frontmatter, assume they are static!
     def layoutable?
-      @can_layout || has_yaml?
+      @layoutable || has_yaml?
     end
     
+    # @return [true, false] Whether the file can be written.
     def writeable?
-      true
+      @writeable || true
     end
     
-    # @return [true, false]
-    #   Whether the file contains YAML frontmatter.
-    #
+    # @return [true, false] Whether the file contains YAML frontmatter.
     def has_yaml?
       if readable?
         @path.read(3) == "---"
@@ -162,8 +198,14 @@ module Henshin
       end
     end
     
+    # @return [true, false] Whether the file has been rendered.
     def rendered?
-      !!@rendered
+      @rendered
+    end
+    
+    # @return [true, false] Whether this file is an index file.
+    def index?
+      path.to_s =~ /\/index\.\w+/ && output == 'html'
     end
     
   # @endgroup
@@ -217,6 +259,10 @@ module Henshin
     end
     puts "You have added a fix that needs removing in henshin/file.rb:#{__LINE__}"
     
+    # @param force [true, false]
+    #   Pass +true+ to force it to rebuild the data but only if absolutely
+    #   necessary.
+    # 
     # @return [Hash{String=>Object}]
     #   Data taken from the file, usually from the YAML frontmatter
     #   but may also come from the file name, folders, etc.
@@ -245,24 +291,23 @@ module Henshin
       
       @data = r
     end
-    
-    # Override the data with +val+. This will be preferred over any other 
-    # value so will prevent the data from being loaded.
-    #
-    # @param val [Hash]
-    #
-    attr_writer :data
 
+    # @param force [true, false]
+    #   Pass +true+ to force it to rebuild the payload but only if absolutely
+    #   necessary.
+    #
     # @return [Hash{String=>Object}]
     #   Hash from #data with content. This will be used in the Sites 
     #   list of files.
     #
-    def payload
+    def payload(force=false)
+      return @payload if @payload unless force
+    
       site_payload = @site.payload
       
       r = site_payload.merge({
-        singular_key => self.data(true), # makes it easier to create layouts
-        'file'       => self.data(true)  # if all files share the key, "file".
+        singular_key => self.data, # makes it easier to create layouts
+        'file'       => self.data  # if all files share the key, "file".
       })
       
       @payload_injects.each do |i|
@@ -273,7 +318,7 @@ module Henshin
         end
       end
 
-      r
+      @payload = r
     end
     
     # @return [String]
@@ -297,40 +342,82 @@ module Henshin
     
   # @group Attributes
   
-    # These are the attributes a basic file has access to in layouts.
-    attribute :raw_content, :extension, :permalink, :plural_key, :singular_key, :mime
-              
-    # NOTES
-    # - #url determines #permalink and #write_path
-    # - @key has an attr_accessor above, use this to set #plural_key and #singular_key
-    #
-    settable_attribute :url, :title, :content, :output
-              
-              
-    # @return [String]
-    #   The content of the file, this may just be the files contents
-    #   or in a Gens case it will be the content minus the YAML 
-    #   frontmatter. If rendering has taken place should return the
-    #   rendered content.
-    #
-    def content
-      if rendered?
-        @rendered
-      else
-        raw_content
-      end
+    attr_writer :key
+  
+    # @return [Symbol]
+    #   Key for this file and others built from this class, though can be altered.
+    #   This allows you to group certain types of files, for instance posts, by 
+    #   setting the key to :post.
+    def key
+      @key || :file
     end
     
-    # Set the content or rendered, if rendered is set it is used, otherwise
-    # falls back to content, and finally just reads the file.
-    attr_writer :content, :rendered
+  
+    # NOTES
+    # - #url determines #permalink and #write_path
+    # - set the key to alter the singular and plural keys which are determined from it
+    #
+    settable_attribute :url, :title, :content, :output
+    
+    # @return [String]
+    #   The content of the file. If the file has content set, because it
+    #   has been rendered, then this is returned. Otherwise returns the
+    #   #raw_content.
+    #
+    def content
+      @content || raw_content
+    end
+    
+    # @return [String]
+    #   Extension of the original file.
+    #
+    def extension
+      @extension || @path.extname[1..-1]
+    end
+    
+    # @return [String]
+    #   The pretty url for the file, eg. +/my_file+ instead of 
+    #   +/my_file/index.html+.
+    #
+    def url
+      @url || if index?
+        d = relative_path.dirname.to_s
+        if d == "."
+          "/"
+        else
+          "/" + d
+        end
+      elsif output == 'html'
+        "/" + relative_path.to_s.split('.').first
+      else
+        "/" + relative_path.to_s.gsub(".#{extension}", ".#{output}")
+      end
+    end
+  
+    # @return [String]
+    #   Base name of file, eg. /my_site/somefile/about.liquid -> about
+    #
+    def title
+      @title || @path.basename.to_s.split('.')[0].titlecase
+    end
+    
+    # If the output has been set during rendering return that value otherwise
+    # assume the extension has not changed.
+    #
+    # @return [String]
+    #
+    def output
+      @output || self.extension
+    end
+  
+    # These are attributes which can only be read, but not set, though some can be
+    # set indirectly by changing some of the settable attributes.
+    attribute :raw_content, :extension, :permalink, :plural_key, :singular_key, :mime
 
-    # This is kind of like #content, but will never return rendered content
-    # under any circumstances.
+
+    # @return [String] The unrendered file contents.
     def raw_content
-      if @content
-        @content
-      elsif readable?
+      if readable?
         if has_yaml?
           @path.read[yaml_text.size..-1]
         else
@@ -340,79 +427,36 @@ module Henshin
         ""
       end
     end
-  
-    # @return [String]
-    #   Extension of the original file.
-    #
-    def extension
-      @extension || @path.extname[1..-1]
-    end
     
-    # Get the mime type for the output file.
+    # @return [String] The mime type for the output file.
     def mime
-      @mime || ::Rack::Mime.mime_type("." + output)
+      ::Rack::Mime.mime_type("." + output)
     end
 
-    # @return [String]
-    #   The pretty url for the file, eg. +/my_file+ instead of 
-    #   +/my_file/index.html+.
-    #
-    def url
-      @url || if output == 'html' && !@path.to_s.include?('index')
-        "/" + relative_path.to_s.split('.').first
-      else
-        "/" + relative_path.to_s.gsub(".#{extension}", ".#{output}")
-      end
-    end
-    
-    # @return [String]
-    #   Full url to the file itself.
-    #
+    # @return [String] Full url to the file itself.
     def permalink
-      if output == "html" && !@path.to_s.include?('index')
-        url + "/index.html"
-      else
+      if url == "/"
+        "/index.html"
+      elsif url.include?('.')
         url
+      else
+        url + "/index.html"
       end
     end
-    
-    # @return [String]
-    #   Base name of file, eg. /my_site/somefile/about.liquid -> about
-    #
-    def title
-      @title || @path.basename.to_s.split('.')[0].titlecase
-    end
 
-    # If the output has been set during rendering return that value otherwise
-    # assume the extension has not changed.
-    #
-    # @return [String]
-    #
-    def output
-      @output || self.extension
-    end
-
-    # @todo Get this working properly
+    # @return [String] Pluralised key for the file
+    # @see #key
     def plural_key
-      @plural_key || singular_key.pluralize
+      singular_key.pluralize
     end
     
+    # @return [String] Singular key for the file
+    # @see #key
     def singular_key
-      @singular_key || key.to_s
+      key.to_s
     end
-    
-    def key
-      @key || :file
-    end
-    
 
   # @group Actions
-  
-    # Populate the data hash.
-    # I may not actually implement this, it's just left here as an idea!
-    def read
-      
-    end
 
     # Renders the files contents using the hash, and maybe a layout.
     # Called by Henshin::Render.
@@ -427,18 +471,19 @@ module Henshin
       if renderable?
         # Only render when needed
         if !rendered? || force 
-          @rendered = raw_content
-
+          @rendered = true
+          
           run_applies
           run_uses
         end
       end
+      
       self.content
     end
     
     def run_applies
       @applies.each do |engine|
-        @rendered = engine.render(content, payload)
+        @content = engine.render(content, payload)
       end
     end
     
@@ -448,20 +493,13 @@ module Henshin
       end
     end
     
-    # @overload layout(bool)
-    #   Change whether this file can have a layout or not, ie. it effects
-    #   the return value of #can_layout? For use withing Base.render blocks.
-    #   @param bool [true, false]
+    # Render this file within the +layout_file+ passed, if this file is #layoutable?.
     #
-    # @overload layout(layout_file)
-    #   Render this file within the +layout_file+ passed, if this file #can_layout?.
-    #   @param layout_file [Henshin::Layout]
+    # @param layout_file [Henshin::Layout]
     #
     def layout(other=find_layout)
-      if other.is_a?(Henshin::Layout)
-        @rendered = other.render_with(self)
-      else
-        @can_layout = other
+      if other
+        @content = other.render_with(self)
       end
     end
     

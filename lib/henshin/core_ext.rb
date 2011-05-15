@@ -65,9 +65,9 @@ end
 
 class Hash
   
-  # The _why way, I hadn't seen this until here 'http://timelessrepo.
-  # com/when-in-doubt', the most succinct implementation ever of a 
-  # recursive hash merge.
+  # The _why way, I hadn't seen this until here
+  # http://timelessrepo.com/when-in-doubt, the most succinct 
+  # implementation ever of a recursive hash merge.
   #
   def r_merge(other)
     m = proc {|_,o,n| o.respond_to?(:merge) ? o.merge(n, &m) : n }

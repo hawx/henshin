@@ -21,7 +21,6 @@ require 'henshin/matcher'
 require 'henshin/file'
 require 'henshin/file/layout'
 
-
 module Henshin
 
   # Description of DEFAULTS
@@ -356,7 +355,7 @@ module Henshin
       
       layout = file.find_layout(layouts)
       if layout
-        file.rendered = layout.render_with(file)
+        file.content = layout.render_with(file)
       end
       
       run :after_each, :render, file

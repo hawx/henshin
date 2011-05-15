@@ -9,7 +9,7 @@ module Henshin
     rescue
       nil
     end
-    attribute :date
+    settable_attribute :date
     
     def url
       if date
@@ -40,7 +40,7 @@ module Henshin
     end
     
     def <=>(other)
-      (self.date <=> other.date).tap {|c| return super if c.zero? }
+      (self.date <=> other.date).tap {|c| return super if c == 0 }
     end
     
     attribute :next, :previous

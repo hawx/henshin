@@ -19,7 +19,7 @@ module Henshin
       end
     
       site.before(:write) do |site|
-        site.archive.create_pages.each do |page|
+        site.archive.pages.each do |page|
           page.render
           page.write(site.dest)
         end
@@ -84,7 +84,7 @@ module Henshin
     # @return [ArchivePage]
     #
     def page_for(d)
-      (@pages ||= create_pages).find {|i| i.url == "/#{d.join("/")}" }
+      (@pages ||= pages).find {|i| i.url == "/#{d.join("/")}" }
     end
     
     def main_page
@@ -104,7 +104,7 @@ module Henshin
     
     # @return [Array[ArchivePage]]
     #
-    def create_pages
+    def pages
       r = []
       
       r << main_page
@@ -170,8 +170,8 @@ module Henshin
     alias_method :_path, :path
     
     def path
-      if layout
-        Pathname.new(_path.to_s.gsub(/\..+/, ".#{layout.extension}"))
+      if @layout
+        Pathname.new(_path.to_s.gsub(/\..+/, ".#{@layout.extension}"))
       else
         _path
       end

@@ -41,7 +41,7 @@ module Henshin
         site.send(:attr_accessor, :labels)
       end
       
-      site.before :render do |site|
+      site.after :pre_render do |site|
         unless site.respond_to? :labels
           class << site; attr_accessor :labels; end
         end
@@ -71,7 +71,7 @@ module Henshin
         
         site.labels[plural] = labels
         site.inject_payload do |site|
-          { plural.to_s => site.labels[plural].map {|i| i.data} }
+          { plural.to_s => site.labels[plural].map {|i| i.data }}
         end
         
         site.files.each do |file|
@@ -83,17 +83,8 @@ module Henshin
       end
       
       site.after :render do |site|
-        l = site.labels[plural].find_layout
-        if l
-          site.labels[plural].rendered = l.render_with(site.labels[plural])
-        end
-        
-        site.labels[plural].each do |label|
-          l = label.find_layout
-          if l
-            label.rendered = l.render_with(label)
-          end
-        end
+        site.labels[plural].layout
+        site.labels[plural].each {|label| label.layout }
       end
       
       site.before :write do |site|
