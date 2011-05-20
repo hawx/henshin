@@ -8,6 +8,7 @@ describe Henshin::Delegator do
       
       def initialize(stuff=[])
         @array = stuff
+        @@array = []
       end
       attr_reader :array
       
@@ -33,6 +34,12 @@ describe Henshin::Delegator do
       subject.class_eval { delegate :@array, :inspect, :y }
       instance.should respond_to :y
       instance.y.should == "[]"
+    end
+    
+    it "defines a method given a class variable" do
+      subject.class_eval { delegate :@@array, :inspect, :z }
+      instance.should respond_to :z
+      instance.z.should == "[]"
     end
     
     it "defaults to using the same method name" do
