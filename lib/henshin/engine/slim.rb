@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :Slim, 'slim'
   
-  class Slim
-    implement Henshin::Engine
+  class Slim < Henshin::Engine
+    register :slim
     
     def render(content, data)
       t = ::Slim::Template.new { content }
@@ -24,5 +24,3 @@ module Henshin::Engine
     ::Slim::EmbeddedEngine.register(:highlight, HighlightEngine)
   end
 end
-
-Henshin.register_engine :slim, Henshin::Engine::Slim

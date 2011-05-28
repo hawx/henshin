@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
   
   autoload_gem :Maruku, 'maruku'
   
-  class Maruku
-    implement Henshin::Engine
+  class Maruku < Henshin::Engine
+    register :maruku
     
     def render(content, data)
       content = Support::HighlightScanner.highlight(content)
@@ -13,5 +13,3 @@ module Henshin::Engine
     end
   end
 end
-
-Henshin.register_engine :maruku, Henshin::Engine::Maruku

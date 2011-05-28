@@ -1,9 +1,9 @@
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :Builder, 'builder'
   
-  class Builder
-    implement Henshin::Engine
+  class Builder < Henshin::Engine
+    register :builder
     
     def render(content, data)
       xml = ::Builder::XmlMarkup.new(:indent => 2)
@@ -12,5 +12,3 @@ module Henshin::Engine
     end
   end
 end
-
-Henshin.register_engine :builder, Henshin::Engine::Builder

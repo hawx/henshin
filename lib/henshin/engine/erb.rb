@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
   
   autoload_gem :ERB, 'erb'
   
-  class ERB
-    implement Henshin::Engine
+  class ERB < Henshin::Engine
+    register :erb
     
     def render(content, data)
       box = MagicBox.new(data)
@@ -46,5 +46,3 @@ module Henshin::Engine
     
   end
 end
-
-Henshin.register_engine :erb, Henshin::Engine::ERB

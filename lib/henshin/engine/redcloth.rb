@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :RedCloth, 'redcloth'
   
-  class RedCloth
-    implement Henshin::Engine
+  class RedCloth < Henshin::Engine
+    register :redcloth
     
     def render(content, data)
       # content = Henshin::HighlightScanner.highlight(content)
@@ -43,4 +43,3 @@ module Henshin::Engine
   end
 end
 
-Henshin.register_engine :redcloth, Henshin::Engine::RedCloth

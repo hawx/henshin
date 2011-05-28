@@ -1,9 +1,9 @@
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :Nokogiri, 'nokogiri'
   
-  class Nokogiri
-    implement Henshin::Engine
+  class Nokogiri < Henshin::Engine
+    register :nokogiri
     
     def render(content, data)
       builder = ::Nokogiri::XML::Builder.new
@@ -13,5 +13,3 @@ module Henshin::Engine
     end
   end
 end
-
-Henshin.register_engine :nokogiri, Henshin::Engine::Nokogiri

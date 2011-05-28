@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :Liquid, 'liquid'
   
-  class Liquid
-    implement Henshin::Engine
+  class Liquid < Henshin::Engine
+    register :liquid
     
     def render(content, data)
       ::Liquid::Template.parse(content).render(data)
@@ -36,5 +36,3 @@ module Henshin::Engine
     ::Liquid::Template.register_tag('highlight', Highlight)
   end
 end
-
-Henshin.register_engine :liquid, Henshin::Engine::Liquid

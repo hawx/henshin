@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :Kramdown, 'kramdown'
   
-  class Kramdown
-    implement Henshin::Engine
+  class Kramdown < Henshin::Engine
+    register :kramdown
     
     def render(content, data)
       content = Support::HighlightScanner.highlight(content)

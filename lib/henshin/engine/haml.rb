@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :Haml, 'haml'
   
-  class Haml
-    implement Henshin::Engine
+  class Haml < Henshin::Engine
+    register :haml
     
     def render(content, data)
       ::Haml::Engine.new(content).render(MagicHash.new(data), {})
@@ -38,5 +38,3 @@ module Henshin::Engine
     
   end
 end
-
-Henshin.register_engine :haml, Henshin::Engine::Haml

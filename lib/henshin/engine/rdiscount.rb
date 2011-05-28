@@ -1,11 +1,11 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
   
   autoload_gem :RDiscount, 'rdiscount'
   
-  class RDiscount
-    implement Henshin::Engine
+  class RDiscount < Henshin::Engine
+    register :rdiscount
     
     def render(content, data)
       content = Support::HighlightScanner.highlight(content)
@@ -13,5 +13,3 @@ module Henshin::Engine
     end
   end
 end
-
-Henshin.register_engine :rdiscount, Henshin::Engine::RDiscount

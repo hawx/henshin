@@ -1,12 +1,12 @@
 require 'henshin/engine/support/highlighter'
 
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :RDoc, 'rdoc/markup'
   autoload_gem :RDoc, 'rdoc/markup/to_html'
   
-  class RDoc
-    implement Henshin::Engine
+  class RDoc < Henshin::Engine
+    register :rdoc
     
     def render(content, data)
       markup = ::RDoc::Markup::ToHtml.new
@@ -17,4 +17,3 @@ module Henshin::Engine
   end 
 end
 
-Henshin.register_engine :rdoc, Henshin::Engine::RDoc

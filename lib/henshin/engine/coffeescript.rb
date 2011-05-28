@@ -1,14 +1,12 @@
-module Henshin::Engine
+class Henshin::Engine
 
   autoload_gem :CoffeeScript, 'coffee-script'
   
-  class CoffeeScript
-    implement Henshin::Engine
+  class CoffeeScript < Henshin::Engine
+    register :coffeescript
     
     def render(content, data)
       ::CoffeeScript.compile(content)
     end
   end
 end
-
-Henshin.register_engine :coffeescript, Henshin::Engine::CoffeeScript
