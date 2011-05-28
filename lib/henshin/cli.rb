@@ -76,7 +76,7 @@ module Henshin
     
   end
   
-  # Should search for 'henshin/#{name}' first, then check load paths,
+  # Should search for +'henshin/name'+ first, then check load paths,
   # maybe add ability to set load path in config?
   #
   # @return [Henshin::Base]
@@ -91,8 +91,9 @@ module Henshin
     const_get(name.to_sym)
   end
 
-  # @param argv [Array]
-  #   The command line arguments usually ARGV.
+  # Parse the command line input. Should be called from the executable.
+  #
+  # @param argv [Array] The command line arguments usually ARGV.
   #
   # @example
   #
