@@ -23,14 +23,21 @@ require 'henshin/file/layout'
 
 module Henshin
 
+  # A generic error, allowing you to pass a list of arguments for later use.
+  class HenshinError < StandardError
+    def initialize(*args)
+      @args = args
+    end
+  end
+
   # Description of DEFAULTS
   #
-  #  'dest_prefix' directory (relative) to build sites to
-  #  'source' source location
-  #  'dest' build location
-  #  'root' prefix for urls
-  #  'ignore' array of files to ignore
-  #  'load' array of files to load (then ignore)
+  # - +dest_prefix+ - directory (relative) to build sites to
+  # - +source+ - source location
+  # - +dest+ - build location
+  # - +root+ - prefix for urls
+  # - +ignore+ - array of files to ignore
+  # - +load+ - array of files to load (then ignore)
   #
   DEFAULTS = {
     'dest_suffix'  => '_site',
@@ -56,6 +63,15 @@ module Henshin
     # registered[key] = klass
   end
   
+  # Register a symbol to be used when applying engines. The class name can
+  # always be used but it is usually nicer to write +apply :sass+ instead of
+  # +apply Henshin::Engine::Sass+, it also allows you to dynamically assign
+  # a specific engine to a key. For example you can vary the markdown 
+  # library used depending on settings provided in config.yml.
+  #
+  # @param sym [Symbol] Symbol shortcut to use engine
+  # @param klass [Class] The engine
+  #
   def self.register_engine(sym, klass)
     registered_engines[sym] = klass
   end
@@ -64,32 +80,24 @@ module Henshin
   
   # @abstract
   #
-  # This class will eventually be the base of Henshin, when 
-  # it is run normally. It will also serve as a base for any
-  # other static site generator you could possibly imagine!
-  #
-  # Base itself will only have two types of files it deals
-  # with in its mind: Gens and Statics. There is no post in
-  # Base. It obviously also deals with layouts as well.
+  # This class is the base of Henshin, it implements everything necessary
+  # but nothing more so that it can be subclassed and modified easily.
   #
   class Base
   
     @config = {}
     attr_accessor :files, :config, :injects, :lazy_injects
-    # hash_attr_reader :@config, :source, :dest
-    def source;  @config['source']; end
-    def dest;    @config['dest'];   end
+    hash_attr_reader :@config, 'source', 'dest'
     
-    # Whether a server is running or not
     attr_writer :server
+    # Whether a server is running or not
     def server?; @server || false; end
     
-    # This is the recommended way of building a site, it can easily be
-    # a one-liner. It creates the configuration hash from the options 
-    # provided, then reads, renders and writes the site.
+    # This is the recommended way of building a site. It creates the configuration 
+    # hash from the options provided, then reads, renders and writes the site.
     #
     # @overload build(source)
-    #   Creates a site using the source directory as the base and source/_site
+    #   Creates a site using the source directory as the base and +source/_site+
     #   as the directory to write to, uses default options.
     #   @param source [String, Pathname] directory to read from
     #
@@ -159,7 +167,7 @@ module Henshin
     # @param config [Hash] configuration for new site
     #
     def initialize(config={})
-      # +config+ > @@pre_config > DEFAULTS
+      # config > pre_config > DEFAULTS
       begin
         @config = DEFAULTS.merge pre_config.merge config
       rescue
@@ -179,8 +187,7 @@ module Henshin
     # @param load_dirs [Array[Pathname]]
     # @return [Hash{String=>Object}]
     #
-    def load_config(load_dirs=nil)
-      load_dirs ||= [self.source, Pathname.pwd]
+    def load_config(load_dirs=[self.source, Pathname.pwd])
       loaded = {}
       
       load_dirs.each do |d|
@@ -200,6 +207,9 @@ module Henshin
       loaded
     end
       
+    # @todo This needs cleaning up as the way of using it feels pretty
+    #   weird. Do I really need +load+ and +require+ or just one which
+    #   is better?
     def load_files
       # If any requires require them, do that before loading!
       if @config['require']
@@ -218,6 +228,11 @@ module Henshin
       end
     end
     
+    # Load +config.yml+ from the directories given
+    #
+    # @param load_dirs [Array[Pathname]]
+    # @return [Hash{String=>Object}]
+    #
     def self.load_config(load_dirs=nil)
       new.load_config(load_dirs)
     end
@@ -279,21 +294,15 @@ module Henshin
     end
     
     # @return [Array[Henshin::Layout]]
+    #   Returns all layout files.
     def layouts
       @layouts ||= (@files.find_all {|i| i.class == Henshin::Layout } || [])
     end
 
 
-    # Runs the files given through the matching renders, that is blocks that were defined
-    # using +Henshin::Base.render+. 
-    #
-    # Methods relating to the matches are defined within the file's class.
-    # The block is then ran within this class, and is also passed the correct arguments.
-    # This allows the block to call +splat+, instead of using a block parameter.
-    #
+    # @see #pre_render_file
     # @param files [Array[Henshin::File]]
     # @return [Array[Henshin::File]]
-    #
     def pre_render(files=@files)
       run :before, :pre_render, self
     
@@ -305,6 +314,15 @@ module Henshin
       files
     end
     
+    # Runs the file given through the matching rule blocks that have been defined.
+    #
+    # Methods relating to the matches are defined within the file's class. The
+    # block is then run within this class, and is also passed the correct arguments.
+    # This allows the block to call +splat+ instead of using a block parameter.
+    #
+    # @param file [Henshin::File]
+    # @return [Henshin::File]
+    #
     def pre_render_file(file)
       run :before_each, :pre_render, file
       rules.each do |(m,b)|
@@ -329,41 +347,38 @@ module Henshin
     end
     
     
-    # Renders the file using the engines that were added when #pre_render ran. Then
-    # finds the correct layout and renders the file within that.
-    #
+    # @see #render_file
     # @param files [Array[Henshin::File]]
-    # @param layouts [Array[Henshin::Layout]]
     # @param force [true, false]
-    #
     # @return [Array[Henshin::File]]
-    # 
-    def render(files=@files, layouts=self.layouts, force=false)
+    def render(files=@files, force=false)
       run :before, :render, self
 
       files.each do |f|
-        render_file f, layouts, force
+        render_file(f, force)
       end
       
       run :after, :render, self
       files
     end
     
-    def render_file(file, layouts=self.layouts, force=false)
+    # Renders the file using the engines that were added during #pre_render, then
+    # finds the corresponding layout and renders the file within that, if it exists.
+    #
+    # @param file [Henshin::File]
+    # @param force [true, false] Force the file to be rendered again.
+    def render_file(file, force=false)
       run :before_each, :render, file
-      file.render
       
-      layout = file.find_layout(layouts)
-      if layout
-        file.content = layout.render_with(file)
-      end
+      file.render(force)
+      file.layout
       
       run :after_each, :render, file
       file
     end
     
-    # Writes the site to the correct directory, by calling the write 
-    # methods of all files with the directory to write into.
+    # @see #write_file
+    # @param [Array[Henshin::File]]
     def write(files=@files)
       run :before, :write, self
             
@@ -375,19 +390,27 @@ module Henshin
       self
     end
     
+    # Writes the file to .dest.
+    # 
+    # @param file [Henshin::File]
+    #
     def write_file(file)
       run :before_each, :write, file
       file.write(self.dest)
       run :after_each, :write, file
     end
     
+    # Time the site was created at, this is then cached in a variable so that
+    # it doesn't change if the site takes a few seconds to build.
     def created_at
       @_created_at ||= Time.now
     end
     
-    # The main hash which will be mixed in with specific page hashes.
+    # The site-wide payload hash, this is mixed in to the payloads of every 
+    # other file and contains the data of every file created along with 
+    # some convenient values such as the time created and the config.
     #
-    # @return [Hash]
+    # @return [Hash{String=>Object}]
     # 
     def payload
       files_hash = Hash.new {|h, k| h[k] = [] }
@@ -584,9 +607,10 @@ module Henshin
     
     extend Delegator
     
+    # base.set(:k, 'v'), becomes, base.class.set(:k, 'v')
     delegates :class, 
-              :after_each, :before_each, :after, :before, :rule,
-              :resolve, :const, :set, :ignore, :filter
+                :after_each, :before_each, :after, :before, :rule,
+                :resolve, :const, :set, :ignore, :filter
               
     
   end

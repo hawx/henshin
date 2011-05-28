@@ -52,6 +52,8 @@ module Henshin
       end
     end
 
+    # @return [Array[Henshin::Post]]
+    #   Returns an array of all posts created.
     def posts
       self.files.find_all {|i| i.class.name =~ /Post/}
     end
