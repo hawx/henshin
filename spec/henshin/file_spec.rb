@@ -2,13 +2,24 @@ require 'spec_helper'
 
 describe Henshin::File do
 
-  let(:source) { Pathname.new(File.dirname(__FILE__)) + '..' }
+  let(:source) { Pathname.new(File.dirname(__FILE__)) + '../test_site' }
   let(:dest)   { source + '_site' }
   let(:site)   { Henshin::Base.new({'dest' => dest, 'source' => source}) }
 
   subject { 
     mock_file Henshin::File.new(source + 'test.txt', site), "Hello I am a test"
   }
+  
+  describe ".set" do
+    subject {
+      Class.new(Henshin::File) { set :output, 'what' }
+    }
+  
+    it "allows values to be set for instances of a class" do
+      subject.new(nil, nil).output.should == 'what'
+    end
+  end
+  
   
   describe "#initialize" do
     it "converts path to pathname" do
@@ -23,8 +34,8 @@ describe Henshin::File do
   end
   
   describe "#inspect" do
-    it "returns a string with the class and path" do
-      subject.inspect.should == "#<Henshin::File test.txt>"
+    it "returns a string with the class and url" do
+      subject.inspect.should == "#<Henshin::File /test.txt>"
     end
   end
   
@@ -33,12 +44,40 @@ describe Henshin::File do
       subject.inject_payload({:test => true})
       subject.payload_injects.should include({:test => true})
     end
+    
+    context "if payload has been cached" do
+      before { subject.payload }
+    
+      it "adds the hash to the cached payload hash" do
+        subject.inject_payload({:test => true})
+        subject.instance_variable_get(:@payload).should include({:test => true})
+      end
+      
+      it "calls the proc and adds to the cached payload hash" do
+        subject.inject_payload proc { {:test => true} }
+        subject.instance_variable_get(:@payload).should include({:test => true})
+      end
+    end
   end
   
   describe "#inject_data" do
     it "adds the hash to the data injects list" do
       subject.inject_data({:test => true})
       subject.data_injects.should include({:test => true})
+    end
+    
+    context "if data has been cached" do
+      before { subject.data }
+    
+      it "adds the hash to the cached data if it exists" do
+        subject.inject_data({:test => true})
+        subject.instance_variable_get(:@data).should include({:test => true})
+      end
+      
+      it "calls the proc and adds to the cached payload hash" do
+        subject.inject_data proc { {:test => true} }
+        subject.instance_variable_get(:@data).should include({:test => true})
+      end
     end
   end
   
@@ -59,6 +98,15 @@ describe Henshin::File do
     end
   end
   
+  describe "#unset" do
+    it "removes a set value" do
+      subject.set :output, "test"
+      subject.output.should == "test"
+      subject.unset :output
+      subject.output.should == "txt"
+    end
+  end
+  
   describe "#apply" do
     it "adds the class to the applies list" do
       test_klass = Class.new
@@ -71,6 +119,21 @@ describe Henshin::File do
       Henshin.register_engine :whatever, klass
       subject.apply(:whatever)
       subject.applies.should == [klass]
+    end
+  end
+  
+  describe "#unapply" do
+    before(:all) { @engine = Class.new; Henshin.register_engine(:engine, @engine) }
+    subject { Henshin::File.new(nil, nil) { apply(@engine) } }
+  
+    it "removes an applied engine by class" do
+      subject.unapply @engine
+      subject.applies.should == []
+    end
+    
+    it "removes an applied engine by symbol" do
+      subject.unapply :engine
+      subject.applies.should == []
     end
   end
   
@@ -103,10 +166,6 @@ describe Henshin::File do
   end
   
   describe "#has_yaml?" do
-    subject { 
-      Henshin::File.new(source + 'test.txt', site)
-    }
-  
     context "when file begins '---'" do
       before { subject.path.stub!(:read).and_return("---") }
       it { should have_yaml }
@@ -124,12 +183,12 @@ describe Henshin::File do
   end
   
   describe "#rendered?" do
-    context "when @rendered set" do
-      before { subject.rendered = "hey" }
+    context "when file has been rendered true" do
+      before { subject.render }
       it { should be_rendered }
     end
     
-    context "when @rendered not set" do
+    context "when file has not been rendered false" do
       it { should_not be_rendered }
     end
   end
@@ -202,13 +261,6 @@ describe Henshin::File do
       subject.inject_data { {:test => Proc} }
       subject.data.should include({:test => Proc})
     end
-    
-    context "when override data is set" do
-      it "returns override data" do
-        subject.data = {'override' => 3}
-        subject.data.should == {'override' => 3}
-      end
-    end
   end
   
   describe "#payload" do
@@ -259,15 +311,8 @@ describe Henshin::File do
   end
   
   describe "#content" do
-    context "when rendered" do
-      it "returns rendered content" do
-        subject.rendered = "I am rendered"
-        subject.content.should == "I am rendered"
-      end
-    end
-    
-    context "when override content set" do
-      it "returns the override content" do
+    context "when content set" do
+      it "returns the content" do
         subject.content = "Override"
         subject.content.should == "Override"
       end
@@ -278,14 +323,7 @@ describe Henshin::File do
     end
   end
   
-  describe "#raw_content" do
-    context "when override content" do
-      it "returns the override content" do
-        subject.content = "Override"
-        subject.raw_content.should == "Override"
-      end
-    end
-    
+  describe "#raw_content" do    
     context "when has yaml" do
       it "returns the content without the yaml frontmatter" do
         subject.path.stub!(:read).and_return("---\nyaml: me\n---\nReal content")
@@ -325,6 +363,18 @@ describe Henshin::File do
       it "returns a pretty url" do
         subject.stub!(:output).and_return('html')
         subject.url.should == "/test"
+      end
+      
+      it "returns a pretty url if file /something/index.html" do
+        subject.stub!(:output).and_return('html')
+        subject.path = source + 'folder' + 'index.md'
+        subject.url.should == '/folder'
+      end
+      
+      it "returns a pretty url for /index.html" do
+        subject.set :output, 'html'
+        subject.path = source + 'index.md'
+        subject.url.should == '/'
       end
     end
     
@@ -411,10 +461,9 @@ describe Henshin::File do
   
   describe "#render" do
     context "when not rendered" do
-      it "resets the rendered content" do
-        subject.should_receive(:raw_content).and_return("called")
+      it "sets #rendered?" do
         subject.render
-        subject.instance_variable_get("@rendered").should == "called"
+        subject.should be_rendered
       end
     
       it "runs the applies" do
@@ -429,11 +478,11 @@ describe Henshin::File do
     end
     
     context "when already rendered" do
-      before { subject.instance_variable_set("@rendered", "rendered") }
+      before { subject.render }
       
-      it "resets the rendered content" do
-        subject.should_not_receive(:raw_content)
+      it "set #rendered?" do
         subject.render
+        subject.should be_rendered
       end
     
       it "doesn't run the applies" do
@@ -447,10 +496,11 @@ describe Henshin::File do
       end
       
       context "when forced" do
-        it "resets the rendered content" do
-          subject.should_receive(:raw_content).and_return("called")
+        before { subject.instance_variable_set("@rendered", true) }
+      
+        it "sets #rendered?" do
           subject.render(true)
-          subject.instance_variable_get("@rendered").should == "called"
+          subject.should be_rendered
         end
       
         it "runs the applies" do
@@ -468,9 +518,7 @@ describe Henshin::File do
   
   describe "#run_applies" do
     let(:engine) {
-      Class.new {
-        implements Henshin::Engine
-        
+      Class.new(Henshin::Engine) {        
         def render(c, d)
           "#{c} done"
         end
@@ -521,10 +569,12 @@ describe Henshin::File do
       end
     end
     
-    context "when passed a boolean" do
+    context "should be settable" do
       it "sets whether the file can use a layout" do
-        subject.layout(true)
+        subject.set :layout, true
         subject.should be_layoutable
+        subject.set :layout, false
+        subject.should_not be_layoutable
       end
     end
   end
