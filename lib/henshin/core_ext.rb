@@ -62,7 +62,6 @@ class String
   
 end
 
-
 class Hash
   
   # The _why way, I hadn't seen this until here
@@ -74,4 +73,18 @@ class Hash
     merge(other, &m)
   end
   
+end
+
+# @see http://www.ruby-forum.com/topic/112344
+def File.binary?(path)
+  return true unless File.exist?(path)
+  s = read(path, 4096) and
+  !s.empty? and 
+  (/\0/n =~ s or s.count("\t\n -~").to_f/s.size <= 0.7)
+end
+
+class Pathname
+  def binary?
+    File.binary?(to_s)
+  end
 end
