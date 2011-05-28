@@ -8,13 +8,62 @@ module Henshin
     include Comparable
     
     inheritable_class_attr_accessor :payload_keys => []
+    class_attr_accessor :set_values => {}
     
+    # Creates an attribute for the file. This should correspond to a method 
+    # definition with the same name. When #data is called it will add an
+    # item to the data hash with the key as the method's name and the value
+    # as the return value from the method. The method will be passed no
+    # arguments but will obviously have access to all of the instance 
+    # variables set (@site being the most important).
+    #
+    # @param attrs [Array[Symbol]]
+    #
+    # @example
+    #
+    #   class MyFile < Henshin::File
+    #     attribute :type
+    #
+    #     def type
+    #       if self.extension == "html"
+    #         "html"
+    #       else
+    #         "not html"
+    #       end
+    #     end
+    #   end
+    #
+    #   f = MyFile.("somewhere.txt", @site)
+    #   f.type #=> "not html"
+    #   f.data #=> {..., "type" => "not html", ...}
+    #
     def self.attribute(*attrs)
       attrs.each do |i|
         payload_keys << i
       end
     end
     
+    # Same as .attribute but creates a writer method for the variable allowing
+    # it to be set using .set or #set. The reader method (ie. corresponding to
+    # the method symbol passed) should make use of the instance variable of the
+    # same name to allow the set value to be used.
+    #
+    # @example
+    #
+    #   class MyFile < Henshin::File
+    #     settable_attribute :type
+    #
+    #     def type
+    #       @type || "Mine"
+    #     end
+    #   end
+    #
+    #   f = MyFile.new("somewhere.txt", @site)
+    #   f.type #=> "Mine"
+    #   f.set :type, "Yours"
+    #   f.type #=> "Yours"
+    #   f.data #=> {..., "type" => "Yours", ...}
+    #
     def self.settable_attribute(*attrs)
       attrs.each do |i|
         payload_keys << i
@@ -30,6 +79,24 @@ module Henshin
     
     attr_accessor :path, :applies, :uses
     
+    # Set values for all instances of the class. Basically stores the 
+    # key-values given and then calls #set with them when a new instance
+    # is created.
+    # 
+    # @param key [Symbol]
+    # @param value [Object]
+    # @see #set
+    #
+    # @example Basic example from 'lib/henshin/file/page.rb'
+    #
+    #   class Page < Henshin::File
+    #     set :key,    :page
+    #     set :output, 'html'
+    #   end
+    #
+    def self.set(key, value)
+      set_values[key] = value
+    end
     
     # @example
     #
@@ -55,6 +122,8 @@ module Henshin
       
       @applies = []
       @uses    = []
+      
+      set_values.each {|k,v| set(k, v) }
       
       if block_given?
         self.instance_eval &Proc.new
@@ -115,6 +184,13 @@ module Henshin
     end
     
   # @group DSL Methods
+  
+    SET_MAP = {
+      :read   => :readable,
+      :layout => :layoutable,
+      :render => :renderable,
+      :write  => :writeable
+    }
     
     # Set a property for the file
     #
@@ -124,13 +200,7 @@ module Henshin
     #
     def set(key, value)
       # Allow better looking names without messing other stuff up!
-      map = {
-        :read   => :readable,
-        :layout => :layoutable,
-        :render => :renderable,
-        :write  => :writeable
-      }
-      key = map[key] if map.has_key?(key)
+      key = SET_MAP[key] if SET_MAP.has_key?(key)
     
       if respond_to?("#{key}=")
         send("#{key}=", value)
@@ -139,6 +209,11 @@ module Henshin
         # store in the data hash?
         # data[key] = value
       end
+    end
+    
+    # Unset a property for the file, allowing the default
+    def unset(key)
+      set(key, nil)
     end
     
     # Use a rendering engine, though shouldn't be used immediately should be stored and
@@ -153,6 +228,19 @@ module Henshin
         @applies << engine
       elsif e = Henshin.registered_engines[engine]
         @applies << e
+      else
+        puts "#{engine.inspect}, is not an engine or a registered name for an engine"
+      end
+    end
+    
+    # Don't use a previously applied engine.
+    def unapply(engine)
+      if engine.respond_to?(:new)
+        @applies.delete(engine)
+      elsif e = Henshin.registered_engines[engine]
+        @applies.delete(e)
+      else
+        puts "#{engine.inspect}, is not an engine or a registered name for an engine"
       end
     end
     
@@ -170,7 +258,7 @@ module Henshin
     
     # @return [true, false] Whether the file can be read.
     def readable?
-      @readable || true
+      @readable || !binary?
     end
     
     # @return [true, false] Whether the file can be rendered.
@@ -206,6 +294,10 @@ module Henshin
     # @return [true, false] Whether this file is an index file.
     def index?
       path.to_s =~ /\/index\.\w+/ && output == 'html'
+    end
+    
+    def binary?
+      @path.binary?
     end
     
   # @endgroup
@@ -248,16 +340,13 @@ module Henshin
     #   #=> #<Pathname:folder/file.txt>
     #
     # @return [Pathname]
-    #   A relative path to the file from the 'read path'.
-    #
-    # @todo Absolute Paths
-    #   Absolute paths or paths not in read directory will _probably_
-    #   not work with this method of calculation, which is bad.
+    #   A relative path to the file from the source directory.
     #
     def relative_path
       @path.relative_path_from @site.source
+    rescue # Pathname occasionally messes up so just return the plain path
+      @path
     end
-    puts "You have added a fix that needs removing in henshin/file.rb:#{__LINE__}"
     
     # @param force [true, false]
     #   Pass +true+ to force it to rebuild the data but only if absolutely
@@ -325,10 +414,12 @@ module Henshin
     #   The yaml frontmatter of the file.
     #
     def yaml_text
-      if readable?
+      if has_yaml?
         file = @path.read
         file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
         $1 ? file[0..$1.size-1] : ""
+      else
+        ""
       end
     end
 
@@ -367,14 +458,7 @@ module Henshin
     def content
       @content || raw_content
     end
-    
-    # @return [String]
-    #   Extension of the original file.
-    #
-    def extension
-      @extension || @path.extname[1..-1]
-    end
-    
+
     # @return [String]
     #   The pretty url for the file, eg. +/my_file+ instead of 
     #   +/my_file/index.html+.
@@ -414,7 +498,6 @@ module Henshin
     # set indirectly by changing some of the settable attributes.
     attribute :raw_content, :extension, :permalink, :plural_key, :singular_key, :mime
 
-
     # @return [String] The unrendered file contents.
     def raw_content
       if readable?
@@ -431,6 +514,13 @@ module Henshin
     # @return [String] The mime type for the output file.
     def mime
       ::Rack::Mime.mime_type("." + output)
+    end
+    
+    # @return [String]
+    #   Extension of the original file.
+    #
+    def extension
+      @path.extname[1..-1]
     end
 
     # @return [String] Full url to the file itself.
@@ -498,19 +588,13 @@ module Henshin
     # @param layout_file [Henshin::Layout]
     #
     def layout(other=find_layout)
-      if other
+      if other && layoutable?
         @content = other.render_with(self)
       end
     end
     
-    # Writes the files into the directory given. Called by 
-    # Henshin::Writer.
-    #
     # @param dir [Pathname]
     #   Directory to write into, paths are calculated from this.
-    #
-    # @return [true, false]
-    #   Whether write was successful.
     #
     def write(dir)
       if writeable?

@@ -1,13 +1,22 @@
 module Henshin
-  class Post < Henshin::File    
+  class Post < Henshin::File
+  
+    class MissingDateError < HenshinError
+      def to_s
+        "Post '#{@args[0].title}' does not have a date."
+      end
+    end
+  
     attr_accessor :tags, :categories
     attribute :tags, :categories
     
     def date
       return @date if @date
-      Time.parse self.yaml['date']
+      raise MissingDateError.new(self) unless yaml.has_key?('date')
+      
+      Time.parse yaml['date']
     rescue
-      nil
+      Time.now
     end
     settable_attribute :date
     
@@ -20,24 +29,11 @@ module Henshin
     end
     
     def title
-      self.yaml['title'] || super
+      yaml['title'] || super
     end
-    
-    def permalink
-      url << "/index.html"
-    end
-  
-    def write_path
-      Pathname.new self.permalink[1..-1]
-    end
-    
-    def key
-      :post
-    end
-    
-    def output
-      'html'
-    end
+
+    set :key, :post
+    set :output, 'html'
     
     def <=>(other)
       (self.date <=> other.date).tap {|c| return super if c == 0 }

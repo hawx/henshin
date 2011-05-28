@@ -154,9 +154,7 @@ module Henshin
       end
     end
     
-    def readable?
-      false
-    end
+    set :read, false
     
     def raw_content
       if l = find_layout
@@ -246,14 +244,6 @@ module Henshin
       "/#{plural}/#{@name.slugify}"
     end
     
-    def permalink
-      "/#{plural}/#{@name.slugify}/index.html"
-    end
-    
-    def write_path
-      Pathname.new permalink[1..-1]
-    end
-    
     # Use layout as the content?
     def raw_content
       find_layout.path.read
@@ -261,9 +251,7 @@ module Henshin
       ""
     end
     
-    def readable?
-      false
-    end
+    set :read, false
         
     def find_layout(files=@site.layouts)
       files.find {|i| i.name == "#{single}_page"}

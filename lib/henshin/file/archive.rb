@@ -84,7 +84,7 @@ module Henshin
     # @return [ArchivePage]
     #
     def page_for(d)
-      (@pages ||= pages).find {|i| i.url == "/#{d.join("/")}" }
+      pages.find {|i| i.url == "/#{d.join("/")}" }
     end
     
     def main_page
@@ -167,19 +167,16 @@ module Henshin
   
   # Holds the archives for a year
   class ArchivePage < Henshin::File
-    alias_method :_path, :path
-    
+   
     def path
       if @layout
-        Pathname.new(_path.to_s.gsub(/\..+/, ".#{@layout.extension}"))
+        Pathname.new(super.to_s.gsub(/\.\w+/, ".#{@layout.extension}"))
       else
-        _path
+        super
       end
     end
     
-    def readable?
-      false
-    end
+    set :read, false
     
     def raw_content
       find_layout.path.read

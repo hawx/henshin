@@ -1,4 +1,5 @@
 module Henshin
+
   # Layouts don't get written directly they are evaluated with a
   # File's hash of data.
   class Layout < Henshin::File
@@ -21,17 +22,9 @@ module Henshin
       r
     end
     
-    def writeable?
-      false
-    end
-    
-    def renderable?
-      false
-    end
-    
-    def layoutable?
-      false
-    end
+    set :write,  false
+    set :render, false
+    set :layout, false
     
   end
 end
