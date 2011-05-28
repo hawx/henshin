@@ -34,13 +34,17 @@ module Henshin
     # instead of loading _every_ layout, we only load the one needed,
     # and we do not load every other none related file.
     #
-    # Note(s): #route defintions made will not be passed a match object
-    #  from matches with the regex given, instead they will receive an
-    #  array of any +()+ matches that were made.
+    # Note: #route definitions made will not be passed a match object
+    # from matches with the regexp given, instead they will receive an
+    # array of any +()+ matches that were made.
     #
-    #    route /[ab]+.html/ do |site| # no match
+    #   route /[ab]+.html/ do |site| 
+    #     # no match
+    #   end
     #
-    #    route /([ab]+).html/ do |m, site| # match, m, for ([ab]+)
+    #   route /([ab]+).html/ do |m, site|
+    #     # match, m, for ([ab]+)
+    #   end
     #
     # @param permalink [Pathname]
     #   Permalink of the file to render.
@@ -54,7 +58,7 @@ module Henshin
       
       run :before, :render, self
       if file
-        file = render_file(file, self.layouts, true)
+        file = render_file(file, true)
         run :after, :render, self
         [200, {"Content-Type" => file.mime}, [file.content]]
       else
@@ -69,7 +73,7 @@ module Henshin
               p 'passed' if file == :pass
               break unless file # 404 if no file created
             end
-            render_file(file, self.layouts, true)
+            render_file(file, true)
             run :after, :render, self
             
             return [200, {"Content-Type" => file.mime}, [file.content]]
