@@ -1,5 +1,20 @@
 module Henshin
   
+  # Create an Archive (that is chronological lists of files mapped to keys
+  # which correspond to year, month and date of the file) by adding this
+  # to a subclass of Henshin::Base.
+  #
+  #   class MySite < Henshin::Base
+  #     Henshin::Archive.create(self)
+  #   end
+  #
+  # Then add the following to your layouts folder; 'archive', 'archive_year',
+  # 'archive_month', 'archive_date'. See the examples folder for ideas on
+  # setting them up.
+  #
+  # @todo Make it possible to just have yearly/monthly/dately archives or a
+  #  combination depending on which layouts are present, instead of the all
+  #  or nothing action currently taken.
   class Archive < Henshin::File
        
     def self.create(site)
@@ -11,6 +26,8 @@ module Henshin
       end
     
       site.before(:render) do |site|
+        return false unless Archive.possible?(site)
+        
         archive = Archive.new(site.source + 'archive.html', site)
         site.posts.each do |post|
           archive << post
@@ -19,6 +36,8 @@ module Henshin
       end
     
       site.before(:write) do |site|
+        return false unless Archive.possible?(site)
+      
         site.archive.pages.each do |page|
           page.render
           page.write(site.dest)
@@ -42,6 +61,23 @@ module Henshin
       end
       
     end
+    
+    # Should only be possible to create an archive if the correct layouts exist
+    # so check that they do before building all the pages.
+    def self.possible?(site)
+      layouts = %w(archive archive_year archive_month archive_date)
+      
+      r = true
+      
+      layouts.each do |layout|
+        unless site.layouts.find {|i| i.name == layout }
+          r = false
+          break
+        end
+      end
+      
+      r
+    end
        
        
     def initialize(*args)
@@ -59,6 +95,12 @@ module Henshin
       (@hash[year][month][day] ||= []) << post
     end
   
+    # @return [Hash] 
+    #   The hash of data containing the posts' data under the correct keys
+    #   going [year][month][date]. eg.
+    #
+    #     {2011 => {1 => {1 => [#<Henshin::Post @title="Happy New Year!">]}}}
+    #
     def to_h
       r = {}
       @hash.each do |y, i|
@@ -76,8 +118,8 @@ module Henshin
       r
     end
     
-    # @param [Array]
-    #   ['2009', '12', '25'] for example
+    # @param [Array] d
+    #   for example ['2009', '12', '25'] 
     #   or ['2009', '12']
     #   or ['2009']
     #
@@ -87,6 +129,8 @@ module Henshin
       pages.find {|i| i.url == "/#{d.join("/")}" }
     end
     
+    # The main ArchivePage which is like the index page for labels. Usually
+    # mapped to the url +/archive+
     def main_page
       t = @site.source + 'archive' + 'index.html'
       
@@ -97,7 +141,6 @@ module Henshin
       }
       
       page = ArchivePage.new(t, @site)
-      page.layout_name = 'archive'
       page.inject_payload(payload)
       page
     end
@@ -109,18 +152,19 @@ module Henshin
       
       r << main_page
       
+      @to_h = self.to_h
+      
       self.to_h.each do |y, i|
         t = @site.source + y.to_s + 'index.html'
         
         payload = {
           'archive' => {
-            'posts' => self.to_h,
+            'posts' => @to_h,
             'year'  => y
           }
         }
         
-        page = ArchivePage.new(t, @site)
-        page.layout_name = 'archive_year'
+        page = YearPage.new(t, @site)
         page.inject_payload(payload)
         r << page
       
@@ -129,14 +173,13 @@ module Henshin
           
           payload = {
             'archive' => {
-              'posts' => self.to_h,
+              'posts' => @to_h,
               'year'  => y,
               'month' => m
             }
           }
           
-          page = ArchivePage.new(t, @site)
-          page.layout_name = 'archive_month'
+          page = MonthPage.new(t, @site)
           page.inject_payload(payload)
           r << page
         
@@ -145,17 +188,16 @@ module Henshin
             
             payload = {
               'archive' => {
-                'posts' => self.to_h,
+                'posts' => @to_h,
                 'year'  => y,
                 'month' => m,
                 'day'   => d
               }
             }
             
-            page = ArchivePage.new(t, @site)
-            page.layout_name = 'archive_date'
+            page = DatePage.new(t, @site)
             page.inject_payload(payload)
-            r << @site.pre_render([page]).first
+            r << @site.pre_render_file(page)
           end
         end
       end
@@ -163,33 +205,38 @@ module Henshin
       r
     end
     
-  end
-  
-  # Holds the archives for a year
-  class ArchivePage < Henshin::File
-   
-    def path
-      if @layout
-        Pathname.new(super.to_s.gsub(/\.\w+/, ".#{@layout.extension}"))
-      else
-        super
+    # Holds archives
+    class ArchivePage < Henshin::File
+      set :read,   false
+      set :layout, true
+      set :render, true
+      set :write,  true
+      
+      def layout_names
+        ['archive']
       end
     end
     
-    set :read, false
-    
-    def raw_content
-      find_layout.path.read
-    rescue
-      warn 'no layout for archive present'
+    # Holds the archives in a specific year
+    class YearPage < ArchivePage
+      def layout_names
+        ['archive_year']
+      end
     end
     
-    attr_writer :layout_name
+    # Holds the archives in a specific month (of a year)
+    class MonthPage < ArchivePage
+      def layout_names
+        ['archive_month']
+      end
+    end
     
-    def find_layout(files=@site.layouts)
-      @layout ||= files.find {|i| i.name == @layout_name }
+    # Holds the archives for a specific date (of a month, of a year)
+    class DatePage < ArchivePage
+      def layout_names
+        ['archive_date']
+      end
     end
     
   end
-
 end
