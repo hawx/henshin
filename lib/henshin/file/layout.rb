@@ -22,9 +22,10 @@ module Henshin
       r
     end
     
-    set :write,  false
+    set :read,   true
     set :render, false
     set :layout, false
+    set :write,  false
     
   end
 end

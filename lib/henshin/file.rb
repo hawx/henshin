@@ -10,6 +10,8 @@ module Henshin
     inheritable_class_attr_accessor :payload_keys => []
     class_attr_accessor :set_values => {}
     
+  # @group Class-level DSL Methods
+    
     # Creates an attribute for the file. This should correspond to a method 
     # definition with the same name. When #data is called it will add an
     # item to the data hash with the key as the method's name and the value
@@ -77,8 +79,6 @@ module Henshin
       end
     end
     
-    attr_accessor :path, :applies, :uses
-    
     # Set values for all instances of the class. Basically stores the 
     # key-values given and then calls #set with them when a new instance
     # is created.
@@ -97,6 +97,8 @@ module Henshin
     def self.set(key, value)
       set_values[key] = value
     end
+    
+  # @endgroup
     
     # @example
     #
@@ -130,7 +132,7 @@ module Henshin
       end
     end
     
-    attr_accessor :data_injects, :payload_injects
+    attr_accessor :path, :applies, :uses, :data_injects, :payload_injects
     
     def inspect
       "#<#{self.class} #{url}>"
@@ -258,23 +260,25 @@ module Henshin
     
     # @return [true, false] Whether the file can be read.
     def readable?
-      @readable || !binary?
+      @readable.nil? ? !binary? : @readable
+    rescue 
+      @readable = false
     end
     
     # @return [true, false] Whether the file can be rendered.
     def renderable?
-      @renderable || true
+      @renderable.nil? ? true : @renderable
     end
     
     # @return [true, false] Whether the file can be applied to a layout file.
     #   Don't layout files without YAML frontmatter, assume they are static!
     def layoutable?
-      @layoutable || has_yaml?
+      @layoutable.nil? ? has_yaml? : @layoutable
     end
     
     # @return [true, false] Whether the file can be written.
     def writeable?
-      @writeable || true
+      @writeable.nil? ? true : @writeable
     end
     
     # @return [true, false] Whether the file contains YAML frontmatter.
@@ -293,9 +297,10 @@ module Henshin
     
     # @return [true, false] Whether this file is an index file.
     def index?
-      path.to_s =~ /\/index\.\w+/ && output == 'html'
+      @path.to_s =~ /\/index\.\w+/ && output == 'html'
     end
     
+    # @return [true, false] Whether this file is a binary file.
     def binary?
       @path.binary?
     end
@@ -309,6 +314,11 @@ module Henshin
     def write_path
       Pathname.new(permalink[1..-1])
     end
+    
+    # @return [Array] List of possible names for the layout from best to worst
+    def layout_names
+      [self.data['layout'], 'main']
+    end
 
     # @return [Layout]
     #   The layout to use with this specific file, this is found from the
@@ -320,13 +330,15 @@ module Henshin
     #
     def find_layout(files=@site.layouts)
       if layoutable?
-        d = self.data
-
-        if d['layout']
-          files.find {|f| f.name == d['layout'] }
-        else
-          files.find {|f| f.name == "main" }
+        return @layout if @layout
+      
+        layout_names.compact.each do |n|
+          if @layout = files.find {|f| f.name == n }
+            break
+          end
         end
+        
+        @layout
       end
     end
     
@@ -343,9 +355,9 @@ module Henshin
     #   A relative path to the file from the source directory.
     #
     def relative_path
-      @path.relative_path_from @site.source
+      @relative_path ||= @path.relative_path_from @site.source
     rescue # Pathname occasionally messes up so just return the plain path
-      @path
+      @relative_path = @path
     end
     
     # @param force [true, false]
@@ -462,6 +474,9 @@ module Henshin
     # @return [String]
     #   The pretty url for the file, eg. +/my_file+ instead of 
     #   +/my_file/index.html+.
+    #
+    # @todo Make this less awkward, seems like I'm checking for too many
+    #  special cases whereas a better general case would be preferred.
     #
     def url
       @url || if index?
