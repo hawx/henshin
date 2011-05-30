@@ -18,6 +18,23 @@ module Henshin
       super
     end
     
+    # If the layout for the specified label type is not found then it is not possible
+    # to create so just save resources and ignore it! Both the index and single page
+    # layouts should exist.
+    #
+    # @param single [Symbol] Name of label being created
+    # @param site [Base] Site it will belong to
+    def self.possible?(single, site)
+      layouts_path = "#{single}_index"
+      layout_path  = "#{single}_page"
+      files = site.layouts
+      if files.find {|i| i.name == layouts_path} && files.find {|i| i.name == layout_path }
+        true
+      else
+        false
+      end
+    end
+    
     def self.create(single, plural, site)
       labels = new(site.source + "#{plural.to_s}/index.html", site)
       labels.single = single
@@ -36,12 +53,13 @@ module Henshin
     #  - #resolve hooks
     #
     def self.define(single, plural, site)
-      
       unless site.methods.include? :labels
         site.send(:attr_accessor, :labels)
       end
       
       site.after :pre_render do |site|
+        return false unless Labels.possible?(single, site)
+
         unless site.respond_to? :labels
           class << site; attr_accessor :labels; end
         end
@@ -64,10 +82,7 @@ module Henshin
           { plural.to_s => site.labels[plural].map {|i| i.data} }
         end
         
-        labels.each do |label|
-          label = site.pre_render_file(label)
-          label.inject_payload({single.to_s => label.safe_data})
-        end
+        labels.map {|label| site.pre_render_file(label) }
         
         site.labels[plural] = labels
         site.inject_payload do |site|
@@ -77,17 +92,21 @@ module Henshin
         site.files.each do |file|
           ls = labels.items_for(file)
           file.inject_data do |file|
-            { plural.to_s => ls.map {|i| i.safe_data} }
+            { plural.to_s => ls.map {|i| i.data} }
           end
         end
       end
       
       site.after :render do |site|
+        return false unless Labels.possible?(single, site)
+      
         site.labels[plural].layout
         site.labels[plural].each {|label| label.layout }
       end
       
       site.before :write do |site|
+        return false unless Labels.possible?(single, site)
+      
         site.labels[plural].render
         site.labels[plural].write(site.dest)
         
@@ -98,10 +117,14 @@ module Henshin
       end
 
       site.resolve(/\/(#{plural})\/index.html/) do |m, site|
+        return nil unless Labels.possible?(single, site)
+      
         (site.labels ||= {})[m[0].to_sym]
       end
       
       site.resolve(/\/(#{plural})\/(.+)\/index.html/) do |m, site|
+        return nil unless Labels.possible?(single, site)
+      
         if site.labels
           site.labels[m[0].to_sym].find {|i| i.url == "/#{m[0]}/#{m[1]}" }
         else
@@ -128,14 +151,8 @@ module Henshin
     # @param item [Object]
     #
     def add_for(label, item)
-      if l = self[label]
-        l.list << item
-      else
-        l = Label.define(@single, @plural, label, @site)
-        @list << l
-        l.list << item
-        l
-      end
+      label_obj = create_or_find(label)
+      label_obj.list << item
     end
     
     def create_or_find(item_name)
@@ -154,35 +171,28 @@ module Henshin
       end
     end
     
-    set :read, false
+    set :read,   false
+    set :render, true
+    set :layout, true
+    set :write,  true
     
-    def raw_content
-      if l = find_layout
-        l.path.read
-      else
-        ""
-      end
+    def layout_names
+      ["#{single}_index"]
     end
     
-    def payload
-      b = super
-      b[@plural.to_s] = map {|i| i.safe_data }
-      b
-    end
-
-    def find_layout(*args)
-      @site.layouts.find {|i| i.name == "#{single}_index"}
+    def key
+      @plural
     end
   
     def method_missing(sym, *args, &block)
       case sym.to_s
-      when "#{single}"
+      when "#{@single}"
         @list
-      when "#{single}="
+      when "#{@single}="
         @list = args
-      when "#{plural}_for"
+      when "#{@plural}_for"
         items_for(*args)
-      when 'each', 'map', 'find', 'find_all', 'include?', '[]', 'first', 'last'
+      when 'each', 'map', 'find', 'find_all', 'include?', 'first', 'last'
         @list.send(sym, *args, &block)
       else
         super # Raise the correct error!
@@ -208,31 +218,13 @@ module Henshin
       label.name   = name
       label
     end
-    
+
     attribute :name
     
     def path
-      @site.source + "tags/#{@name.slugify}.#{layout.extension}"
+      @site.source + "#{@plural}/#{@name.slugify}.#{layout.extension}"
     rescue
-      @site.source + "tags/#{@name.slugify}/index.html"
-    end
-    
-    def safe_data
-      {
-        'name'      => @name,
-        'url'       => url,
-        'permalink' => permalink
-      }
-    end
-    
-    def data(*args)
-      safe_data.merge({'posts' => posts})
-    end
-    
-    def payload
-      b = super
-      b[@single.to_s] = self.data
-      b
+      @site.source + "#{@plural}/#{@name.slugify}.html"
     end
     
     def posts
@@ -244,17 +236,17 @@ module Henshin
       "/#{plural}/#{@name.slugify}"
     end
     
-    # Use layout as the content?
-    def raw_content
-      find_layout.path.read
-    rescue
-      ""
+    def key
+      @single
     end
     
-    set :read, false
-        
-    def find_layout(files=@site.layouts)
-      files.find {|i| i.name == "#{single}_page"}
+    set :read,   false
+    set :render, true
+    set :layout, true
+    set :write,  true
+    
+    def layout_names
+      ["#{single}_page"]
     end
     
     def inspect
