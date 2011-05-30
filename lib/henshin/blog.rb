@@ -28,17 +28,17 @@ module Henshin
     ## Rules
 
     rule 'posts/:title.*' do
-      set :title, keys[:title]
+      set :title, title
     end
     
     rule 'posts/:category/:title.*' do
-      set :category, keys[:category]
-      set :title, keys[:title]
+      set :category, category
+      set :title,    title
     end
     
-    rule 'posts/:year/:month/:date/:title.*' do |y,m,d,t|
-      set :date, Chronic.parse("#{y}/#{m}/#{d}")
-      set :title, t
+    rule 'posts/:year/:month/:date/:title.*' do
+      set :date,  Time.new(year, month, date)
+      set :title, title
     end
     
     ## Others
