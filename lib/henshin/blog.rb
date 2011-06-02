@@ -5,7 +5,7 @@ require 'henshin/file/archive'
 require 'henshin/file/label'
 require 'henshin/file/post'
 
-require_relative 'engine/basic'
+require 'henshin/rules/basic'
 
 module Henshin
   
@@ -17,7 +17,7 @@ module Henshin
   #
   class Blog < Base
   
-    include BasicRules
+    include Rules::Basic
     
     ## Filters
     

@@ -1,11 +1,11 @@
-require_relative 'base'
-require_relative 'file/page'
-require_relative 'engine/basic'
+require 'henshin/base'
+require 'henshin/file/page'
+require 'henshin/rules/basic'
 
 module Henshin
   class Site < Base
   
-    include BasicRules
+    include Rules::Basic
         
     ## Filters
     
