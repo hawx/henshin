@@ -16,18 +16,6 @@ require 'clive'
 require 'henshin/base'
 require 'henshin/version'
 
-
-# I just need to get the "boot" process clear in my mind.
-#
-# 1) Get command arguments, then parse them
-# 2) If given the name of a specific class to use (eg. subclass of Henshin::Base
-#     first try to load it if path given, if not try loading 'henshin/#{name}'
-#     if these all fail raise exception.
-# 3) Require any files that have been added to the config
-# 4) Evaluate any files that have been added to load in the config
-# 5) continue
-
-
 module Henshin
   class CLI
     
@@ -151,4 +139,14 @@ module Henshin
     end
   end
 
+end
+
+# Load plugins for the command line interface
+to_load = Gem.find_files('henshin/cli/*').map {|i| Pathname.new(i) }
+unless to_load.empty?
+  # Collect into hash based on file name
+  to_load.group_by {|i| i.basename.to_s }.each_value do |v|
+    # Require only the highest version if multiple exist
+    require v.sort.last
+  end
 end
