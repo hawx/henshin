@@ -87,7 +87,9 @@ module Henshin
   
     @config = {}
     attr_accessor :files, :config, :injects, :lazy_injects
-    hash_attr_reader :@config, 'source', 'dest'
+    #hash_attr_reader :@config, 'source', 'dest' this seems to be broken!?!
+    def source; @config['source']; end
+    def dest;   @config['dest']; end
     
     attr_writer :server
     # Whether a server is running or not
@@ -189,7 +191,7 @@ module Henshin
     #
     def load_config(load_dirs=[self.source, Pathname.pwd])
       loaded = {}
-      
+
       load_dirs.each do |d|
         file = d + 'config.yml'
         
@@ -210,6 +212,7 @@ module Henshin
     # @todo This needs cleaning up as the way of using it feels pretty
     #   weird. Do I really need +load+ and +require+ or just one which
     #   is better?
+    #
     def load_files
       # If any requires require them, do that before loading!
       if @config['require']
@@ -493,6 +496,8 @@ module Henshin
     # block will be run within the context of the file givin access to the file's
     # instance methods. See Henshin::File#set, Henshin::File#apply and 
     # Henshin::File#use for more information.
+    #
+    # For more detail on how the rules are used see #pre_render_file.
     #
     # @example
     #

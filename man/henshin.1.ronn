@@ -3,8 +3,8 @@ henshin(1) -- static site generator
 
 ## SYNOPSIS
 
-`henshin` <read> [<write>]<br>
-`henshin` serve <read>
+`henshin` <read-dir> [<write-dir>]<br>
+`henshin` serve <read-dir>
 
 
 ## DESCRIPTION
@@ -21,7 +21,12 @@ If no <write> is given the default path of <read>`/_site` is used.
 If no <read> is given either then it is assumed the current directory
 is the input directory and `./_site` is the output.
 
-The following arguments can be passed:
+
+## OPTIONS
+
+By default **henshin** will attempt to build a site in the current folder,
+or the <read-dir> specified. It can do more though by using the options
+below.
 
   * `serve`:
     Starts a server (thin/mongrel/webrick) running your site.

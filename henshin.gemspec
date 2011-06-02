@@ -16,13 +16,13 @@ Gem::Specification.new do |s|
     of Henshin::Base and defining a custom structure to build from.
   EOD
   
-  s.add_dependency 'titlecase', "~> 0.1.1"
-  s.add_dependency 'linguistics', "~> 1.0.8"
-  s.add_dependency 'attr_plus', "~> 0.2.0"
-  s.add_dependency 'clive', "~> 0.8.0"
-  s.add_dependency 'shuber-interface', '~> 0.0.4'
-  s.add_dependency 'rack', '~> 1.2.2'
+  s.add_dependency 'titlecase',   '~> 0.1.1'
+  s.add_dependency 'linguistics', '~> 1.0.8'
+  s.add_dependency 'attr_plus',   '~> 0.3.0'
+  s.add_dependency 'clive',       '~> 0.8.0'
+  s.add_dependency 'rack',        '~> 1.2.2'
   
+  s.add_development_dependency 'haml'
   s.add_development_dependency 'maruku'
   s.add_development_dependency 'RedCloth'
   s.add_development_dependency 'liquid'
@@ -38,7 +38,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'syntax'
   
   s.add_development_dependency 'rspec', '~> 2.5'
-  s.add_development_dependency 'duvet', '~> 0.3.1'
+  s.add_development_dependency 'duvet', '~> 0.3.3'
   
   # only git-ted files should be used when building
   s.files        = Dir['Rakefile', 'LICENSE', 'README.md', '{bin,lib,test}/**/*'] & `git ls-files -z`.split("\0")
