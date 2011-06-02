@@ -1,5 +1,5 @@
 %w(pygments uv coderay syntax highlight_scanner).each do |l|
-  require_relative l
+  require "henshin/engine/support/#{l}"
 end
 
 module Henshin::Engine::Support
