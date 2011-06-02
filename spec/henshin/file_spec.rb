@@ -145,9 +145,35 @@ describe Henshin::File do
     end
   end
   
-  it { should be_readable }
-  it { should be_renderable }
-  it { should be_writeable }
+  describe "#readable?" do
+    it "returns true if file is not binary" do
+      subject.stub!(:binary?).and_return(false)
+      subject.should be_readable
+    end
+    
+    it "returns false if file is binary" do
+      subject.stub!(:binary?).and_return(true)
+      subject.should_not be_readable
+    end
+  
+    it "can be set" do
+      subject.set :read, true
+      subject.should be_readable
+      subject.set :read, false
+      subject.should_not be_readable
+    end
+  end
+  
+  describe "#renderable?" do
+    it { should be_renderable }
+    
+    it "can be set" do
+      subject.set :render, true
+      subject.should be_renderable
+      subject.set :render, false
+      subject.should_not be_renderable
+    end
+  end
   
   describe "#layoutable?" do
     context "when yaml" do
@@ -162,6 +188,24 @@ describe Henshin::File do
         subject.stub!(:has_yaml?).and_return(false)
         subject.should_not be_layoutable
       end
+    end
+    
+    it "can be set" do
+      subject.set :layout, true
+      subject.should be_layoutable
+      subject.set :layout, false
+      subject.should_not be_layoutable
+    end
+  end
+  
+  describe "#writeable?" do
+    it { should be_writeable }
+    
+    it "can be set" do
+      subject.set :write, true
+      subject.should be_writeable
+      subject.set :write, false
+      subject.should_not be_writeable
     end
   end
   
@@ -190,6 +234,27 @@ describe Henshin::File do
     
     context "when file has not been rendered false" do
       it { should_not be_rendered }
+    end
+  end
+  
+  describe "#index?" do
+    it "returns true if this is an index file" do
+      subject.path = source + 'index.html'
+      subject.should be_index
+    end
+    it "returns false if this isn't an index file" do
+      subject.should_not be_index
+    end
+  end
+  
+  describe "#binary?" do
+    it "returns true if path is binary file" do
+      subject.path.stub!(:binary?).and_return(true)
+      subject.should be_binary
+    end
+    it "returns false if path is not a binary file" do
+      subject.path.stub!(:binary?).and_return(false)
+      subject.should_not be_binary
     end
   end
   
@@ -290,7 +355,7 @@ describe Henshin::File do
   
   describe "#yaml_text" do
     before do
-      subject.stub!(:can_read?).and_return(true) 
+      subject.stub!(:has_yaml?).and_return(true)
       subject.path.stub!(:read).and_return("---\ntest: true\n---\nHello I am text")
     end
     
@@ -300,10 +365,7 @@ describe Henshin::File do
   end
   
   describe "#yaml" do
-    before do
-      subject.stub!(:can_read?).and_return(true) 
-      subject.path.stub!(:read).and_return("---\ntest: true\n---\nHello I am text")
-    end
+    before { subject.stub!(:yaml_text).and_return("---\ntest: true\n---\n") }
   
     it "returns a hash of loaded yaml frontmatter" do
       subject.yaml.should == {'test' => true}
@@ -565,6 +627,7 @@ describe Henshin::File do
       it "sets the rendered content" do
         layout = Henshin::Layout.new(site.source + 'main.liquid', site)
         layout.should_receive(:render_with).with(subject)
+        subject.set :layout, true
         subject.layout(layout)
       end
     end

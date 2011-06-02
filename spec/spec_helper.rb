@@ -15,8 +15,8 @@ end
 
 def mock_file(file, content="")
   file.path.stub!(:read).and_return(content)
-  file.stub!(:has_yaml?).and_return { subject.path.read[0..2] == "---" }
-  file.stub!(:binary?).and_return(false)
+  file.path.stub!(:read).with(3).and_return(content[0..2])
+  file.path.stub!(:binary?).and_return(false) unless file.path.exist?
   file
 end
 
