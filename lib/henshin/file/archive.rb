@@ -26,21 +26,25 @@ module Henshin
       end
     
       site.before(:render) do |site|
-        return false unless Archive.possible?(site)
+        if Archive.possible?(site)
         
-        archive = Archive.new(site.source + 'archive.html', site)
-        site.posts.each do |post|
-          archive << post
+          archive = Archive.new(site.source + 'archive.html', site)
+          site.posts.each do |post|
+            archive << post
+          end
+          site.archive = archive
+        
         end
-        site.archive = archive
       end
     
       site.before(:write) do |site|
-        return false unless Archive.possible?(site)
+        if Archive.possible?(site)
       
-        site.archive.pages.each do |page|
-          page.render
-          page.write(site.dest)
+          site.archive.pages.each do |page|
+            page.render
+            page.write(site.dest)
+          end
+          
         end
       end
       

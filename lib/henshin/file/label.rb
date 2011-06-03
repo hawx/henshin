@@ -58,73 +58,75 @@ module Henshin
       end
       
       site.after :pre_render do |site|
-        return false unless Labels.possible?(single, site)
-
-        unless site.respond_to? :labels
-          class << site; attr_accessor :labels; end
-        end
-        site.labels ||= {}
+        if Labels.possible?(single, site)
         
-        labels = Labels.create(single, plural, site)
-        labels = site.pre_render_file(labels)
-        
-        site.files.each do |file|
-          if label_name = file.yaml[single.to_s]
-            labels.add_for(label_name, file)
-          elsif label_names = file.yaml[plural.to_s]
-            label_names.each do |label_name|
+          unless site.respond_to? :labels
+            class << site; attr_accessor :labels; end
+          end
+          site.labels ||= {}
+          
+          labels = Labels.create(single, plural, site)
+          labels = site.pre_render_file(labels)
+          
+          site.files.each do |file|
+            if label_name = file.yaml[single.to_s]
               labels.add_for(label_name, file)
+            elsif label_names = file.yaml[plural.to_s]
+              label_names.each do |label_name|
+                labels.add_for(label_name, file)
+              end
             end
           end
-        end
-        
-        labels.inject_payload do |file|
-          { plural.to_s => site.labels[plural].map {|i| i.data} }
-        end
-        
-        labels.map {|label| site.pre_render_file(label) }
-        
-        site.labels[plural] = labels
-        site.inject_payload do |site|
-          { plural.to_s => site.labels[plural].map {|i| i.data }}
-        end
-        
-        site.files.each do |file|
-          ls = labels.items_for(file)
-          file.inject_data do |file|
-            { plural.to_s => ls.map {|i| i.data} }
+          
+          labels.inject_payload do |file|
+            { plural.to_s => site.labels[plural].map {|i| i.data} }
           end
+          
+          labels.map {|label| site.pre_render_file(label) }
+          
+          site.labels[plural] = labels
+          site.inject_payload do |site|
+            { plural.to_s => site.labels[plural].map {|i| i.data }}
+          end
+          
+          site.files.each do |file|
+            ls = labels.items_for(file)
+            file.inject_data do |file|
+              { plural.to_s => ls.map {|i| i.data} }
+            end
+          end
+          
         end
       end
       
       site.after :render do |site|
-        return false unless Labels.possible?(single, site)
+        if Labels.possible?(single, site)
       
-        site.labels[plural].layout
-        site.labels[plural].each {|label| label.layout }
+          site.labels[plural].layout
+          site.labels[plural].each {|label| label.layout }
+          
+        end
       end
       
       site.before :write do |site|
-        return false unless Labels.possible?(single, site)
+        if Labels.possible?(single, site)
       
-        site.labels[plural].render
-        site.labels[plural].write(site.dest)
+          site.labels[plural].render
+          site.labels[plural].write(site.dest)
+          
+          site.labels[plural].each do |label|
+            label.render
+            label.write(site.dest)
+          end
         
-        site.labels[plural].each do |label|
-          label.render
-          label.write(site.dest)
         end
       end
 
-      site.resolve(/\/(#{plural})\/index.html/) do |m, site|
-        return nil unless Labels.possible?(single, site)
-      
+      site.resolve(/\/(#{plural})\/index.html/) do |m, site|      
         (site.labels ||= {})[m[0].to_sym]
       end
       
       site.resolve(/\/(#{plural})\/(.+)\/index.html/) do |m, site|
-        return nil unless Labels.possible?(single, site)
-      
         if site.labels
           site.labels[m[0].to_sym].find {|i| i.url == "/#{m[0]}/#{m[1]}" }
         else
