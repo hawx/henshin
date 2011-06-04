@@ -614,8 +614,7 @@ module Henshin
     def write(dir)
       if writeable?
         FileUtils.mkdir_p (dir + write_path).dirname
-        f = ::File.new(dir + write_path, 'w')
-        f.puts(self.content)
+        ::File.open(dir + write_path, 'w') {|f| f.write(self.content) }
       end
     end
     
