@@ -168,14 +168,15 @@ module Henshin
     # @see .build
     # @param config [Hash] configuration for new site
     #
-    def initialize(config={})
+    def initialize(config={})    
+    
       # config > pre_config > DEFAULTS
       begin
         @config = DEFAULTS.merge pre_config.merge config
       rescue
         @config = DEFAULTS
       end
-      @config.merge load_config
+      @config.merge! load_config
       
       load_files
       
@@ -218,24 +219,19 @@ module Henshin
       self.class.load_config(load_dirs)
     end
       
-    # @todo This needs cleaning up as the way of using it feels pretty
-    #   weird. Do I really need +load+ and +require+ or just one which
-    #   is better?
-    #
+    # Loads files that have been set to be loaded in config.yml. These
+    # are then evaluated in the class's context so have access to the 
+    # usual methods for defining rules and actions.
     def load_files
-      # If any requires require them, do that before loading!
-      if @config['require']
-        [@config['require']].flatten.each do |i|
-          require (source + i).realpath
-          @config['ignore'] << (source + i).realpath
-        end
-      end
-      
-      # If any loads have been set load the files
       if @config['load']
         [@config['load']].flatten.each do |i|
-          self.class.class_eval (source + i).realpath.read
-          @config['ignore'] << (source + i).realpath
+          if ::File.exist?(i)
+            self.class.class_eval ::File.read(i), i
+            ignore i
+          elsif (source + i).exist?
+            self.class.class_eval (source + i).read, (source + i)
+            ignore (source + i)
+          end
         end
       end
     end
