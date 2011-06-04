@@ -317,7 +317,7 @@ module Henshin
     
     # @return [Array] List of possible names for the layout from best to worst
     def layout_names
-      [self.data['layout'], 'main']
+      [self.data['layout'], @site.config['layout']]
     end
 
     # @return [Layout]
@@ -331,8 +331,8 @@ module Henshin
     def find_layout(files=@site.layouts)
       if layoutable?
         return @layout if @layout
-      
-        layout_names.compact.each do |n|
+        
+        layout_names.compact.uniq.each do |n|
           if @layout = files.find {|f| f.name == n }
             break
           end

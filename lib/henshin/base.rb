@@ -38,6 +38,7 @@ module Henshin
   # - +root+ - prefix for urls
   # - +ignore+ - array of files to ignore
   # - +load+ - array of files to load (then ignore)
+  # - +layout+ - default layout to use
   #
   DEFAULTS = {
     'dest_suffix'  => '_site',
@@ -45,7 +46,8 @@ module Henshin
     'dest'         => Pathname.pwd + '_site',
     'root'         => '',
     'ignore'       => [],
-    'load'         => []
+    'load'         => [],
+    'layout'       => 'main'
   }
   
   # module_attr_accessor :registered => {'base' => Henshin::Base}
@@ -261,8 +263,8 @@ module Henshin
           end
         end
         
-        @config['ignore'].each do |m|
-          if f.realpath == m
+        [@config['ignore']].flatten.each do |m|
+          if f.fnmatch?(m) || f.fnmatch?((source + m).to_s)
             r = true
             break
           end
@@ -296,7 +298,6 @@ module Henshin
     def layouts
       @layouts ||= (@files.find_all {|i| i.class == Henshin::Layout } || [])
     end
-
 
     # @see #pre_render_file
     # @param files [Array[Henshin::File]]
