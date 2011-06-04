@@ -189,10 +189,10 @@ module Henshin
     # @param load_dirs [Array[Pathname]]
     # @return [Hash{String=>Object}]
     #
-    def load_config(load_dirs=[self.source, Pathname.pwd])
+    def self.load_config(load_dirs=[Pathname.pwd])
       loaded = {}
 
-      load_dirs.each do |d|
+      load_dirs.uniq.compact.each do |d|
         file = d + 'config.yml'
         
         if file.exist?
@@ -207,6 +207,15 @@ module Henshin
       end
       
       loaded
+    end
+    
+    # Load +config.yml+ from the directories given
+    #
+    # @param load_dirs [Array[Pathname]]
+    # @return [Hash{String=>Object}]
+    #
+    def load_config(load_dirs=[self.source, Pathname.pwd])
+      self.class.load_config(load_dirs)
     end
       
     # @todo This needs cleaning up as the way of using it feels pretty
@@ -230,16 +239,6 @@ module Henshin
         end
       end
     end
-    
-    # Load +config.yml+ from the directories given
-    #
-    # @param load_dirs [Array[Pathname]]
-    # @return [Hash{String=>Object}]
-    #
-    def self.load_config(load_dirs=nil)
-      new.load_config(load_dirs)
-    end
-
 
     # Reads files from a set of directories, defaults to source directory. Removes all
     # directories, then removes files that have been set to ignore either in the class

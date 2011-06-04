@@ -21,6 +21,7 @@ module Henshin
     
     DEFAULTS = {
       'type' => 'blog',
+      'use'  => 'blog',
       'serve' => {
         'address' => "0.0.0.0",
         'port'    => 5555,
@@ -110,7 +111,21 @@ module Henshin
     dest   = config['dest']   if config.has_key?('dest')
     
     # get the henshin builder to use
-    builder = require_builder config['type'].downcase
+    builder = nil
+    begin
+      if ::File.exist?(config['use'])
+        load config['use']
+        builder = HENSHIN_CLASS
+      elsif ::File.exist?(::File.join(source, config['use']))
+        load ::File.join(source, config['use'])
+        builder = HENSHIN_CLASS
+      else
+        builder = require_builder(config['use'].downcase)
+      end
+    rescue LoadError
+      puts "Falling back to default builder..."
+      builder = require_builder(CLI::DEFAULTS['use'].downcase)
+    end
     
     if config['serve']['use']
       require 'rack/henshin'
