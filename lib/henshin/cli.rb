@@ -102,9 +102,12 @@ module Henshin
     end
     
     threads = []
-    
+
     loaded = Henshin::Base.load_config([source])
     config = config.r_merge(loaded)
+    
+    source = config['source'] if config.has_key?('source')
+    dest   = config['dest']   if config.has_key?('dest')
     
     # get the henshin builder to use
     builder = require_builder config['type'].downcase
