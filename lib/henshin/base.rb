@@ -158,6 +158,7 @@ module Henshin
       if config['source'] && !config['dest']
         config['dest'] = config['source'] + DEFAULTS['dest_prefix']
       end
+      
       site = new(config)
       site.read
       site.pre_render
@@ -170,14 +171,13 @@ module Henshin
     # @see .build
     # @param config [Hash] configuration for new site
     #
-    def initialize(config={})    
-    
+    def initialize(config={})
       # config > pre_config > DEFAULTS
       begin
         @config = DEFAULTS.merge pre_config.merge config
       rescue
         @config = DEFAULTS
-      end
+      end      
       @config.merge! load_config
       
       load_files
@@ -206,6 +206,17 @@ module Henshin
             puts "-> #{e.to_s}"
           end
           break
+        end
+      end
+      
+      # Need to map certain config options to specific classes, this
+      # describes what goes to what class.
+      {
+        'dest'   => Pathname,
+        'source' => Pathname
+      }.each do |k,v|
+        if loaded.has_key?(k)
+          loaded[k] = v.new(loaded[k])
         end
       end
       
