@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   
   s.add_dependency 'titlecase',   '~> 0.1.1'
   s.add_dependency 'linguistics', '~> 1.0.8'
-  s.add_dependency 'attr_plus',   '~> 0.3.0'
+  s.add_dependency 'attr_plus',   '~> 0.4.0'
   s.add_dependency 'clive',       '~> 0.8.0'
   s.add_dependency 'rack',        '~> 1.2.2'
   
