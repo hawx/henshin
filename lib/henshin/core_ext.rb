@@ -30,7 +30,7 @@ end
 module Kernel
 
   def _autoloads
-    @@_autoloads || {}
+    @@_autoloads ||= {}
   end
 
   def autoload_gem(const, path)
