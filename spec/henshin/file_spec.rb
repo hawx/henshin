@@ -110,6 +110,11 @@ describe Henshin::File do
       subject.should_receive(:content=).with("test")
       subject.set(:content, "test")
     end
+    
+    it "gives warning if no setter is found" do
+      subject.should_receive(:warn).with(subject.inspect+" did not allow :size to be set to 10.")
+      subject.set(:size, 10)
+    end
   end
   
   describe "#unset" do

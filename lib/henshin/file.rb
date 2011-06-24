@@ -228,7 +228,7 @@ module Henshin
       if respond_to?("#{key}=")
         send("#{key}=", value)
       else
-        warn "Error, #{inspect} did not allow #{key} to be set to #{value}."
+        warn "#{inspect} did not allow #{key.inspect} to be set to #{value.inspect}."
         # store in the data hash?
         # data[key] = value
       end
