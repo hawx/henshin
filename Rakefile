@@ -1,4 +1,3 @@
-require 'rake'
 require 'rspec/core/rake_task'
 
 GEM_SPEC = eval(File.read('henshin.gemspec'))
