@@ -21,9 +21,9 @@ module Henshin
     
     ## Filters
     
-    filter 'layouts/*.*', Layout, :internal
-    filter 'posts/*.*', Post, :high
-    filter '**/*.{liquid,md,mkd,markdown,erb,haml,textile}', Page
+    filter 'layouts/*.*', File::Layout, :internal
+    filter 'posts/*.*', File::Post, :high
+    filter '**/*.{liquid,md,mkd,markdown,erb,haml,textile}', File::Page
     
     ## Rules
 

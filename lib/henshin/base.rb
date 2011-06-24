@@ -18,7 +18,10 @@ require 'henshin/core_ext'
 require 'henshin/delegator'
 require 'henshin/engine'
 require 'henshin/matcher'
+
 require 'henshin/file'
+require 'henshin/file/text'
+require 'henshin/file/binary'
 require 'henshin/file/layout'
 
 module Henshin
@@ -295,19 +298,23 @@ module Henshin
         end
         if _k
           @files << _k.new(f, self)
-        else # fallback to Henshin::File
-          @files << Henshin::File.new(f, self)
+        else # fallback to Henshin::File::
+          if ::File.binary?(f)
+            @files << Henshin::File::Binary.new(f, self)
+          else # otherwise assume it's text
+            @files << Henshin::File::Text.new(f, self)
+          end
         end
       end
 
       run :after, :read, self
       @files
-    end
+    end    
     
     # @return [Array[Henshin::Layout]]
     #   Returns all layout files.
     def layouts
-      @layouts ||= (@files.find_all {|i| i.class == Henshin::Layout } || [])
+      @layouts ||= (@files.find_all {|i| i.class == Henshin::File::Layout } || [])
     end
 
     # @see #pre_render_file

@@ -9,8 +9,8 @@ module Henshin
         
     ## Filters
     
-    filter 'layouts/*.*', Layout, :internal
-    filter '**/*.{liquid,md,mkd,markdown,erb,haml,textile}', Page
+    filter 'layouts/*.*', File::Layout, :internal
+    filter '**/*.{liquid,md,mkd,markdown,erb,haml,textile}', File::Page
     
     ## Rules
     
