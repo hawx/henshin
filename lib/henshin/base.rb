@@ -251,6 +251,27 @@ module Henshin
         end
       end
     end
+    
+    # @param path [Pathname] Path to the file to be tested.
+    # @return [true, false] Whether this site ignores the path that is passed.
+    def ignores?(path)
+      r = false
+      ignores.each do |m|
+        if m.matches?(path.to_s) || m.matches?((path.relative_path_from(self.source)).to_s)
+          r = true
+          break
+        end
+      end
+      return true if r == true # quick return
+      
+      [@config['ignore']].flatten.each do |m|
+        if path.fnmatch?(m) || path.fnmatch?((source + m).to_s)
+          r = true
+          break
+        end
+      end
+      r
+    end
 
     # Reads files from a set of directories, defaults to source directory. Removes all
     # directories, then removes files that have been set to ignore either in the class
@@ -266,26 +287,10 @@ module Henshin
       glob_dir = Pathname.new("{"+dirs.join(',')+"}") + '**' + '*'
       
       found = Pathname.glob(glob_dir)
+      
       found.reject! {|i| i.directory? }
-      
-      found.reject! do |f|
-        r = false
-        ignores.each do |m|
-          if m.matches?(f.to_s) || m.matches?((f.relative_path_from(self.source)).to_s)
-            r = true
-            break
-          end
-        end
-        
-        [@config['ignore']].flatten.each do |m|
-          if f.fnmatch?(m) || f.fnmatch?((source + m).to_s)
-            r = true
-            break
-          end
-        end
-        r
-      end
-      
+      found.reject! {|f| ignores?(f) }
+
       found.each do |f|
         _k = nil
         # Sort highest priority to lowest so as soon as a match is found we can break
