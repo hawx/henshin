@@ -1,10 +1,6 @@
 # stdlib
 require 'pathname'
-begin
-  require 'pysch' 
-rescue LoadError 
-  require 'yaml'
-end
+require 'yaml'
 require 'fileutils'
 
 # 3rd party
