@@ -15,17 +15,11 @@ module Henshin
       raise MissingDateError.new(self) unless yaml.has_key?('date')
       
       Time.parse yaml['date']
-    rescue
-      Time.now
     end
     settable_attribute :date
     
     def url
-      if date
-        "/#{date.year}/#{date.month}/#{date.day}/#{title.slugify}"
-      else
-        "/posts/#{title.slugify}"
-      end
+      "/#{date.year}/#{date.month}/#{date.day}/#{title.slugify}"
     end
     
     def title

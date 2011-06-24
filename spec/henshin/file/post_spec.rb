@@ -32,6 +32,23 @@ describe Henshin::File::Post do
     it "returns the date the post was written on" do
       subject.date.should == Time.new(2012, 12, 21, 6, 45)
     end
+    
+    it "gets the date from the yaml frontmatter" do
+      file = mock_file Henshin::File::Post.new(source+'date.md', site), <<EOS
+---
+date: 2011-02-15 14:03
+---   
+EOS
+      file.date.should == Time.new(2011, 2, 15, 14, 03)
+    end
+    
+    it "raises an error if the post doesn't have a date" do
+      file = mock_file Henshin::File::Post.new(source+'no-date.md', site)
+      expect {
+        file.date
+      }.should raise_error Henshin::File::Post::MissingDateError, 
+                            "Post 'No-date' does not have a date."
+    end
   end
   
   describe "#url" do
