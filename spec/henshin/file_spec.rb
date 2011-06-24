@@ -378,10 +378,21 @@ describe Henshin::File do
   end
   
   describe "#permalink" do
-    it "returns the write path prepended with a /" do
-      subject.permalink == "/test.txt"
+    it "returns /index.html for files with url of /" do
+      subject.set :url, '/'
+      subject.permalink.should == "/index.html"
     end
     
+    it "returns the url if it is a permalink" do
+      subject.set :url, '/text.html'
+      subject.permalink.should == "/text.html"
+    end
+    
+    it "returns the url appended with /index.html if it is pretty" do
+      subject.set :url, '/test'
+      subject.permalink.should == '/test/index.html'
+    end
+
     it "should be possible to set permalink indirectly" do
       subject.set :url, '/somewhere.md'
       subject.permalink.should == '/somewhere.md'
