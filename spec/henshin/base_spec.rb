@@ -83,9 +83,27 @@ describe Henshin::Base do
   end
   
   describe "#load_files" do
-    it "loads files"
-    it "evaluates the files in the current class"
-    it "ignores the files so it isn't read"
+    let(:path) { source + 'load.rb' }
+    before { 
+      subject.set :load, [path]
+    }
+  
+    it "loads files" do
+      ::File.should_receive(:read).with(path).and_return("")
+      subject.load_files
+    end
+    
+    it "evaluates the files in the current class" do
+      ::File.should_receive(:read).with(path).and_return("ignore 'some-file.txt'")
+      subject.load_files
+      subject.should ignore 'some-file.txt'
+    end
+    
+    it "ignores the files so it isn't read" do
+      ::File.should_receive(:read).with(path).and_return("")
+      subject.load_files
+      subject.should ignore path
+    end
   end
   
   describe "#ignores?" do

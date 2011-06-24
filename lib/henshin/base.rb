@@ -241,11 +241,11 @@ module Henshin
       if @config['load']
         [@config['load']].flatten.each do |i|
           if ::File.exist?(i)
-            self.class.class_eval ::File.read(i), i
-            ignore i
+            self.class.class_eval ::File.read(i), i.to_s
+            ignore i.to_s
           elsif (source + i).exist?
-            self.class.class_eval (source + i).read, (source + i)
-            ignore (source + i)
+            self.class.class_eval (source + i).read, (source + i).to_s
+            ignore (source + i).to_s
           end
         end
       end
@@ -253,7 +253,7 @@ module Henshin
     
     # @param path [Pathname] Path to the file to be tested.
     # @return [true, false] Whether this site ignores the path that is passed.
-    def ignores?(path)
+    def ignores?(path)    
       r = false
       ignores.each do |m|
         if m.matches?(path.to_s) || m.matches?((path.relative_path_from(self.source)).to_s)
