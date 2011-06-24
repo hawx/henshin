@@ -242,17 +242,9 @@ module Henshin
       elsif e = Henshin.registered_engines[engine]
         @applies.delete(e)
       else
-        puts "#{engine.inspect}, is not an engine or a registered name for an engine"
+        warn "#{engine.inspect} is not an engine or a registered name for an engine"
       end
     end
-    
-    # Should store the class in a list to call at a later date but this will be pretty much
-    # the implementation, only difference to #apply is the file itself is passed so the class
-    # can do anything it wants!
-    def use(klass)
-      @uses << klass.new
-    end
-    
     
   # @group Predicates
   
@@ -260,34 +252,23 @@ module Henshin
     
     # @return [true, false] Whether the file can be read.
     def readable?
-      @readable.nil? ? !binary? : @readable
-    rescue 
-      @readable = false
+      @readable.nil? ? true : @readable
     end
     
     # @return [true, false] Whether the file can be rendered.
     def renderable?
-      @renderable.nil? ? true : @renderable
+      @renderable.nil? ? false : @renderable
     end
     
     # @return [true, false] Whether the file can be applied to a layout file.
     #   Don't layout files without YAML frontmatter, assume they are static!
     def layoutable?
-      @layoutable.nil? ? has_yaml? : @layoutable
+      @layoutable.nil? ? false : @layoutable
     end
     
     # @return [true, false] Whether the file can be written.
     def writeable?
       @writeable.nil? ? true : @writeable
-    end
-    
-    # @return [true, false] Whether the file contains YAML frontmatter.
-    def has_yaml?
-      if readable?
-        @path.read(3) == "---"
-      else
-        false
-      end
     end
     
     # @return [true, false] Whether the file has been rendered.
@@ -298,11 +279,6 @@ module Henshin
     # @return [true, false] Whether this file is an index file.
     def index?
       @path.to_s =~ /\/index\.\w+/ && output == 'html'
-    end
-    
-    # @return [true, false] Whether this file is a binary file.
-    def binary?
-      @path.binary?
     end
     
   # @endgroup
@@ -377,14 +353,12 @@ module Henshin
         o = o.to_s if o.is_a? Pathname
         r[k.to_s] = o
       end
-      
-      if has_yaml?
-        r.merge! self.yaml
-      end
     
-      @data_injects.each do |i|
+      data_injects.each do |i|
         if i.respond_to?(:call)
           r.merge!(i.call(self))
+        elsif i.is_a?(Symbol) && self.respond_to?(i)
+          r.merge!(self.send(i))
         else
           r.merge!(i)
         end
@@ -406,14 +380,15 @@ module Henshin
     
       site_payload = @site.payload
       
-      r = site_payload.merge({
-        singular_key => self.data, # makes it easier to create layouts
-        'file'       => self.data  # if all files share the key, "file".
-      })
+      r = site_payload.merge({singular_key => self.data})
+      # makes it easier to create layouts if all files share the key, "file".
+      r.merge!({'file' => self.data}) unless key == :file
       
-      @payload_injects.each do |i|
+      payload_injects.each do |i|
         if i.respond_to?(:call)
           r.merge!(i.call(self))
+        elsif i.is_a?(Symbol) && self.respond_to?(i)
+          r.merge!(self.send(i))
         else
           r.merge!(i)
         end
@@ -421,27 +396,6 @@ module Henshin
 
       @payload = r
     end
-    
-    # @return [String]
-    #   The yaml frontmatter of the file.
-    #
-    def yaml_text
-      if has_yaml?
-        file = @path.read
-        file =~ /^(---\s*\n.*?\n?^---\s*$\n?)/m
-        $1 ? file[0..$1.size-1] : ""
-      else
-        ""
-      end
-    end
-
-    # @return [Hash]
-    #   The parsed yaml frontmatter of the file.
-    #
-    def yaml
-      YAML.load(self.yaml_text) || {}
-    end
-    
     
   # @group Attributes
   
@@ -454,23 +408,46 @@ module Henshin
     def key
       @key || :file
     end
+
+    # @return [String] Pluralised key for the file
+    # @see #key
+    def plural_key
+      singular_key.pluralize
+    end
     
-  
+    # @return [String] Singular key for the file
+    # @see #key
+    def singular_key
+      key.to_s
+    end
+    
     # NOTES
     # - #url determines #permalink and #write_path
     # - set the key to alter the singular and plural keys which are determined from it
     #
-    settable_attribute :url, :title, :content, :output
+    settable_attribute :content, :title, :output, :url
     
-    # @return [String]
-    #   The content of the file. If the file has content set, because it
-    #   has been rendered, then this is returned. Otherwise returns the
-    #   #raw_content.
-    #
+    # @return [String] Contents of the file
     def content
       @content || raw_content
     end
-
+    
+    # @return [String]
+    #   Base name of file, eg. /my_site/somefile/about.liquid -> about
+    #
+    def title
+      @title || @path.basename.to_s.split('.')[0].titlecase
+    end
+    
+    # If the output has been set during rendering return that value otherwise
+    # assume the extension has not changed.
+    #
+    # @return [String]
+    #
+    def output
+      @output || self.extension
+    end
+    
     # @return [String]
     #   The pretty url for the file, eg. +/my_file+ instead of 
     #   +/my_file/index.html+.
@@ -492,38 +469,13 @@ module Henshin
         "/" + relative_path.to_s.gsub(".#{extension}", ".#{output}")
       end
     end
-  
-    # @return [String]
-    #   Base name of file, eg. /my_site/somefile/about.liquid -> about
-    #
-    def title
-      @title || @path.basename.to_s.split('.')[0].titlecase
-    end
     
-    # If the output has been set during rendering return that value otherwise
-    # assume the extension has not changed.
-    #
-    # @return [String]
-    #
-    def output
-      @output || self.extension
-    end
-  
     # These are attributes which can only be read, but not set, though some can be
     # set indirectly by changing some of the settable attributes.
-    attribute :raw_content, :extension, :permalink, :plural_key, :singular_key, :mime
-
-    # @return [String] The unrendered file contents.
+    attribute :mime, :extension, :permalink, :raw_content
+    
     def raw_content
-      if readable?
-        if has_yaml?
-          @path.read[yaml_text.size..-1]
-        else
-          @path.read
-        end
-      else
-        ""
-      end
+      @path.read
     end
     
     # @return [String] The mime type for the output file.
@@ -537,7 +489,7 @@ module Henshin
     def extension
       @path.extname[1..-1]
     end
-
+    
     # @return [String] Full url to the file itself.
     def permalink
       if url == "/"
@@ -549,22 +501,13 @@ module Henshin
       end
     end
 
-    # @return [String] Pluralised key for the file
-    # @see #key
-    def plural_key
-      singular_key.pluralize
-    end
-    
-    # @return [String] Singular key for the file
-    # @see #key
-    def singular_key
-      key.to_s
-    end
-
   # @group Actions
+  #
+  # These should not be changed unless totally necessary!
 
-    # Renders the files contents using the hash, and maybe a layout.
-    # Called by Henshin::Render.
+    # Renders the files contents using the engines that have been applied.
+    # Always sets #rendered? to true even if the file has not actually been
+    # rendered, if for example the file is not renderable.
     #
     # @param block [Proc]
     #   Block to use for rendering, the block expects to be passed
@@ -576,26 +519,16 @@ module Henshin
       if renderable?
         # Only render when needed
         if !rendered? || force 
-          @rendered = true
+          @content = raw_content
           
-          run_applies
-          run_uses
+          @applies.each do |engine|
+            @content = engine.render(content, payload)
+          end
         end
       end
       
+      @rendered = true
       self.content
-    end
-    
-    def run_applies
-      @applies.each do |engine|
-        @content = engine.render(content, payload)
-      end
-    end
-    
-    def run_uses
-      @uses.each do |klass|
-        klass.make(self)
-      end
     end
     
     # Render this file within the +layout_file+ passed, if this file is #layoutable?.
