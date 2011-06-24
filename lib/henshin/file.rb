@@ -119,8 +119,8 @@ module Henshin
       @site = site
       @rendered = false
       
-      @payload_injects = []
-      @data_injects    = []
+      @payload_injects = self.class.payload_injects
+      @data_injects    = self.class.data_injects
       
       @applies = []
       @uses    = []
@@ -128,11 +128,16 @@ module Henshin
       set_values.each {|k,v| set(k, v) }
       
       if block_given?
-        self.instance_eval &Proc.new
+        block = Proc.new
+        if block.arity == 0
+          self.instance_eval &Proc.new
+        else
+          block.call(self)
+        end
       end
     end
     
-    attr_accessor :path, :applies, :uses, :data_injects, :payload_injects
+    attr_accessor :path, :applies, :data_injects, :payload_injects
     
     def inspect
       "#<#{self.class} #{url}>"
@@ -160,6 +165,14 @@ module Henshin
       end
     end
     
+    class_attr_accessor :payload_injects => []
+    
+    def self.inject_payload(arg=nil)
+      arg = Proc.new if block_given? && arg.nil?
+      raise ArgumentError unless arg
+      payload_injects << arg
+    end
+    
     # Add a hash into the return value of #data. If block/proc given it is
     # passed the file as an argument.
     #
@@ -179,6 +192,14 @@ module Henshin
           @data.merge!(arg)
         end
       end
+    end
+    
+    class_attr_accessor :data_injects => []
+    
+    def self.inject_data(arg=nil)
+      arg = Proc.new if block_given? && arg.nil?
+      raise ArgumentError unless arg
+      data_injects << arg
     end
     
     def <=>(other)
@@ -231,7 +252,7 @@ module Henshin
       elsif e = Henshin.registered_engines[engine]
         @applies << e
       else
-        puts "#{engine.inspect}, is not an engine or a registered name for an engine"
+        warn "#{engine.inspect} is not an engine or a registered name for an engine"
       end
     end
     
