@@ -50,7 +50,9 @@ module Henshin
     'root'         => '',
     'ignore'       => [],
     'load'         => [],
-    'layout'       => 'main'
+    'layout'       => 'main',
+    'verbose'      => false,
+    'server'       => false
   }
   
   # module_attr_accessor :registered => {'base' => Henshin::Base}
@@ -89,16 +91,14 @@ module Henshin
   # but nothing more so that it can be subclassed and modified easily.
   #
   class Base
-  
-    @config = {}
-    attr_accessor :files, :config, :injects, :lazy_injects
-    #hash_attr_reader :@config, 'source', 'dest' this seems to be broken!?!
-    def source; @config['source']; end
-    def dest;   @config['dest']; end
     
-    attr_writer :server
-    # Whether a server is running or not
-    def server?; @server || false; end
+    attr_accessor :files, :config, :injects, :lazy_injects
+
+    hash_attr_accessor :@config, 'server'
+    alias_method :server?, :server
+
+    hash_attr_reader :@config, 'source', 'dest', 'verbose'
+    alias_method :verbose?, :verbose
     
     # This is the recommended way of building a site. It creates the configuration 
     # hash from the options provided, then reads, renders and writes the site.
@@ -180,13 +180,17 @@ module Henshin
         @config = DEFAULTS.merge pre_config.merge config
       rescue
         @config = DEFAULTS
-      end      
-      @config.merge! load_config
+      end
+      @config.merge!(load_config)
       
       load_files
       
       @files   = []
       @injects = []
+    end
+    
+    def inspect
+      "#<#{self.class} #{source.relative_path_from(Pathname.pwd)}>"
     end
     
     # Check each of the +load_dirs+ for a config.yml file. When found use
@@ -212,8 +216,7 @@ module Henshin
         end
       end
       
-      # Need to map certain config options to specific classes, this
-      # describes what goes to what class.
+      # Need to map certain config options to specific classes
       {
         'dest'   => Pathname,
         'source' => Pathname
@@ -231,7 +234,7 @@ module Henshin
     # @param load_dirs [Array[Pathname]]
     # @return [Hash{String=>Object}]
     #
-    def load_config(load_dirs=[self.source, Pathname.pwd])
+    def load_config(load_dirs=[source, Pathname.pwd])
       self.class.load_config(load_dirs)
     end
       
@@ -582,6 +585,10 @@ module Henshin
       pre_config[key.to_s] = value
     end
     
+    def set(key, value)
+      @config[key.to_s] = value
+    end
+    
     # Set up a file to be rendered when a particular path is hit when serving.
     # If a file is passed it will be rendered and served to the browser, but if
     # a block is given it will be passed the match object from the pattern and
@@ -632,9 +639,11 @@ module Henshin
     extend Delegator
     
     # base.set(:k, 'v'), becomes, base.class.set(:k, 'v')
+    # Should really try to make these more instance specific somehow, look
+    # at how #set and .set are different!
     delegates :class, 
                 :after_each, :before_each, :after, :before, :rule,
-                :resolve, :const, :set, :ignore, :filter
+                :resolve, :const, :ignore, :filter
               
     
   end
