@@ -40,7 +40,6 @@ describe Henshin::Base do
   
   describe "#dest" do
     it "returns the write directory" do
-      p subject.dest
       subject.dest.should == dest
     end
   end
