@@ -9,19 +9,19 @@ describe Henshin::Base do
   subject { Henshin::Base.new(config) }
   
   let(:file_txt)  { 
-    mock_file Henshin::File.new(source + 'file.txt', subject), 
+    mock_file Henshin::File::Text.new(source + 'file.txt', subject), 
                 'Hello' }
                 
   let(:file_sass) { 
-    mock_file Henshin::File.new(source + 'file.sass', subject), 
+    mock_file Henshin::File::Text.new(source + 'file.sass', subject), 
                 "body\n  color: red" }
                 
   let(:page_md)   { 
-    mock_file Henshin::Page.new(source + 'page.md', subject), 
+    mock_file Henshin::File::Page.new(source + 'page.md', subject), 
                 "# Header\ncontent" }
                 
   let(:layout)    { 
-    mock_file Henshin::Layout.new(source + 'layouts/main.liquid', subject) }
+    mock_file Henshin::File::Layout.new(source + 'layouts/main.liquid', subject) }
     
   let(:files)     { [file_txt, file_sass, page_md, layout] }
   
@@ -40,23 +40,67 @@ describe Henshin::Base do
   
   describe "#dest" do
     it "returns the write directory" do
+      p subject.dest
       subject.dest.should == dest
     end
   end
   
-  describe "#load_config" do
-    before {
-      YAML.stub!(:load_file).and_return({'loaded' => true})
-    }
+  describe "#server?" do
+    context "when server has been set to be running" do
+      before { subject.server = true }
+      it { should be_server }
+    end
     
-    it "does something"
+    context "by default" do
+      it { should_not be_server }
+    end
+  end
+  
+  describe "#load_config" do
+    it "calls load config on it's class with source directory" do
+      subject.class.should_receive(:load_config).with([subject.source, Pathname.pwd])
+      subject.load_config
+    end
   end
   
   describe ".load_config" do
-    it "calls #load_config on a new instance of Base" do
-      instance = Henshin::Base.new
-      Henshin::Base.stub!(:new).and_return(instance)
-      instance.should_receive(:load_config)
+    before {
+      @path = mock('path')
+      @path.stub(:+).and_return(@path)
+      @path.stub(:exist?).and_return(true)
+    }
+  
+    it "loads the config.yml"do
+      YAML.stub!(:load_file).with(@path).and_return({'loaded' => true})
+      Henshin::Base.load_config([@path]).should == {'loaded' => true}
+    end
+  
+    it "converts dest and source to pathname objects" do
+      YAML.stub!(:load_file).with(@path).and_return({'source' => 'path', 'dest' => 'path'})
+      l = Henshin::Base.load_config([@path])
+      l['source'].should be_kind_of Pathname
+      l['dest'].should be_kind_of Pathname
+    end
+  end
+  
+  describe "#load_files" do
+    it "loads files"
+    it "evaluates the files in the current class"
+    it "ignores the files so it isn't read"
+  end
+  
+  describe "#ignores?" do
+    it "returns true for ignores files" do
+      subject.ignore 'about.md'
+      subject.ignores?(source + 'file.txt').should be_false
+      subject.ignores?(source + 'about.md').should be_true
+      subject.class.ignores = []
+    end
+    
+    it "it returns true for files specified in config" do
+      subject.config['ignore'] << 'about.liquid'
+      subject.ignores?(source + 'file.txt').should be_false
+      subject.ignores?(source + 'about.liquid').should be_true
     end
   end
   
@@ -72,16 +116,27 @@ describe Henshin::Base do
     it "removes ignored files" do
       subject.ignore 'about.liquid'
       all_of(subject.read.map {|i| i.path.to_s }).should_not match /about\.liquid/
+      subject.class.ignores = []
     end
     
-    it "creates instances of correct classes" do
-      subject.class.filter 'layouts/*.*', Henshin::Layout, :internal
-      subject.read.each do |f|
-        if f.path.to_s =~ /layouts/
-          f.class.should == Henshin::Layout
-        else
-          f.class.should == Henshin::File
-        end
+    it "creates instances of correct classes using filters" do
+      subject.filter 'layouts/*.*', Henshin::File::Layout, :internal
+      files = subject.read
+      files.find {|i| i.relative_path.to_s == "layouts/main.liquid" }.should be_kind_of Henshin::File::Layout
+      files.find {|i| i.relative_path.to_s == "layouts/plain.liquid" }.should be_kind_of Henshin::File::Layout
+    end
+    
+    context "for files that don't match any filters" do
+      it "creates binary files if file is binary" do
+        files = subject.read
+        files.find {|i| i.relative_path.to_s == "audio.mp3"}.should be_kind_of Henshin::File::Binary
+        files.find {|i| i.relative_path.to_s == "image.png"}.should be_kind_of Henshin::File::Binary
+      end
+      
+      it "creates text files for all others" do
+        files = subject.read
+        files.find {|i| i.relative_path.to_s == "index.liquid" }.should be_kind_of Henshin::File::Text
+        # files.find {|i| i.relative_path.to_s == "about.liquid" }.should be_kind_of Henshin::File::Text
       end
     end
   end
@@ -130,7 +185,7 @@ describe Henshin::Base do
     
     it "executes the block within the file" do
       subject.rule('*.*') { puts self.class }
-      $stdout.should_receive(:puts).with(Henshin::File)
+      $stdout.should_receive(:puts).with(Henshin::File::Text)
       subject.pre_render_file(file_txt)
     end
   end
@@ -139,35 +194,27 @@ describe Henshin::Base do
     it "calls #render_file on each file" do
       files = subject.read
       files.each do |i|
-        subject.should_receive(:render_file).with(i)
+        subject.should_receive(:render_file).with(i, false)
       end
       subject.render(files)
     end
   end
   
   describe "#render_file" do
-  
     before {
       file_txt.stub!(:render)
       file_txt.stub!(:find_layout).and_return(layout)
       layout.stub!(:render_with)
     }
   
-    it "calls the file render method" do
-      file_txt.should_receive(:render)
+    it "calls #render on the file" do
+      file_txt.should_receive(:render).with(false)
       subject.render_file(file_txt)
     end
     
-    it "renders the file with the correct layout" do
-      file_txt.stub!(:find_layout).and_return(layout)
-      layout.should_receive(:render_with).with(file_txt)
+    it "calls #layout on the file" do
+      file_txt.should_receive(:layout)
       subject.render_file(file_txt)
-    end
-    
-    it "sets the file's rendered content" do
-      layout.stub!(:render_with).and_return("Rendered")
-      subject.render_file(file_txt)
-      file_txt.content.should == "Rendered"
     end
   end
   
@@ -240,8 +287,8 @@ describe Henshin::Base do
   
   describe ".set" do
     it "sets a pre_config value" do
-      subject.set :a, 'b'
-      subject.pre_config['a'].should == 'b'
+      subject.class.set :a, 'b'
+      subject.class.pre_config['a'].should == 'b'
     end
   end
   

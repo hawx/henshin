@@ -4,6 +4,11 @@ describe Henshin::Engine::Support::Uv do
 
   subject { Henshin::Engine::Support::Uv.new("def sq(x)\nx * x\nend\n", :ruby) }
   
+  # This fails if you run the whole suite, but if you run it on it's own it passes?
+  # I think this has something to do with a dependency being loaded by rake as just
+  # running `rspec spec` passes all tests together. But then why would focus mode
+  # change anything? Crazy!
+  # 
   describe "#highlight" do
     it "returns marked up html", :renders => true do
     

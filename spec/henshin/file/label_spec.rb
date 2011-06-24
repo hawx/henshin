@@ -8,7 +8,7 @@ describe Henshin::Labels do
   let(:site)   { 
     Class.new(Henshin::Base) {
       def posts
-        self.files.find_all {|i| i.class.name =~ /Post/}
+        self.files.find_all {|i| i.class == Henshin::File::Post }
       end
     }.new(config) 
   }
@@ -31,8 +31,8 @@ describe Henshin::Labels do
   
     it "returns true if layouts exists" do
       site.files = [
-        Henshin::Layout.new(source+'tag_index.haml', site),
-        Henshin::Layout.new(source+'tag_page.haml', site)
+        Henshin::File::Layout.new(source+'tag_index.haml', site),
+        Henshin::File::Layout.new(source+'tag_page.haml', site)
       ]
       subject.possible?(:tag, site).should == true
     end
@@ -105,7 +105,7 @@ describe Henshin::Labels do
   describe "#items_for" do
     it "returns the data for a single post across all defined labels" do
       subject << test1
-      post = mock_file(Henshin::Post.new('what', site))
+      post = mock_file(Henshin::File::Post.new('what', site))
       subject.add_for('test1', post)
       subject.items_for(post).should == [test1]
     end
@@ -131,7 +131,7 @@ describe Henshin::Label do
   let(:site)   { 
     Class.new(Henshin::Base) {
       def posts
-        self.files.find_all {|i| i.class.name =~ /Post/}
+        self.files.find_all {|i| i.class == Henshin::File::Post }
       end
     }.new(config) 
   }  
@@ -160,7 +160,7 @@ describe Henshin::Label do
   end
   
   describe "#posts" do
-    let(:post) { mock_file(Henshin::Post.new("what.txt", site)) }
+    let(:post) { mock_file(Henshin::File::Post.new("what.txt", site)) }
     before { subject.list << post }
   
     it "returns an array of posts data for the label" do

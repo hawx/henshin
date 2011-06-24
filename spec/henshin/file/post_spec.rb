@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Henshin::Post do
+describe Henshin::File::Post do
 
   let(:source) { Pathname.new(File.dirname(__FILE__)) + '..' + 'test_site' }
   let(:dest)   { source + '_site' }
@@ -8,20 +8,20 @@ describe Henshin::Post do
   let(:site)   { Henshin::Blog.new(config) }
     
   let(:first_post) { 
-    mock_file Henshin::Post.new(source + 'alphabetically-first.md', site) {
+    mock_file Henshin::File::Post.new(source + 'alphabetically-first.md', site) {
       set :date, Time.new(2012, 12, 21, 6, 45)
     }
   }
   
   subject {
-    mock_file Henshin::Post.new(source + 'the-subject.md', site) {
+    mock_file Henshin::File::Post.new(source + 'the-subject.md', site) {
       set :date, Time.new(2012, 12, 21, 6, 45)
       set :title, "The Subject"
     }
   }
     
   let(:last_post) {
-    mock_file Henshin::Post.new(source + 'time-wise-last.md', site) { 
+    mock_file Henshin::File::Post.new(source + 'time-wise-last.md', site) { 
       set :date, Time.new(2012, 12, 21, 6, 46) 
     }
   }

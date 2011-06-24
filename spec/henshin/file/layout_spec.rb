@@ -1,14 +1,13 @@
 require 'spec_helper'
-require 'henshin/engine/liquid' # hmm!!!
 
-describe Henshin::Layout do
+describe Henshin::File::Layout do
 
   let(:source) { Pathname.new(File.dirname(__FILE__)) + '..' }
   let(:dest)   { source + '_site' }
   let(:site)   { Henshin::Base.new({'dest' => dest, 'source' => source}) }
 
   subject {
-    mock_file Henshin::Layout.new(source + 'main.haml', site), "{{ file.title }} - {{ yield }}"
+    mock_file Henshin::File::Layout.new(source + 'main.haml', site), "{{ file.title }} - {{ yield }}"
   }
   
   describe "#name" do
@@ -19,7 +18,7 @@ describe Henshin::Layout do
   
   describe "#render_with" do
     it "renders the file with the layout" do
-      other = mock_file Henshin::File.new(source + 'test.haml', site), <<EOS
+      other = mock_file Henshin::File::Text.new(source + 'test.haml', site), <<EOS
 ---
 title: Test File
 ---

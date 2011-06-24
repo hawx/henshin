@@ -31,10 +31,10 @@ describe Henshin::Archive do
   
     it "returns true if layouts exist" do
       site.files = [
-        Henshin::Layout.new(source+'archive.haml', site),
-        Henshin::Layout.new(source+'archive_year.haml', site),
-        Henshin::Layout.new(source+'archive_month.haml', site),
-        Henshin::Layout.new(source+'archive_date.haml', site)
+        Henshin::File::Layout.new(source+'archive.haml', site),
+        Henshin::File::Layout.new(source+'archive_year.haml', site),
+        Henshin::File::Layout.new(source+'archive_month.haml', site),
+        Henshin::File::Layout.new(source+'archive_date.haml', site)
       ]
       subject.possible?(site).should be_true
     end
@@ -47,7 +47,7 @@ describe Henshin::Archive do
   subject { Henshin::Archive.new(nil, site) }
   
   %w(post1 post2 post3).each do |t|
-    let(t.to_sym) { Henshin::Post.new(t+'.txt', site) { set :date, Time.new(2012, 12, 21) } }
+    let(t.to_sym) { mock_file Henshin::File::Post.new(t+'.txt', site) { set :date, Time.new(2012, 12, 21) } }
   end
   
   describe "#<<" do

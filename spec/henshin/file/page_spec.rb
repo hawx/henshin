@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Henshin::Page do
+describe Henshin::File::Page do
 
-  subject { Henshin::Page.new(nil, nil) }
+  subject { Henshin::File::Page.new(nil, nil) }
   
   describe "#output" do
     specify { subject.output.should == 'html' }
