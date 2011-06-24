@@ -15,7 +15,7 @@ module Henshin
   # @todo Make it possible to just have yearly/monthly/dately archives or a
   #  combination depending on which layouts are present, instead of the all
   #  or nothing action currently taken.
-  class Archive < Henshin::File
+  class Archive < File::Text
        
     def self.create(site)
     
@@ -210,7 +210,7 @@ module Henshin
     end
     
     # Holds archives
-    class ArchivePage < Henshin::File
+    class ArchivePage < File::Text
       set :read,   false
       set :layout, true
       set :render, true

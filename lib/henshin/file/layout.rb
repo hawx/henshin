@@ -2,7 +2,7 @@ module Henshin
 
   # Layouts don't get written directly they are evaluated with a
   # File's hash of data.
-  class Layout < Henshin::File
+  class File::Layout < File::Text
   
     def name
       @path.basename.to_s[0...-(@path.extname.size)]

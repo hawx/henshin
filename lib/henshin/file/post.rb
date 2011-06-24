@@ -1,5 +1,5 @@
 module Henshin
-  class Post < Henshin::File
+  class File::Post < File::Text
   
     class MissingDateError < HenshinError
       def to_s

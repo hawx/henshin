@@ -9,7 +9,7 @@ module Henshin
   # This will then generate some hooks using Base#before and Base#after to allow it
   # to render and write pages, for tags in this example.
   #
-  class Labels < Henshin::File
+  class Labels < File::Text
     attr_accessor :list
     attr_accessor :single, :plural
     
@@ -204,7 +204,7 @@ module Henshin
   end
   
   
-  class Label < Henshin::File
+  class Label < File::Text
     attr_accessor :single, :plural
     attr_accessor :name, :list
     
