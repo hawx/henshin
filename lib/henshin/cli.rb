@@ -20,11 +20,10 @@ module Henshin
   class CLI
     
     DEFAULTS = {
-      'type' => 'blog',
       'use'  => 'blog',
       'serve' => {
-        'address' => "0.0.0.0",
-        'port'    => 5555,
+        'host'    => "0.0.0.0",
+        'port'    => 3001,
         'handler' => nil,
         'use'     => false
       }
@@ -45,9 +44,14 @@ module Henshin
       config['serve'] ||= {}
       config['serve']['use'] = true      
         
-      desc "Use specified port number" 
+      desc "Use specified port number, defaults to 3001" 
       flag :p, :port, :arg => "PORT" do |n|
         config['serve']['port'] = n
+      end
+      
+      desc "Host to run on, defaults to 0.0.0.0"
+      flag :host, :arg => "HOST" do |n|
+        config['serve']['host'] = n
       end
       
       desc  "Use specified handler"
@@ -147,7 +151,7 @@ module Henshin
       end
       
       puts "Serving site using #{builder.name}..."
-      handler.run(app)
+      handler.run(app, :Host => config['serve']['host'], :Port => config['serve']['port'])
       
     else # If no server is needed then just build the site.
       start = Time.now
