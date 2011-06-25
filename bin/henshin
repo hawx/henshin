@@ -13,11 +13,13 @@ module Henshin
   # Extend the command line interface with `new` command.
   class CLI
   
+    EXAMPLES_DIR = Pathname.new(__FILE__).dirname + '..' + 'examples'
+  
     desc 'Generate new files or sites'
     command :new do
     
       desc 'Create a new post for site in current directory'
-      flag :post, :arg => "[title]" do |t|
+      flag :post, :arg => "[TITLE]" do |t|
         post = <<EOS
 ---
 title: #{t}
@@ -31,16 +33,16 @@ EOS
       end
       
       desc 'Create a new site in current directory'
-      flag :site, :arg => "[name]" do |n|
-        source = ''
-        
+      flag :site, :args => "[NAME]" do |n|
+        n = '.' unless n
+        FileUtils.cp_r(EXAMPLES_DIR + 'site', n)
         exit
       end
       
       desc 'Create a new blog in current directory'
-      flag :blog, :arg => "[name]" do |t|
-        source = ''
-        
+      flag :blog, :arg => "[NAME]" do |t|
+        n = '.' unless n
+        FileUtils.cp_r(EXAMPLES_DIR + 'blog', n)
         exit
       end
     
