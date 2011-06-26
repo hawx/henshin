@@ -47,10 +47,16 @@ class MagicHash
     hash.each do |k, v|
       if v.is_a?(Hash)
         instance_variable_set("@#{k}", MagicHash.new(v))
+      elsif v.is_a?(Array) && v[0].is_a?(Hash)
+        instance_variable_set("@#{k}", v.map {|i| MagicHash.new(i)})
       else
         instance_variable_set("@#{k}", v)
       end
     end
+  end
+  
+  def keys
+    instance_variables.dup.map {|i| i.to_s[1..-1].to_sym }.reject{|i| i == :__hash }
   end
   
   def [](key)
