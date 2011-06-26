@@ -3,13 +3,13 @@ require File.expand_path("../lib/henshin/version", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "henshin"
-  s.version     = Henshin::VERSION
-  s.platform    = Gem::Platform::RUBY
-  s.required_ruby_version = '>= 1.9'
   s.author      = "Joshua Hawxwell"
   s.email       = "m@hawx.me"
   s.homepage    = "http://github.com/hawx/henshin"
   s.summary     = "An abstracted static site generator"
+  s.version     = Henshin::VERSION
+  s.required_ruby_version = '>= 1.9'
+  
   s.description = <<-EOD
     Henshin is an abstracted static site generator, use it to build a personal
     blog, or personal site. Or take it to the next level(!) by creating a subclass
@@ -40,10 +40,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 2.5'
   s.add_development_dependency 'duvet', '~> 0.3.3'
   
-  # only git-ted files should be used when building
-  s.files        = Dir['Rakefile', 'LICENSE', 'README.md', '{bin,lib,test}/**/*'] & `git ls-files -z`.split("\0")
-  s.test_files   = Dir.glob("test/**/*")
-  
+  s.files        = %w(Rakefile README.md LICENSE)
+  s.files       += Dir["{bin,examples,lib,man,spec}/**/*"] & `git ls-files`.split("\n")
+  s.test_files   = Dir["spec/**/*"] & `git ls-files`.split("\n")
   s.executables  = ["henshin"]
-  s.require_path = 'lib'
 end
