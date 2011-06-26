@@ -10,6 +10,7 @@ module Henshin
     
     def render_with(file)
       r = ""
+      file.render
       insert = file.payload
       insert['yield'] = file.content
     
