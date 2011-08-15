@@ -22,21 +22,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'clive',       '~> 0.8.0'
   s.add_dependency 'rack',        '~> 1.2.2'
   
-  s.add_development_dependency 'haml'
-  s.add_development_dependency 'maruku'
-  s.add_development_dependency 'RedCloth'
-  s.add_development_dependency 'liquid'
-  s.add_development_dependency 'slim'
-  s.add_development_dependency 'rdiscount'
-  s.add_development_dependency 'nokogiri'
-  s.add_development_dependency 'kramdown'
-  s.add_development_dependency 'coffee-script'
-  s.add_development_dependency 'builder'
-  
-  s.add_development_dependency 'coderay'
-  s.add_development_dependency 'ultraviolet'
-  s.add_development_dependency 'syntax'
-  
   s.add_development_dependency 'rspec', '~> 2.5'
   s.add_development_dependency 'duvet', '~> 0.3.3'
   
