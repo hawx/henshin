@@ -43,7 +43,7 @@ end
 #
 class MagicHash
   def initialize(hash)
-    @__hash = hash
+    @__hash = hash.dup
     hash.each do |k, v|
       if v.is_a?(Hash)
         instance_variable_set("@#{k}", MagicHash.new(v))
@@ -59,6 +59,14 @@ class MagicHash
     instance_variables.dup.map {|i| i.to_s[1..-1].to_sym }.reject{|i| i == :__hash }
   end
   
+  def has_key?(arg)
+    keys.include?(arg)
+  end
+  
+  def respond_to_missing?(arg)
+    has_key?(arg)
+  end
+  
   def [](key)
     instance_variable_get("@#{key}")
   end
@@ -68,8 +76,8 @@ class MagicHash
   end
   
   def method_missing(sym, *args, &block)
-    if ivar = self[sym]
-      ivar
+    if has_key?(sym)
+      self[sym]
     else
       super
     end
