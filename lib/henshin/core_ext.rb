@@ -24,7 +24,6 @@ class << Object
       _const_missing(const)
     end
   end
-
 end
 
 module Kernel
@@ -36,7 +35,6 @@ module Kernel
   def autoload_gem(const, path)
     (@@_autoloads ||= {})[const] = path
   end
-
 end
 
 
@@ -59,11 +57,10 @@ class String
   def pluralize
     self.en.plural
   end
-  
 end
 
 class Hash
-  
+
   # The _why way, I hadn't seen this until here
   # http://timelessrepo.com/when-in-doubt, the most succinct 
   # implementation ever of a recursive hash merge.
@@ -72,18 +69,21 @@ class Hash
     m = proc {|_,o,n| o.respond_to?(:merge) ? o.merge(n, &m) : n }
     merge(other, &m)
   end
-  
 end
 
-# @see http://www.ruby-forum.com/topic/112344
-def File.binary?(path)
-  return true unless File.exist?(path)
-  s = read(path, 4096) and
-  !s.empty? and 
-  (/\0/n =~ s or s.count("\t\n -~").to_f/s.size <= 0.7)
+class File
+
+  # @see http://www.ruby-forum.com/topic/112344
+  def self.binary?(path)
+    return true unless File.exist?(path)
+    s = read(path, 4096) and
+    !s.empty? and 
+    (/\0/n =~ s or s.count("\t\n -~").to_f/s.size <= 0.7)
+  end
 end
 
 class Pathname
+
   def binary?
     File.binary?(to_s)
   end
