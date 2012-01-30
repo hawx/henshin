@@ -33,53 +33,53 @@ module Henshin
       Henshin.register_engine(name, self)
     end
   end
-end
-
-# This is useful for some types of engines, if it uses the data eg. ERB
-# then this will be needed. It takes a hash (can be nested) and sets
-# each key-vale pair as an instance variable on the class. It recursively
-# creates MagicHash instances if a hash value is found. It then implements
-# #method_missing to allow the instance variable to be accessed without the @
-#
-class MagicHash
-  def initialize(hash)
-    @__hash = hash.dup
-    hash.each do |k, v|
-      if v.is_a?(Hash)
-        instance_variable_set("@#{k}", MagicHash.new(v))
-      elsif v.is_a?(Array) && v[0].is_a?(Hash)
-        instance_variable_set("@#{k}", v.map {|i| MagicHash.new(i)})
-      else
-        instance_variable_set("@#{k}", v)
+  
+  # This is useful for some types of engines, if it uses the data eg. ERB
+  # then this will be needed. It takes a hash (can be nested) and sets
+  # each key-vale pair as an instance variable on the class. It recursively
+  # creates MagicHash instances if a hash value is found. It then implements
+  # #method_missing to allow the instance variable to be accessed without the @
+  #
+  class MagicHash
+    def initialize(hash)
+      @__hash = hash.dup
+      hash.each do |k, v|
+        if v.is_a?(Hash)
+          instance_variable_set("@#{k}", MagicHash.new(v))
+        elsif v.is_a?(Array) && v[0].is_a?(Hash)
+          instance_variable_set("@#{k}", v.map {|i| MagicHash.new(i)})
+        else
+          instance_variable_set("@#{k}", v)
+        end
       end
     end
-  end
-  
-  def keys
-    instance_variables.dup.map {|i| i.to_s[1..-1].to_sym }.reject{|i| i == :__hash }
-  end
-  
-  def has_key?(arg)
-    keys.include?(arg)
-  end
-  
-  def respond_to_missing?(arg)
-    has_key?(arg)
-  end
-  
-  def [](key)
-    instance_variable_get("@#{key}")
-  end
-  
-  def to_h
-    @__hash
-  end
-  
-  def method_missing(sym, *args, &block)
-    if has_key?(sym)
-      self[sym]
-    else
-      super
+    
+    def keys
+      instance_variables.dup.map {|i| i.to_s[1..-1].to_sym }.reject{|i| i == :__hash }
+    end
+    
+    def has_key?(arg)
+      keys.include?(arg)
+    end
+    
+    def respond_to_missing?(arg)
+      has_key?(arg)
+    end
+    
+    def [](key)
+      instance_variable_get("@#{key}")
+    end
+    
+    def to_h
+      @__hash
+    end
+    
+    def method_missing(sym, *args, &block)
+      if has_key?(sym)
+        self[sym]
+      else
+        super
+      end
     end
   end
 end
