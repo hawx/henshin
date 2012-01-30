@@ -35,7 +35,7 @@ module Henshin
     #     end
     #   end
     #
-    #   f = MyFile.("somewhere.txt", @site)
+    #   f = MyFile.new("somewhere.txt", @site)
     #   f.type #=> "not html"
     #   f.data #=> {..., "type" => "not html", ...}
     #
@@ -427,7 +427,7 @@ module Henshin
     #   This allows you to group certain types of files, for instance posts, by 
     #   setting the key to :post.
     def key
-      @key || :file
+      @key ||= :file
     end
 
     # @return [String] Pluralised key for the file
@@ -450,14 +450,14 @@ module Henshin
     
     # @return [String] Contents of the file
     def content
-      @content || raw_content
+      @content ||= raw_content
     end
     
     # @return [String]
     #   Base name of file, eg. /my_site/somefile/about.liquid -> about
     #
     def title
-      @title || @path.basename.to_s.split('.')[0].titlecase
+      @title ||= @path.basename.to_s.split('.')[0].titlecase
     end
     
     # If the output has been set during rendering return that value otherwise
@@ -466,7 +466,7 @@ module Henshin
     # @return [String]
     #
     def output
-      @output || self.extension
+      @output ||= self.extension
     end
     
     # @return [String]
@@ -477,7 +477,7 @@ module Henshin
     #  special cases whereas a better general case would be preferred.
     #
     def url
-      @url || if index?
+      @url ||= if index?
         d = relative_path.dirname.to_s
         if d == "."
           "/"
