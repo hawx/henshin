@@ -9,7 +9,7 @@ class Henshin::Engine
     
     def render(content, data)
       t = ::Slim::Template.new { content }
-      t.render(MagicHash.new(data), {})
+      t.render(Henshin::MagicHash.new(data), {})
     end
     
     # This uses a private API so may break in the future!

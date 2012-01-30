@@ -8,7 +8,7 @@ class Henshin::Engine
     register :haml
     
     def render(content, data)
-      ::Haml::Engine.new(content).render(MagicHash.new(data), {}) { data['yield'] }
+      ::Haml::Engine.new(content).render(Henshin::MagicHash.new(data), {}) { data['yield'] }
     end
     
     # Adds a highlight filter to haml.

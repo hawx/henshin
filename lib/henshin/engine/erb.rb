@@ -13,7 +13,7 @@ class Henshin::Engine
       box.output
     end
     
-    class MagicBox < MagicHash
+    class MagicBox < Henshin::MagicHash
       attr_reader :output
     
       def context
