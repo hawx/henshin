@@ -5,10 +5,10 @@
 #
 # Usage: henshin [command] [options]
 #        henshin ... [source] [dest]
-#        
+#
 #   Commands:
 #     henshin serve --port 1000 --server Thin --no-reload
-#     henshin new {post, layout, ...} 
+#     henshin new {post, layout, ...}
 #     # should provide hooks for file types to add themselves here eg. Post
 #
 
@@ -17,58 +17,44 @@ require 'henshin/base'
 require 'henshin/version'
 
 module Henshin
-  class CLI
-    
-    DEFAULTS = {
-      'use'  => 'blog',
-      'serve' => {
-        'host'    => "0.0.0.0",
-        'port'    => 3001,
-        'handler' => nil,
-        'use'     => false
-      }
-    }
-  
-    include Clive::Parser
-    option_var :config, DEFAULTS
-    
+
+  class CLI < Clive
+
+    set :use, 'blog'
+    set :serve, :host => '0.0.0.0',
+                :port => 3001,
+                :handler => nil,
+                :use => false
+
     desc 'Choose the henshin type to use'
-    flag :type, :arg => "NAME" do |t|
-      config['type'] = t
-    end
-  
-    # SERVE
-    desc 'Serve the site'
-    command :serve do
-    
-      config['serve'] ||= {}
-      config['serve']['use'] = true      
-        
-      desc "Use specified port number, defaults to 3001" 
-      flag :p, :port, :arg => "PORT" do |n|
-        config['serve']['port'] = n
-      end
-      
+    opt :type, :arg => '<name>'
+
+    desc 'Actually get this to work'
+    opt :verbose
+
+    command :serve, 'Serve the site' do
+
+      set :use, true
+
+      desc "Use specified port number, defaults to 3001"
+      opt :p, :port, :arg => '<port>', :as => Integer
+
       desc "Host to run on, defaults to 0.0.0.0"
-      flag :host, :arg => "HOST" do |n|
-        config['serve']['host'] = n
-      end
-      
+      opt :host, :arg => '<host>'
+
       desc  "Use specified handler"
-      flag :H, :handler, :arg => "HANDLER" do |h|
-        config['serve']['handler'] = h
-      end
-    
+      opt :H, :handler, :arg => '<handler>'
+
     end
-    
+
     desc "Display current version"
-    switch :version do
+    opt :version do
       puts Henshin::VERSION
       exit
     end
-    
+
   end
-  
+
   # Should search for +'henshin/name'+ first, then check load paths,
   # maybe add ability to set load path in config?
   #
@@ -79,9 +65,13 @@ module Henshin
     require "henshin/#{name}"
     c = Henshin.constants.find {|i| i.to_s.downcase == name }
     Henshin.const_get(c)
-  rescue LoadError # try load paths
-    require name
-    const_get(name.to_sym)
+  rescue LoadError
+    begin
+      require name
+      const_get(name.to_sym)
+    rescue LoadError
+      warn "Unable to load #{name}"
+    end
   end
 
   # Parse the command line input. Should be called from the executable.
@@ -93,11 +83,11 @@ module Henshin
   #   Henshin.parse!(ARGV)
   #
   def self.parse!(argv)
-    args = CLI.parse(argv)
-    config = CLI.config
+    args = CLI.run(argv)
+    config = args.to_h
 
     source, dest = Henshin::DEFAULTS['source'], Henshin::DEFAULTS['dest']
-    
+
     if args.size == 1
       source = Pathname.new(args[0])
       dest = source + Henshin::DEFAULTS['dest_suffix']
@@ -105,15 +95,15 @@ module Henshin
       source = Pathname.new(args[0])
       dest = Pathname.new(args[1])
     end
-    
+
     threads = []
 
     loaded = Henshin::Base.load_config([source])
     config = config.r_merge(loaded)
-    
+
     source = Pathname.new(config['source']) if config.has_key?('source')
     dest   = Pathname.new(config['dest'])   if config.has_key?('dest')
-    
+
     # get the henshin builder to use
     builder = nil
     begin
@@ -130,10 +120,10 @@ module Henshin
       puts "Falling back to default builder..."
       builder = require_builder(CLI::DEFAULTS['use'].downcase)
     end
-    
+
     if config['serve']['use']
       require 'rack/henshin'
-    
+
       handler = Rack::Handler.get(config['serve']['handler'])
       unless handler
         begin
@@ -142,20 +132,20 @@ module Henshin
           handler = Rack::Handler::WEBrick
         end
       end
-      
+
       app = Rack::Builder.new do
        # use Rack::CommonLogger
         use Rack::ShowExceptions
        # use Rack::Lint
         run Rack::Henshin.new(nil, {:root => source, :builder => builder})
       end
-      
-      puts "Serving site using #{builder.name}..."
+
+      puts "Serving site using #{builder}..."
       handler.run(app, :Host => config['serve']['host'], :Port => config['serve']['port'])
-      
+
     else # If no server is needed then just build the site.
       start = Time.now
-      puts "Building site using #{builder.name}..."
+      puts "Building site using #{builder}..."
       site = builder.build(source, dest)
       puts "Site created in #{site.dest} (#{Time.now - start}s)"
     end

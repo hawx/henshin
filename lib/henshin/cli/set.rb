@@ -8,17 +8,16 @@
 
 module Henshin
   class CLI
-  
+
     desc 'Set a value in config.yml'
-    flag :set, :args => "key value" do |k, v|
+    opt :set, :args => '<key> <value>' do
       if ::File.exist?('config.yml')
-        ::File.open('config.yml', 'a+') {|f| f.write("\n#{k}: #{v}") }
+        ::File.open('config.yml', 'a+') {|f| f.write("\n#{key}: #{value}") }
       else
-        puts "config.yml could not be found in current directory.".red
+        puts "config.yml could not be found in current directory".red
       end
       exit
     end
-    
+
   end
 end
-    

@@ -50,27 +50,27 @@ module Henshin
     'verbose'      => false,
     'server'       => false
   }
-  
+
   # module_attr_accessor :registered => {'base' => Henshin::Base}
-  
-  # Register a subclass of Henshin::Base that can be used for building sites
-  # it should implement all the necessary protocols.
+
+  # Register a subclass of Henshin::Base that can be used for building sites it
+  # should implement all the necessary protocols.
   #
-  # @param key [String]
-  #   Identifier used when loading with the command line interface, this is
-  #   the argument that should be supplied to build using the klass.
+  # @param key [String] Identifier used when loading with the command line
+  #   interface, this is the argument that should be supplied to build using the
+  #   klass.
   #
   # @param klass [Class]
   #
   def self.register(key, klass)
     # registered[key] = klass
   end
-  
+
   # Register a symbol to be used when applying engines. The class name can
   # always be used but it is usually nicer to write +apply :sass+ instead of
-  # +apply Henshin::Engine::Sass+, it also allows you to dynamically assign
-  # a specific engine to a key. For example you can vary the markdown 
-  # library used depending on settings provided in config.yml.
+  # +apply Henshin::Engine::Sass+, it also allows you to dynamically assign a
+  # specific engine to a key. For example you can vary the markdown library used
+  # depending on settings provided in config.yml.
   #
   # @param sym [Symbol] Symbol shortcut to use engine
   # @param klass [Class] The engine
@@ -78,16 +78,16 @@ module Henshin
   def self.register_engine(sym, klass)
     registered_engines[sym] = klass
   end
-  
+
   module_attr_accessor :registered_engines => {}
-  
+
   # @abstract
   #
-  # This class is the base of Henshin, it implements everything necessary
-  # but nothing more so that it can be subclassed and modified easily.
+  # This class is the base of Henshin, it implements everything necessary but
+  # nothing more so that it can be subclassed and modified easily.
   #
   class Base
-    
+
     attr_accessor :files, :config, :injects, :lazy_injects
 
     hash_attr_accessor :@config, 'server'
@@ -95,14 +95,15 @@ module Henshin
 
     hash_attr_reader :@config, 'source', 'dest', 'verbose'
     alias_method :verbose?, :verbose
-    
-    # This is the recommended way of building a site. It creates the configuration 
-    # hash from the options provided, then reads, renders and writes the site.
+
+    # This is the recommended way of building a site. It creates the
+    # configuration hash from the options provided, then reads, renders and
+    # writes the site.
     #
     # @overload build(source)
     #   Creates a site using the source directory as the base and +source/_site+
-    #   as the directory to write to, uses default options.
-    #   @param source [String, Pathname] directory to read from
+    #   as the directory to write to, uses default options.  @param source
+    #   [String, Pathname] directory to read from
     #
     #   @example
     #
@@ -110,9 +111,9 @@ module Henshin
     #
     # @overload build(source, dest)
     #   Creates a site reading from the source directory and writing to the
-    #   destination given, uses defaults for everything else.
-    #   @param source [String, Pathname] directory to read from
-    #   @param dest [String, Pathname] directory to write to
+    #   destination given, uses defaults for everything else.  @param source
+    #   [String, Pathname] directory to read from @param dest [String, Pathname]
+    #   directory to write to
     #
     #   @example
     #
@@ -120,10 +121,10 @@ module Henshin
     #
     # @overload build(source, dest, opts)
     #   Creates a site reading from +source+ and writing to +dest+, merges
-    #   +opts+ with the defaults to create a configuration hash.
-    #   @param source [String, Pathname] directory to read from
-    #   @param dest [String, Pathname] directory to write to
-    #   @param opts [Hash] options for the site (see Readme)
+    #   +opts+ with the defaults to create a configuration hash.  @param source
+    #   [String, Pathname] directory to read from @param dest [String, Pathname]
+    #   directory to write to @param opts [Hash] options for the site (see
+    #   Readme)
     #
     #   @example
     #
@@ -157,16 +158,16 @@ module Henshin
       if config['source'] && !config['dest']
         config['dest'] = config['source'] + DEFAULTS['dest_prefix']
       end
-      
+
       site = new(config)
       site.read
       site.pre_render
       site.render
       site.write
     end
-    
+
     # Creates a new instance of Henshin::Base.
-    # 
+    #
     # @see .build
     # @param config [Hash] configuration for new site
     #
@@ -178,19 +179,19 @@ module Henshin
         @config = DEFAULTS
       end
       @config.merge!(load_config)
-      
+
       load_files
-      
+
       @files   = []
       @injects = []
     end
-    
+
     def inspect
       "#<#{self.class} #{source.relative_path_from(Pathname.pwd)}>"
     end
-    
-    # Check each of the +load_dirs+ for a config.yml file. When found use
-    # this to override configuration.
+
+    # Check each of the +load_dirs+ for a config.yml file. When found use this
+    # to override configuration.
     #
     # @param load_dirs [Array[Pathname]]
     # @return [Hash{String=>Object}]
@@ -200,7 +201,7 @@ module Henshin
 
       load_dirs.uniq.compact.each do |d|
         file = d + 'config.yml'
-        
+
         if file.exist?
           begin
             loaded = YAML.load_file(file)
@@ -211,7 +212,7 @@ module Henshin
           break
         end
       end
-      
+
       # Need to map certain config options to specific classes
       {
         'dest'   => Pathname,
@@ -221,10 +222,10 @@ module Henshin
           loaded[k] = v.new(loaded[k])
         end
       end
-      
+
       loaded
     end
-    
+
     # Load +config.yml+ from the directories given
     #
     # @param load_dirs [Array[Pathname]]
@@ -233,10 +234,10 @@ module Henshin
     def load_config(load_dirs=[source, Pathname.pwd])
       self.class.load_config(load_dirs)
     end
-      
-    # Loads files that have been set to be loaded in config.yml. These
-    # are then evaluated in the class's context so have access to the 
-    # usual methods for defining rules and actions.
+
+    # Loads files that have been set to be loaded in config.yml. These are then
+    # evaluated in the class's context so have access to the usual methods for
+    # defining rules and actions.
     def load_files
       if @config['load']
         [@config['load']].flatten.each do |i|
@@ -250,10 +251,10 @@ module Henshin
         end
       end
     end
-    
+
     # @param path [Pathname] Path to the file to be tested.
     # @return [true, false] Whether this site ignores the path that is passed.
-    def ignores?(path)    
+    def ignores?(path)
       r = false
       ignores.each do |m|
         if m.matches?(path.to_s) || m.matches?((path.relative_path_from(self.source)).to_s)
@@ -262,7 +263,7 @@ module Henshin
         end
       end
       return true if r == true # quick return
-      
+
       [@config['ignore']].flatten.each do |m|
         if path.fnmatch?(m) || path.fnmatch?((source + m).to_s)
           r = true
@@ -272,28 +273,29 @@ module Henshin
       r
     end
 
-    # Reads files from a set of directories, defaults to source directory. Removes all
-    # directories, then removes files that have been set to ignore either in the class
-    # or in the config. Then uses the filters to find the correct class to create 
-    # instances of. These are then added to +@files+.
+    # Reads files from a set of directories, defaults to source
+    # directory. Removes all directories, then removes files that have been set
+    # to ignore either in the class or in the config. Then uses the filters to
+    # find the correct class to create instances of. These are then added to
+    # +@files+.
     #
     # @param dirs [Array[String]]
     # @return [Array[Henshin::File]]
     #
-    def read(dirs = [self.source.to_s]) 
+    def read(dirs = [self.source.to_s])
       run :before, :read, self
-      
+
       glob_dir = Pathname.new("{"+dirs.join(',')+"}") + '**' + '*'
-      
+
       found = Pathname.glob(glob_dir)
-      
+
       found.reject! {|i| i.directory? }
       found.reject! {|f| ignores?(f) }
 
       found.each do |f|
         _k = nil
-        # Sort highest priority to lowest so as soon as a match is found we can break
-        # and continue.
+        # Sort highest priority to lowest so as soon as a match is found we can
+        # break and continue.
         filter_blocks.sort_by {|b| b.last }.reverse.each do |(m,k,p)|
           if m.matches?(f.relative_path_from(source).to_s)
             _k = k
@@ -313,8 +315,8 @@ module Henshin
 
       run :after, :read, self
       @files
-    end    
-    
+    end
+
     # @return [Array[Henshin::Layout]]
     #   Returns all layout files.
     def layouts
@@ -326,20 +328,22 @@ module Henshin
     # @return [Array[Henshin::File]]
     def pre_render(files=@files)
       run :before, :pre_render, self
-    
+
       files.each do |f|
         pre_render_file(f)
       end
-      
+
       run :after, :pre_render, self
       files
     end
-    
-    # Runs the file given through the matching rule blocks that have been defined.
+
+    # Runs the file given through the matching rule blocks that have been
+    # defined.
     #
     # Methods relating to the matches are defined within the file's class. The
-    # block is then run within this class, and is also passed the correct arguments.
-    # This allows the block to call +splat+ instead of using a block parameter.
+    # block is then run within this class, and is also passed the correct
+    # arguments.  This allows the block to call +splat+ instead of using a block
+    # parameter.
     #
     # @param file [Henshin::File]
     # @return [Henshin::File]
@@ -351,23 +355,23 @@ module Henshin
           if vals['splat']
             file.class.send(:define_method, :splat) { vals['splat'] }
           end
-          
+
           if res = vals.select {|k,v| k != 'splat'}
             file.class.send(:define_method, :keys) { res }
           end
-          
+
           file.instance_exec(*vals.values.flatten, &b)
         end
       end
 
-      file.class.send(:remove_method, :splat) if file.respond_to? :splat      
+      file.class.send(:remove_method, :splat) if file.respond_to? :splat
       file.class.send(:remove_method, :keys) if file.respond_to? :keys
-      
+
       run :after_each, :pre_render, file
       file
     end
-    
-    
+
+
     # @see #render_file
     # @param files [Array[Henshin::File]]
     # @param force [true, false]
@@ -378,41 +382,42 @@ module Henshin
       files.each do |f|
         render_file(f, force)
       end
-      
+
       run :after, :render, self
       files
     end
-    
-    # Renders the file using the engines that were added during #pre_render, then
-    # finds the corresponding layout and renders the file within that, if it exists.
+
+    # Renders the file using the engines that were added during #pre_render,
+    # then finds the corresponding layout and renders the file within that, if
+    # it exists.
     #
     # @param file [Henshin::File]
     # @param force [true, false] Force the file to be rendered again.
     def render_file(file, force=false)
       run :before_each, :render, file
-      
+
       file.render(force)
       file.layout
-      
+
       run :after_each, :render, file
       file
     end
-    
+
     # @see #write_file
     # @param [Array[Henshin::File]]
     def write(files=@files)
       run :before, :write, self
-            
+
       files.each do |f|
         write_file(f)
       end
-      
+
       run :after, :write, self
       self
     end
-    
+
     # Writes the file to .dest.
-    # 
+    #
     # @param file [Henshin::File]
     #
     def write_file(file)
@@ -420,22 +425,22 @@ module Henshin
       file.write(self.dest)
       run :after_each, :write, file
     end
-    
-    # Time the site was created at, this is then cached in a variable so that
-    # it doesn't change if the site takes a few seconds to build.
+
+    # Time the site was created at, this is then cached in a variable so that it
+    # doesn't change if the site takes a few seconds to build.
     def created_at
       @_created_at ||= Time.now
     end
-    
-    # The site-wide payload hash, this is mixed in to the payloads of every 
-    # other file and contains the data of every file created along with 
-    # some convenient values such as the time created and the config.
+
+    # The site-wide payload hash, this is mixed in to the payloads of every
+    # other file and contains the data of every file created along with some
+    # convenient values such as the time created and the config.
     #
     # @return [Hash{String=>Object}]
-    # 
+    #
     def payload
       files_hash = Hash.new {|h, k| h[k] = [] }
-      
+
       @files.each do |file|
         if file.key
           files_hash[file.plural_key] << file.data
@@ -448,7 +453,7 @@ module Henshin
           'created_at' => created_at
         }.merge(@config)
       }.merge(files_hash)
-      
+
       @injects.each do |i|
         if i.respond_to?(:call)
           r.merge!(i.call(self))
@@ -456,10 +461,10 @@ module Henshin
           r.merge!(i)
         end
       end
-      
+
       r
     end
-    
+
     # Inject a hash into the payload method, this will be available to all files
     # that are rendered, and as such care must be taken when naming so as not to
     # cause conflicts with existing labels, see #payload for used names.
@@ -471,11 +476,11 @@ module Henshin
     #   inject_payload {'site' => {'one' => 1}}
     #   # Add to the main site hash, eg. {{ site.one }}
     #
-    # @param arg [Hash, #call]
-    #   If passed a hash, that is merged normally; if passed an object that 
-    #   responds to #call ie. a proc (or block) then that is passed the site
-    #   object and is expected to return a hash to be merged in.
-    #  
+    # @param arg [Hash, #call] If passed a hash, that is merged normally; if
+    #   passed an object that responds to #call ie. a proc (or block) then that
+    #   is passed the site object and is expected to return a hash to be merged
+    #   in.
+    #
     def inject_payload(arg=nil)
       arg = Proc.new if block_given? && arg.nil?
       raise ArgumentError unless arg
@@ -484,7 +489,7 @@ module Henshin
 
 
   # @group DSL
-  # 
+  #
   # These methods are all for use when building subclasses of Henshin::Base.
   # I've delegated these methods so they are available for classes and instances
   # though remember that affecting one instance of a class will affect all
@@ -502,17 +507,17 @@ module Henshin
       :before_each => { :read => [], :pre_render => [], :render => [], :write => [] },
       :after_each =>  { :read => [], :pre_render => [], :render => [], :write => [] }
     }
-    
+
     FILTER_PRIORITIES = {
       :low => 0,
       :medium => 1,
       :high => 2,
       :internal => 3 # for internal use only, ie. make sure layouts work
     }
-    
+
     # Define a block to be run when a match to the pattern given is made. The
-    # block will be run within the context of the file givin access to the file's
-    # instance methods. See Henshin::File#set, Henshin::File#apply and 
+    # block will be run within the context of the file givin access to the
+    # file's instance methods. See Henshin::File#set, Henshin::File#apply and
     # Henshin::File#use for more information.
     #
     # For more detail on how the rules are used see #pre_render_file.
@@ -533,8 +538,8 @@ module Henshin
     end
 
     # Set a specific class for matches to the pattern given. All files matching
-    # this, depending on the priority of other matches, will become instances
-    # of the class given. The priority can be set as :low, :medium or :high.
+    # this, depending on the priority of other matches, will become instances of
+    # the class given. The priority can be set as :low, :medium or :high.
     #
     # @param match [String, Regexp]
     #   This string will be used to create a new instance of Henshin::Matcher, see
@@ -549,9 +554,9 @@ module Henshin
     def self.filter(match, klass, priority=:low)
       filter_blocks << [Matcher.new(match), klass, FILTER_PRIORITIES[priority]]
     end
-       
-    # Specify a Matcher pattern to ignore when reading, and then obviously writing
-    # files.
+
+    # Specify a Matcher pattern to ignore when reading, and then obviously
+    # writing files.
     #
     # @param args [String, Regexp]
     #   See Henshin::Matcher.
@@ -567,8 +572,8 @@ module Henshin
     def self.ignore(*args)
       ignores.concat args.map {|i| Matcher.new(i) }
     end
-    
-    # Set a specific value for a configuration variable. This will then be used 
+
+    # Set a specific value for a configuration variable. This will then be used
     # above the value in Henshin::DEFAULT but below any user set value. This
     # means everything set in this way _can_ be overriden by the user. If you
     # want to set a constant value for the class use CONSTANTS!
@@ -580,11 +585,11 @@ module Henshin
     def self.set(key, value)
       pre_config[key.to_s] = value
     end
-    
+
     def set(key, value)
       @config[key.to_s] = value
     end
-    
+
     # Set up a file to be rendered when a particular path is hit when serving.
     # If a file is passed it will be rendered and served to the browser, but if
     # a block is given it will be passed the match object from the pattern and
@@ -603,44 +608,40 @@ module Henshin
     def self.before(a, &block)
       actions[:before][a] << block
     end
-    
+
     def self.after(a, &block)
       actions[:after][a] << block
     end
-    
+
     def self.before_each(a, &block)
       actions[:before_each][a] << block
     end
-    
+
     def self.after_each(a, &block)
       actions[:after_each][a] << block
     end
-    
+
     # Runs the appropriate blocks, if set.
     #
-    # @param time [Symbol]
-    #   Either :before, :after, :before_each or :after_each.
-    #
-    # @param a [Symbol]
-    #   Either :all or :each, whether to run before/after all 
-    #   tasks have been done, or to run before/after each task
-    #   is done.
+    # @param time [Symbol] Either :before, :after, :before_each or :after_each.
+    # @param a [Symbol] Either :all or :each, whether to run before/after all
+    #   tasks have been done, or to run before/after each task is done.
     #
     def run(time, a, *args)
       actions[time][a].each do |proc|
         proc.call(*args)
       end
     end
-    
+
     extend Delegator
-    
+
     # base.set(:k, 'v'), becomes, base.class.set(:k, 'v')
     # Should really try to make these more instance specific somehow, look
     # at how #set and .set are different!
-    delegates :class, 
+    delegates :class,
                 :after_each, :before_each, :after, :before, :rule,
                 :resolve, :const, :ignore, :filter
-              
-    
+
+
   end
 end
