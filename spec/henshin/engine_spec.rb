@@ -3,13 +3,13 @@ require 'spec_helper'
 describe Henshin::Engine do
 
   subject {
-    Class.new(Henshin::Engine) { 
+    Class.new(Henshin::Engine) {
       def render(c,d)
         "hi"
-      end  
+      end
     }
   }
-  
+
   describe ".render" do
     it "should call #render on new instance" do
       subject.render('', {}).should == "hi"
@@ -17,20 +17,20 @@ describe Henshin::Engine do
   end
 end
 
-describe MagicHash do
+describe Henshin::MagicHash do
   subject {
-    MagicHash.new({
+    Henshin::MagicHash.new({
       'site' => { 'title' => "Test Site" },
       'file' => { 'title' => "Test File" }
     })
   }
-  
+
   describe "calling a method" do
     it "returns the value for the key" do
       subject.site.to_h.should == {'title' => 'Test Site'}
     end
   end
-  
+
   describe "calling a nested method" do
     it "returns the value for the key" do
       subject.file.title.should == 'Test File'
@@ -44,7 +44,7 @@ describe MagicHash do
       }.to raise_error NoMethodError
     end
   end
-  
+
   describe "#[]" do
     it "returns the value for the key" do
       subject['site'].to_h.should == {'title' => 'Test Site'}
