@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+
+require 'clive'
+
+require_relative '../lib/henshin'
+require_relative '../lib/rack/henshin'
+
+module Henshin
+
+  class CLI < Clive
+    config name: 'henshin'
+
+    desc 'Builds the site'
+    command :build, arg: '[<root>]', as: Pathname do
+      action do
+        Henshin.build root
+      end
+    end
+
+    desc 'Creates a new site'
+    command :new, arg: '[<root>]', as: Pathname do
+      action do
+        Henshin.copy_site root
+      end
+    end
+
+    set :view, auto: true,
+                  port: 3001,
+                  host: '0.0.0.0',
+                  handler: nil
+
+    desc 'Serves the site to view in a web browser'
+    command :view, arg: '[<root>]', as: Pathname do
+
+      bool :auto, 'Reload files when changed'
+
+      desc 'Specify port number, defaults to 3001'
+      opt :p, :port, arg: '<num>', as: Integer
+
+      desc 'Hostname to run on, defaults to 0.0.0.0'
+      opt :h, :host, arg: '<addr>'
+
+      desc 'Handler to use'
+      opt :H, :handler, arg: '<name>'
+
+      action do
+        Henshin.serve root, @state.to_h
+      end
+    end
+
+    desc 'Publishes the site'
+    command :publish, arg: '[<root>]', as: Pathname do
+      action do
+        Henshin.deploy root
+      end
+    end
+
+    desc 'Only display errors'
+    opt :quiet do
+      UI.quiet!
+    end
+
+    desc 'Shows what a command will do, without writing any files'
+    opt :dry_run do
+      puts "Starting dry run..."
+      Writer.dry_run!
+    end
+
+    desc 'Do not use colours in output'
+    opt :no_colour do
+      UI.no_colour!
+    end
+
+    desc 'Display the current version'
+    opt :version, tail: true do
+      puts Henshin::VERSION
+      exit 0
+    end
+
+  end
+
+  def self.copy_site(to)
+    from = Pathname.new(__FILE__) + '..' + '..' + 'site'
+    FileUtils.cp_r from, to
+
+    Pathname.glob(from + '**' + '*').each do |path|
+      if path.directory?
+        UI.made path.to_s[5..-1]
+      else
+        UI.wrote path.to_s[5..-1]
+      end
+    end
+  end
+
+  def self.serve(site, opts={})
+    handler = Rack::Handler.get(opts[:handler])
+    unless handler
+      begin
+        handler = Rack::Handler::Thin
+      rescue LoadError
+        handler = Rack::Handler::WEBrick
+      end
+    end
+
+    app = Rack::Builder.new do
+      use Rack::ShowExceptions
+      run Rack::Henshin.new(nil, root: site)
+    end
+
+    handler.run app, Host: opts[:host], Port: opts[:port]
+  end
+end
