@@ -114,6 +114,10 @@ module Henshin
       RedcarpetEngine.render super
     end
 
+    def url
+      super.sub /index\.html$/, ''
+    end
+
     def extension
       '.html'
     end
@@ -136,6 +140,10 @@ module Henshin
   class SlimFile < File
     def text
       SlimEngine.render super, @site.data.merge(data)
+    end
+
+    def url
+      super.sub /index\.html$/, ''
     end
 
     def extension
