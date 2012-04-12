@@ -1,6 +1,6 @@
 require 'rack/mime'
 
-%w(core_ext file site).each do |file|
+%w(core_ext writer ui file site).each do |file|
   require_relative "henshin/#{file}"
 end
 
