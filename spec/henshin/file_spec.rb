@@ -16,7 +16,11 @@ EOS
   subject { Henshin::File }
 
   let(:site) { Henshin::Site.new('.') }
-  let(:file) { Henshin::File.new(site, 'text.txt') }
+  let(:file) { Henshin::File.new(site, 'test.txt') }
+
+  before {
+    file.path.stubs(:read).returns(text)
+  }
 
   describe '#initialize' do
     it 'makes sure path is a Pathname' do
