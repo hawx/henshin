@@ -20,7 +20,7 @@ module Henshin
     end
 
     def read(*path)
-      glob = path.inject(@root, :+)
+      glob = path.flatten.inject(@root, :+)
       Pathname.glob(glob).reject {|p| p.directory? || ignore?(p) }
     end
 

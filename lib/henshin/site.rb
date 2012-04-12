@@ -31,7 +31,7 @@ module Henshin
     end
 
     def style
-      StylePackage.new self, @reader.read('assets', 'styles')
+      StylePackage.new self, @reader.read_all('assets', 'styles')
     end
 
     def script
@@ -43,7 +43,7 @@ module Henshin
     end
 
     def files
-      @read.safe_paths.map do |path|
+      @reader.safe_paths.map do |path|
         File.create(self, path)
       end
     end

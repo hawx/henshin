@@ -20,6 +20,10 @@ module Henshin
       yaml[:tags] || [yaml[:tag]].compact
     end
 
+    def tag?(name)
+      tags.include?(name)
+    end
+
     def permalink
       "/#{title.slugify}/index.html"
     end

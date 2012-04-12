@@ -139,7 +139,10 @@ module Henshin
 
   class SlimFile < File
     def text
-      SlimEngine.render super, @site.data.merge(data)
+      text = SlimEngine.render super, @site.data.merge(data)
+      file_data = @site.data.merge(data.merge(:yield => text))
+      template = @site.template
+      SlimEngine.render template.text, file_data
     end
 
     def url
@@ -170,19 +173,19 @@ module Henshin
     end
 
     def permalink
-      @to
+      "/#{@to}"
     end
   end
 
   class StylePackage < Package
     def initialize(site, paths)
-      super(site, '/style.css', paths, CssCompressor)
+      super(site, 'style.css', paths, CssCompressor)
     end
   end
 
   class ScriptPackage < Package
     def initialize(site, paths)
-      super(site, '/script.js', paths, JsCompressor)
+      super(site, 'script.js', paths, JsCompressor)
     end
   end
 

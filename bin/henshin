@@ -25,9 +25,9 @@ module Henshin
     end
 
     set :view, auto: true,
-                  port: 3001,
-                  host: '0.0.0.0',
-                  handler: nil
+               port: 3001,
+               host: '0.0.0.0',
+               handler: nil
 
     desc 'Serves the site to view in a web browser'
     command :view, arg: '[<root>]', as: Pathname do
@@ -110,3 +110,5 @@ module Henshin
     handler.run app, Host: opts[:host], Port: opts[:port]
   end
 end
+
+Henshin::CLI.run

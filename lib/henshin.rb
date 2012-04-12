@@ -1,3 +1,4 @@
+require 'yaml'
 require 'rack/mime'
 require 'clive/output'
 
