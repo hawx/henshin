@@ -153,4 +153,37 @@ module Henshin
 
   File.register '.slim', SlimFile
 
+
+  class Package < File
+    def initialize(site, to, paths, with)
+      @site = site
+      @compressor = with.new(paths.map {|p| File.create(site, p) })
+      @to = to
+    end
+
+    def text
+      @compressor.compress
+    end
+
+    def extension
+      ::File.extname(@to)
+    end
+
+    def permalink
+      @to
+    end
+  end
+
+  class StylePackage < Package
+    def initialize(site, paths)
+      super(site, '/style.css', paths, CssCompressor)
+    end
+  end
+
+  class ScriptPackage < Package
+    def initialize(site, paths)
+      super(site, '/script.js', paths, JsCompressor)
+    end
+  end
+
 end
