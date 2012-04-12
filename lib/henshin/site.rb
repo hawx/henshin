@@ -6,6 +6,11 @@ module Henshin
 
     def initialize(root='.')
       @root = Pathname.new(root)
+
+      CoffeeScriptEngine.setup
+      RedcarpetEngine.setup
+      SassEngine.setup
+      SlimEngine.setup
     end
 
   end
