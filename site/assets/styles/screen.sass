@@ -1,0 +1,149 @@
+$dark:      #2d2d2d
+$medium:    #777
+$light:     #eee
+$blinding:  #fafafa
+
+$line_height: 1.5em
+
+$body_font: Cambria, Georgia, serif
+$header_font: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif
+$code_font: Menlo, "Bitstream Vera Sans Mono", Consolas, "Lucida Console", monospace
+
+html
+  background: $blinding
+  color: $dark
+  font:
+    family: $body_font
+    size: 16px
+  line-height: $line_height
+
+body
+  max-width: 37em
+  margin: 0 auto
+  padding: $line_height * 2
+
+// FRONT --------------------------------------------------------------------
+
+ul.list
+  list-style: circle
+  padding-left: 0
+
+
+// HEADER -------------------------------------------------------------------
+
+h1, h2, h3, h4, h5, h6
+  margin: $line_height 0 1em
+  font:
+    family: $header_font
+
+header
+  margin: $line_height * 3 0
+
+  h1, h2
+    font:
+      weight: normal
+      style:  italic
+      size:   2.4em
+    text-align: center
+
+  h2
+    font-size: 1.4em
+
+
+// TEXT ---------------------------------------------------------------------
+
+p
+  width: auto
+  margin: 0
+  text-indent: 0
+
+  text-align: justify
+
+  -webkit-hyphens: auto
+  -webkit-hyphenate-character: '-'
+  -webkit-locale: 'en'
+
+  -moz-hyphens: auto
+
+  & + p
+    text-indent: $line_height
+
+hr
+  margin: 0
+  height: $line_height * 2
+  border: none
+  position: relative
+
+  &:after
+    content: '~'
+    position: absolute
+    top: 0.27em
+    text-align: center
+    font-size: 2em
+    width: 100%
+    color: $light
+
+blockquote
+  margin: $line_height 2em
+  font-style: italic
+  font-size: 1.1em
+  line-height: $line_height
+
+a
+  color: $dark
+  text-decoration: underline
+  -webkit-transition: .1s color
+
+  &:hover
+    text-decoration: none
+    color: rgb(50, 95, 150)
+
+ul, ol
+  padding: 0 2em
+
+
+// CODE ---------------------------------------------------------------------
+
+pre
+  font-family: Menlo
+  font-size: 0.8em
+  line-height: 1.3em
+  border-top: 1px dashed $light
+  border-bottom: 1px dashed $light
+  padding: $line_height 0
+
+pre code
+  font-size: 1em
+
+code
+  font-family: Menlo
+  font-size: 0.9em
+
+  // Keywords and constants are bold
+  .k,  .no, .keyword, .constant
+    font-weight: bold
+
+  // Fade punctuation slightly
+  .p
+    color: $medium
+
+  // Make comments italic and fade
+  .c1, .comment
+    font-style: italic
+    color: $medium
+
+pre
+  div
+    .keyword, .constants
+      font-weight: bold
+
+    .comments
+      font-style: italic
+      color: $medium
+
+
+
+// DRAFTS --------------------------------------------------------------------
+
+li#draft
+  opacity: .7

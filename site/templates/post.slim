@@ -1,0 +1,37 @@
+doctype html
+html lang='en'
+  head
+    meta charset='utf-8'
+    link rel='stylesheet' href='/style.css'
+    title = title
+
+  body
+
+    a href='/' Home
+
+    header
+      h1 = title
+      h2 #{date.strftime("%B %e, %Y")}
+
+    == yield
+
+    script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js'
+    script src='http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js'
+    script src='script.js'
+    
+    javascript:      
+      SyntaxHighlighter.config.tagName = "code";
+      SyntaxHighlighter.defaults['gutter'] = false;
+      SyntaxHighlighter.defaults['toolbar'] = false;
+      
+      SyntaxHighlighter.autoloader(
+        'ruby                   http://alexgorbatchev.com/pub/sh/current/scripts/shBrushRuby.js',
+        'js jscript javascript  http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJScript.js',
+        'applescript            http://alexgorbatchev.com/pub/sh/current/scripts/shBrushAppleScript.js'
+      );
+      
+      SyntaxHighlighter.all();
+      
+      
+      
+             
