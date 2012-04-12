@@ -2,6 +2,27 @@ module Henshin
 
   class File
 
+    @types = {}
+
+    # Registers a new file type which can then be used by .create.
+    #
+    # @param ext [String] Extension to associate file type with
+    # @param type [File] Subclass of File
+    def self.register(ext, type)
+      @types[ext] = type
+    end
+
+    # Creates a new File, or if possible a subclass of File, depending on the
+    # extension of the path given.
+    #
+    # @param site [Site]
+    # @param path [Pathname]
+    def self.create(site, path)
+      klass = @types[::File.extname(path)] || self
+      klass.new(site, path)
+    end
+
+
     YAML_REGEX = /\A---\n^(.*?)\n^---\n?(.*)\z/m
 
     attr_reader :path
@@ -75,4 +96,53 @@ module Henshin
     end
 
   end
+
+  class CoffeeScriptFile < File
+    def text
+      CoffeeScriptEngine.render super
+    end
+
+    def extension
+      '.js'
+    end
+  end
+
+  File.register '.coffee', CoffeeScriptFile
+
+  class RedcarpetFile < File
+    def text
+      RedcarpetEngine.render super
+    end
+
+    def extension
+      '.html'
+    end
+  end
+
+  File.register '.md', RedcarpetFile
+
+  class SassFile < File
+    def text
+      SassEngine.render super
+    end
+
+    def extension
+      '.css'
+    end
+  end
+
+  File.register '.sass', SassFile
+
+  class SlimFile < File
+    def text
+      SlimEngine.render super, @site.data.merge(data)
+    end
+
+    def extension
+      '.html'
+    end
+  end
+
+  File.register '.slim', SlimFile
+
 end
