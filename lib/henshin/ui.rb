@@ -29,7 +29,7 @@ module Henshin
       return if quiet?
 
       s = ' ' * (LEFT_MARGIN - msg.clear_colours.size) + msg + '  ' + text
-      s.clear_colours! unless s.colour?
+      s.clear_colours! unless colour?
       puts s
     end
 

@@ -19,6 +19,7 @@ EOS
   let(:file) { Henshin::File.new(site, 'test.txt') }
 
   before {
+    Henshin::Writer.dry_run!
     file.path.stubs(:read).returns(text)
   }
 
@@ -79,7 +80,13 @@ EOS
   end
 
   describe '#write' do
-    it 'writes the file'
+    it 'writes the file' do
+      file.stubs(:write_path).returns('build/test.txt')
+      Henshin::Writer.expects(:write).with('build/test.txt',
+                                           "\nSo, here we are. A test.\n")
+      Henshin::UI.expects(:wrote).with('test.txt')
+      file.write('build')
+    end
   end
 
 end

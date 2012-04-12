@@ -70,7 +70,8 @@ module Henshin
     end
 
     def write(dir)
-      # ...
+      Writer.write write_path(dir), text
+      UI.wrote permalink[1..-1]
     end
 
   end
