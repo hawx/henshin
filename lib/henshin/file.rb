@@ -76,7 +76,7 @@ module Henshin
 
     # @retrun [String] Absolute url to the file, including 'index.html'.
     def permalink
-      "/#{@path.relative_path_from(@site.root)}".sub(@path.extname, extension)
+      "#{@site.url_root}#{@path.relative_path_from(@site.root)}".sub(@path.extname, extension)
     end
 
     # @return [String] Pretty url to the file.
@@ -87,7 +87,7 @@ module Henshin
     # @param dir [String, Pathname] Directory the site is being built in.
     # @return [Pathname]
     def write_path(dir)
-      @site.root + dir + permalink[1..-1]
+      dir + permalink[1..-1]
     end
 
     def write(dir)
@@ -173,7 +173,7 @@ module Henshin
     end
 
     def permalink
-      "/#{@to}"
+      "#{@site.url_root}#{@to}"
     end
   end
 

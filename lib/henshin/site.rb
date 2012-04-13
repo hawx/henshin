@@ -14,15 +14,34 @@ module Henshin
       SlimEngine.setup
     end
 
+
+    # Root url, this is guaranteed to begin and end with a forward-slash.
+    def url_root
+      u = config[:root] || '/'
+      u = '/' + u if u[0] != '/'
+      u = u + '/' if u[-1] != '/'
+      u
+    end
+
+    def build_path
+      @root + ('build' + url_root)
+    end
+
     def build
-      write 'build'
+      write build_path
+    end
+
+    def config
+      YAML.load_file(@root + 'config.yml').symbolise
     end
 
     def data
       {
-        site:  YAML.load_file(@root + 'config.yml').symbolise,
-        posts: posts.map(&:data),
-        tags:  tags.data
+        site:   config.merge(style: url_root + 'style.css',
+                             script: url_root + 'script.js'),
+        posts:  posts.map(&:data),
+        tags:   tags.data,
+        root:   url_root
       }
     end
 

@@ -63,7 +63,7 @@ module Henshin
     # Finds the file at the path given, failing returns an instance of
     # MissingFile.
     def find_file(path)
-      all_files.find {|file| file.url == path } || MissingFile.new
+      all_files.find {|file| file.url == path || file.permalink == path } || MissingFile.new
     end
 
     # Serves the file at the path given.

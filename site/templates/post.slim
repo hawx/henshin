@@ -2,12 +2,12 @@ doctype html
 html lang='en'
   head
     meta charset='utf-8'
-    link rel='stylesheet' href='/style.css'
+    link rel='stylesheet' href=site.style
     title = title
 
   body
 
-    a href='/' Home
+    a href=root Home
 
     header
       h1 = title
@@ -17,21 +17,4 @@ html lang='en'
 
     script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js'
     script src='http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js'
-    script src='script.js'
-    
-    javascript:      
-      SyntaxHighlighter.config.tagName = "code";
-      SyntaxHighlighter.defaults['gutter'] = false;
-      SyntaxHighlighter.defaults['toolbar'] = false;
-      
-      SyntaxHighlighter.autoloader(
-        'ruby                   http://alexgorbatchev.com/pub/sh/current/scripts/shBrushRuby.js',
-        'js jscript javascript  http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJScript.js',
-        'applescript            http://alexgorbatchev.com/pub/sh/current/scripts/shBrushAppleScript.js'
-      );
-      
-      SyntaxHighlighter.all();
-      
-      
-      
-             
+    script src=site.script

@@ -3,7 +3,7 @@ module Henshin
   class Post < RedcarpetFile
 
     def text
-      file_data = data.merge(:yield => super)
+      file_data = @site.data.merge(data.merge(:yield => super))
       template  = @site.template('post')
       SlimEngine.render template.text, file_data
     end
@@ -25,7 +25,7 @@ module Henshin
     end
 
     def permalink
-      "/#{title.slugify}/index.html"
+      "#{@site.url_root}#{title.slugify}/index.html"
     end
 
     def <=>(other)
