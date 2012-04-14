@@ -28,10 +28,10 @@ module Henshin
     desc 'Serves the site to view in a web browser'
     command :view, arg: '[<root>]', as: Pathname do
 
-      desc 'Specify port number, defaults to 3001'
+      desc 'Specify port number'
       opt :p, :port, arg: '<num>', as: Integer
 
-      desc 'Hostname to run on, defaults to 0.0.0.0'
+      desc 'Hostname to run on'
       opt :host, arg: '<addr>'
 
       desc 'Handler to use'
