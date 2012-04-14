@@ -4,7 +4,7 @@ module Henshin
 
     @types = {}
 
-    # Registers a new file type which can then be used by .create.
+    # Registers a new file type which can then be used by {.create}.
     #
     # @param ext [String] Extension to associate file type with
     # @param type [File] Subclass of File
@@ -45,12 +45,12 @@ module Henshin
       end
     end
 
-    # return [Hash]
+    # @return [Hash] Returns the data loaded from the file's yaml frontmatter.
     def yaml
       (YAML.load(read[0]) || {}).symbolise
     end
 
-    # @return [Hash]
+    # @return [Hash] Returns data for templating.
     def data
       {
         mime:      mime,
@@ -64,17 +64,12 @@ module Henshin
       @path.extname
     end
 
-    # @return [String] The mime type for the file to be written.
-    def mime
-      Rack::Mime.mime_type extension
-    end
-
     # @return [String] Text of the file.
     def text
       read[1]
     end
 
-    # @retrun [String] Absolute url to the file, including 'index.html'.
+    # @return [String] Absolute url to the file, including 'index.html'.
     def permalink
       "#{@site.url_root}#{@path.relative_path_from(@site.root)}".sub(@path.extname, extension)
     end

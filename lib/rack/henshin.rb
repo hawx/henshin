@@ -11,7 +11,10 @@ module Rack
     end
 
     def call(env)
-      @site.serve env['REQUEST_PATH']
+      time = Time.now if ::Henshin.profile?
+      a = @site.serve env['REQUEST_PATH']
+      puts "#{Time.now - time}s to serve #{env['REQUEST_PATH']}." if ::Henshin.profile?
+      a
     end
 
   end
@@ -20,8 +23,8 @@ end
 
 module Henshin
 
-  # Drafts won't have a published date as they haven't been published so make it
-  # tomorrow.
+  # A draft post. As drafts do not have a published date, this sets the date to
+  # be tomorrow.
   class Draft < Post
     def date
       Date.today + 1
@@ -33,14 +36,19 @@ module Henshin
   end
 
   class File
+    # @return [String] The mime type for the file to be written.
+    def mime
+      Rack::Mime.mime_type extension
+    end
+
     def serve
-      [200, {"Content-Type" => mime}, text]
+      [200, {"Content-Type" => mime}, [text]]
     end
   end
 
   class MissingFile
     def serve
-      [400, {}, "404 file not found"]
+      [400, {}, ["404 file not found"]]
     end
   end
 
