@@ -8,6 +8,7 @@ require_relative '../lib/rack/henshin'
 module Henshin
 
   class CLI < Clive
+
     config name: 'henshin'
 
     desc 'Builds the site'
@@ -24,24 +25,20 @@ module Henshin
       end
     end
 
-    set :view, auto: true,
-               port: 3001,
-               host: '0.0.0.0',
-               handler: nil
-
     desc 'Serves the site to view in a web browser'
     command :view, arg: '[<root>]', as: Pathname do
-
-      bool :auto, 'Reload files when changed'
 
       desc 'Specify port number, defaults to 3001'
       opt :p, :port, arg: '<num>', as: Integer
 
       desc 'Hostname to run on, defaults to 0.0.0.0'
-      opt :h, :host, arg: '<addr>'
+      opt :host, arg: '<addr>'
 
       desc 'Handler to use'
       opt :H, :handler, arg: '<name>'
+
+      desc 'Daemonise process'
+      opt :D, :daemonise
 
       action do
         Henshin.serve root, @state.to_h
@@ -71,6 +68,14 @@ module Henshin
       UI.no_colour!
     end
 
+    desc 'Kills any running henshin daemon'
+    opt :kill do
+      if ::File.exist?('henshin.pid')
+        pid = ::File.read('henshin.pid').to_i
+        Process.kill('INT', pid)
+      end
+    end
+
     desc 'Display the current version'
     opt :version, tail: true do
       puts Henshin::VERSION
@@ -93,14 +98,16 @@ module Henshin
   end
 
   def self.serve(site, opts={})
-    handler = Rack::Handler.get(opts[:handler])
-    unless handler
-      begin
-        handler = Rack::Handler::Thin
-      rescue LoadError
-        handler = Rack::Handler::WEBrick
-      end
+    if opts[:daemonise]
+      cwd = FileUtils.pwd
+      Process.daemon
+      FileUtils.cd cwd
+      ::File.open('henshin.pid', 'w') {|f| f.write "#{Process.pid}" }
+      at_exit { ::File.delete('henshin.pid') if ::File.exist?('henshin.pid') }
     end
+
+    handler = Rack::Handler.get(opts[:handler])
+    handler = Rack::Handler.default unless handler
 
     app = Rack::Builder.new do
       use Rack::ShowExceptions
@@ -108,6 +115,7 @@ module Henshin
     end
 
     handler.run app, Host: opts[:host], Port: opts[:port]
+
   end
 end
 
