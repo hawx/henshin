@@ -52,6 +52,21 @@ module Henshin
     end
   end
 
+
+  # Don't compress files when serving as it can be quite slow.
+
+  class CssCompressor
+    def compress
+      super
+    end
+  end
+
+  class JsCompressor
+    def compress
+      super
+    end
+  end
+
   class PreviewSite < Site
 
     # Reads all drafts in.

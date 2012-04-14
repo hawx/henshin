@@ -3,7 +3,6 @@
 require 'clive'
 
 require_relative '../lib/henshin'
-require_relative '../lib/rack/henshin'
 
 module Henshin
 
@@ -41,6 +40,7 @@ module Henshin
       opt :D, :daemonise
 
       action do
+        require_relative '../lib/rack/henshin'
         Henshin.serve root, @state.to_h
       end
     end

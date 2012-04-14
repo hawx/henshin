@@ -53,7 +53,6 @@ module Henshin
     # @return [Hash] Returns data for templating.
     def data
       {
-        mime:      mime,
         url:       url,
         permalink: permalink
       }.merge(yaml)
