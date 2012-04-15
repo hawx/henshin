@@ -67,6 +67,10 @@ module Henshin
       end
     end
 
+    def all_files
+      files + posts + [style, script]
+    end
+
     def template(*names)
       names << 'default'
       names.each do |name|

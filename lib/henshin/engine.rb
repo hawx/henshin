@@ -24,6 +24,8 @@ module Henshin
     end
   end
 
+  # Engine which renders coffeescript using the coffee-script gem.
+  # @see http://github.com/josh/ruby-coffee-script
   class CoffeeScriptEngine < Engine
 
     def self.render(text, data={})
@@ -31,6 +33,8 @@ module Henshin
     end
   end
 
+  # Engine which renders markdown using the redcarpet gem.
+  # @see http://github.com/tanoku/redcarpet
   class RedcarpetEngine < Engine
 
     DEFAULTS = {
@@ -40,7 +44,6 @@ module Henshin
       :superscript        => true
     }
 
-    # See https://github.com/tanoku/redcarpet
     def self.setup(opts={})
       opts = DEFAULTS.merge(opts)
       @renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, opts)
@@ -51,13 +54,14 @@ module Henshin
     end
   end
 
+  # Engine which renders sass using the sass gem.
+  # @see http://sass-lang.com
   class SassEngine < Engine
 
     DEFAULTS = {
       :load_paths => ['.', 'assets/style']
     }
 
-    # See http://sass-lang.com/docs/yardoc/Sass/Engine.html
     def self.setup(opts={})
       @opts = DEFAULTS.merge(opts)
     end
@@ -67,6 +71,8 @@ module Henshin
     end
   end
 
+  # Engine which renders slim using the slim gem.
+  # @see http://slim-lang.com
   class SlimEngine < Engine
 
     class ScopeObject
@@ -89,7 +95,6 @@ module Henshin
       end
     end
 
-    # See http://slim-lang.com/docs.html#options
     def self.setup(opts={})
       @opts = opts
     end
