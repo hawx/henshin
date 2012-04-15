@@ -1,3 +1,5 @@
+require 'clive/output'
+
 module Henshin
 
   module UI

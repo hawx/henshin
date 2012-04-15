@@ -1,17 +1,47 @@
+$: << File.dirname(__FILE__)
+
 require 'yaml'
-require 'rack/mime'
-require 'clive/output'
 
-require 'net/sftp'
-require 'highline/import'
+require 'henshin/compressor'
+require 'henshin/compressors/css'
+require 'henshin/compressors/js'
 
-%w(core_ext reader writer compressor tag ui engine file post template
-site deployer).each do |file|
-  require_relative "henshin/#{file}"
-end
+require 'henshin/core_ext'
+
+require 'henshin/deployer'
+require 'henshin/deployers/sftp'
+
+require 'henshin/engine'
+require 'henshin/engines/coffeescript'
+require 'henshin/engines/redcarpet'
+require 'henshin/engines/sass'
+require 'henshin/engines/slim'
+
+require 'henshin/file'
+require 'henshin/files/coffeescript'
+require 'henshin/files/redcarpet'
+require 'henshin/files/sass'
+require 'henshin/files/slim'
+require 'henshin/files/post'
+require 'henshin/files/template'
+
+require 'henshin/package'
+require 'henshin/packages/script'
+require 'henshin/packages/style'
+
+require 'henshin/reader'
+require 'henshin/site'
+require 'henshin/tag'
+require 'henshin/ui'
+require 'henshin/writer'
+require 'henshin/version'
 
 module Henshin
   extend self
+
+  def load_yaml(text)
+    (YAML.load(text) || {}).symbolise
+  end
 
   def profile?
     ENV['HENSHIN_PROFILE'] =~ /true/

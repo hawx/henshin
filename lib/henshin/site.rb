@@ -32,7 +32,7 @@ module Henshin
     end
 
     def config
-      YAML.load_file(@root + 'config.yml').symbolise
+      Henshin.load_yaml (@root + 'config.yml').read
     end
 
     def data

@@ -1,6 +1,8 @@
 class Hash
   def symbolise
-    each_with_object({}) {|(k, v), h| h[k.to_sym] = v }
+    each_with_object({}) do |(k, v), h|
+      h[k.to_sym] = (v.respond_to?(:symbolise) ? v.symbolise : v)
+    end
   end
 end
 

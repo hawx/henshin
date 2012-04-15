@@ -47,7 +47,7 @@ module Henshin
 
     # @return [Hash] Returns the data loaded from the file's yaml frontmatter.
     def yaml
-      (YAML.load(read[0]) || {}).symbolise
+      Henshin.load_yaml read[0]
     end
 
     # @return [Hash] Returns data for templating.
@@ -90,97 +90,4 @@ module Henshin
     end
 
   end
-
-  class CoffeeScriptFile < File
-    def text
-      CoffeeScriptEngine.render super
-    end
-
-    def extension
-      '.js'
-    end
-  end
-
-  File.register '.coffee', CoffeeScriptFile
-
-  class RedcarpetFile < File
-    def text
-      RedcarpetEngine.render super
-    end
-
-    def url
-      super.sub /index\.html$/, ''
-    end
-
-    def extension
-      '.html'
-    end
-  end
-
-  File.register '.md', RedcarpetFile
-
-  class SassFile < File
-    def text
-      SassEngine.render super
-    end
-
-    def extension
-      '.css'
-    end
-  end
-
-  File.register '.sass', SassFile
-
-  class SlimFile < File
-    def text
-      text = SlimEngine.render super, @site.data.merge(data)
-      file_data = @site.data.merge(data.merge(:yield => text))
-      template = @site.template
-      SlimEngine.render template.text, file_data
-    end
-
-    def url
-      super.sub /index\.html$/, ''
-    end
-
-    def extension
-      '.html'
-    end
-  end
-
-  File.register '.slim', SlimFile
-
-
-  class Package < File
-    def initialize(site, to, paths, with)
-      @site = site
-      @compressor = with.new(paths.map {|p| File.create(site, p) })
-      @to = to
-    end
-
-    def text
-      @compressor.compress
-    end
-
-    def extension
-      ::File.extname(@to)
-    end
-
-    def permalink
-      "#{@site.url_root}#{@to}"
-    end
-  end
-
-  class StylePackage < Package
-    def initialize(site, paths)
-      super(site, 'style.css', paths, CssCompressor)
-    end
-  end
-
-  class ScriptPackage < Package
-    def initialize(site, paths)
-      super(site, 'script.js', paths, JsCompressor)
-    end
-  end
-
 end
