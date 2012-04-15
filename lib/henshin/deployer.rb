@@ -39,8 +39,8 @@ module Henshin
 
       @host = get_required_opt(opts, :host)
       @base = Pathname.new(get_required_opt(opts, :base))
-      @password = get_password(opts, :password)
-      @username = get_required_opt(opts, :username)
+      @password = get_password(opts, :pass)
+      @username = get_required_opt(opts, :user)
     end
 
     def start
