@@ -80,7 +80,7 @@ module Henshin
     end
 
     def all_files
-      files + posts + drafts + [style, script]
+      super + drafts
     end
 
     # Finds the file at the path given, failing returns an instance of

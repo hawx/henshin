@@ -1,0 +1,18 @@
+doctype html
+html lang='en'
+  head
+    meta charset='utf-8'
+    link rel='stylesheet' href=site.style
+    title = title
+
+  body
+
+    a href=root Home
+
+    header
+      h1 = "#" + title
+
+    ul
+      - for post in tag
+        li
+          a href=post.url = post.title

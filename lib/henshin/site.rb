@@ -68,19 +68,24 @@ module Henshin
     end
 
     def all_files
-      files + posts + [style, script]
+      files + posts + tags + [style, script]
     end
 
     def template(*names)
-      names << 'default'
-      names.each do |name|
-        path = @root + 'templates' + "#{name}.slim"
-        return Template.new(self, path) if path.exist?
+      template!(names << 'default')
+    end
+
+    # @return [Template, nil]
+    def template!(*names)
+      names.flatten.compact.each do |name|
+        path = @reader.read('templates', "#{name}.*").first
+        return Template.new(self, path) if path
       end
+      nil
     end
 
     def write(dir)
-      (files + posts + [script, style]).each do |file|
+      all_files.each do |file|
         file.write(dir)
       end
     end
