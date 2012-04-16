@@ -2,10 +2,11 @@ require 'slim'
 
 module Henshin
 
-  # An engine renders text, using any data provided if necessary.
+  # An engine renders text, using any data provided.
   class Engine
 
-    # Sets up any settings for the engine.
+    # Sets up any settings for the engine. *Must* be called before {.render}
+    # is used.
     #
     # @param opts [Hash]
     def self.setup(opts={})

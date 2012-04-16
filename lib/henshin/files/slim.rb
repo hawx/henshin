@@ -3,9 +3,14 @@ module Henshin
   class SlimFile < File
     def text
       text = SlimEngine.render super, @site.data.merge(data)
-      file_data = @site.data.merge(data.merge(:yield => text))
-      template = @site.template
-      SlimEngine.render template.text, file_data
+
+      if data[:template] != "none"
+        file_data = @site.data.merge(data.merge(:yield => text))
+        template = @site.template(data[:template])
+        SlimEngine.render template.text, file_data
+      else
+        text
+      end
     end
 
     def url

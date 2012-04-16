@@ -2,11 +2,17 @@ require 'highline/import'
 
 module Henshin
 
+  # Publishes a site to your server.
   class Deployer
+
+    # @param site [Site]
+    # @param opts [Hash]
     def self.deploy(site, opts={})
       new(site, opts).start
     end
 
+    # @param site [Site]
+    # @param opts [Hash]
     def initialize(site, opts={})
       @site = site
     end
