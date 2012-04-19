@@ -1,6 +1,9 @@
 module Henshin
 
-  class Tag < File
+  class Tag
+
+    include FileInterface
+
     attr_reader :name
 
     def initialize(name, posts, site)
@@ -9,11 +12,18 @@ module Henshin
       @site = site
     end
 
+    def basic_data
+      {
+        title:     @name,
+        url:       url,
+        permalink: permalink
+      }
+    end
+
     def data
       {
-        :title => @name,
-        @name => @posts.map(&:data)
-      }
+        posts:     @posts.map(&:data)
+      }.merge(basic_data)
     end
 
     def text
@@ -27,6 +37,10 @@ module Henshin
 
     def permalink
       "/tag/#{@name.slugify}/index.html"
+    end
+
+    def url
+      "/tag/#{@name.slugify}/"
     end
 
     def extension
@@ -44,17 +58,53 @@ module Henshin
     end
   end
 
-  class Tags < Array
+  class Tags
+
+    include FileInterface
 
     def self.create(site, posts)
       names = posts.map(&:tags).flatten.uniq
       tags = names.map {|name| Tag.new(name, posts, site) }
-      new(tags)
+      new(site, tags)
+    end
+
+    def initialize(site, tags)
+      @site = site
+      @tags = tags
+    end
+
+    def text
+      template = @site.template!('tag_index')
+
+      if template
+        SlimEngine.render template.text, @site.data
+      end
+    end
+
+    def files
+      @tags.sort
     end
 
     def data
-      self.sort.inject({}) {|a,e| a.merge(e.data) }
+      files.map(&:data)
     end
+
+    def permalink
+      '/tag/index.html'
+    end
+
+    def url
+      '/tag/'
+    end
+
+    def write(*args)
+      super(*args) if @site.template!('tag_page')
+    end
+
+    def inspect
+      "#<Tags [#{@tags.map(&:name).join(', ')}]>"
+    end
+
   end
 
 end

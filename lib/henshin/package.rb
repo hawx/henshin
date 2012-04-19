@@ -1,7 +1,8 @@
 module Henshin
 
   # Concatenates multiple files into one, compressed file.
-  class Package < File
+  class Package
+    include FileInterface
 
     # @param site [Site]
     # @param to [String]

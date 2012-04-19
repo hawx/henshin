@@ -7,13 +7,20 @@ html lang='en'
 
   body
 
-    a href=root Home
+    a href=site.root Home
 
     header
       h1 = title
-      h2 #{date.strftime("%B %e, %Y")}
 
     == yield
+
+    div.meta
+      span.date
+        ' Posted on #{date.strftime("%B %e, %Y")}
+
+      span.tags
+        ' Tagged in
+           #{{tags.map {|t| "<a href='#{t.url}'>#{t.title}</a>" }.join(', ')}}
 
     script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js'
     script src='http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js'

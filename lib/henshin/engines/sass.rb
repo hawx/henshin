@@ -3,15 +3,19 @@ require 'sass'
 module Henshin
 
   # Engine which renders sass using the sass gem.
+  #
+  # @example
+  #
+  #   SassEngine.setup
+  #   # then later on...
+  #   SassEngine.render "body\n  color: red"
+  #   #=> "..."
+  #
   # @see http://sass-lang.com
   class SassEngine < Engine
 
-    DEFAULTS = {
-      :load_paths => ['.', 'assets/style']
-    }
-
     def self.setup(opts={})
-      @opts = DEFAULTS.merge(opts)
+      @opts = opts
     end
 
     def self.render(text, data={})

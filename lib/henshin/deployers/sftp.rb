@@ -2,6 +2,23 @@ require 'net/sftp'
 
 module Henshin
 
+  # Deploys the site using sftp. Writes files directly to the server. Requires
+  # the following configuration in config.yml:
+  #
+  #   deploy:
+  #     host: sftp.example.com
+  #     base: /path/to/public
+  #     user: your_username
+  #     pass: your_password
+  #
+  # It's a bad idea writing down your password in plain text so you can set
+  # pass to be a shell command which returns your password, for example:
+  #
+  #   deploy:
+  #     pass: $sh get-sftp-password
+  #
+  # would run +sh -c 'get-sftp-password'+.
+  #
   class SftpDeployer < Deployer
 
     def initialize(site, opts={})
@@ -9,8 +26,8 @@ module Henshin
 
       @host = get_required_opt(opts, :host)
       @base = Pathname.new(get_required_opt(opts, :base))
-      @password = get_password(opts, :pass)
       @username = get_required_opt(opts, :user)
+      @password = get_password(opts, :pass)
     end
 
     def start

@@ -35,10 +35,10 @@ module Henshin
     end
   end
 
-  class File
+  module FileInterface
     # @return [String] The mime type for the file to be written.
     def mime
-      Rack::Mime.mime_type extension
+      Rack::Mime.mime_type ::File.extname(permalink)
     end
 
     def serve
@@ -76,7 +76,7 @@ module Henshin
 
     # Adds the drafts to the Site data hash.
     def data
-      super.merge drafts: drafts.map {|i| i.data }
+      super.deep_merge(site: {drafts: drafts.map(&:data) })
     end
 
     def all_files

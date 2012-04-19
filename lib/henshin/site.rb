@@ -10,10 +10,9 @@ module Henshin
 
       CoffeeScriptEngine.setup
       RedcarpetEngine.setup
-      SassEngine.setup
+      SassEngine.setup load_paths: [@root + 'assets' + 'styles']
       SlimEngine.setup
     end
-
 
     # Root url, this is guaranteed to begin and end with a forward-slash.
     def url_root
@@ -36,13 +35,16 @@ module Henshin
     end
 
     def data
-      {
-        site:   config.merge(style: url_root + 'style.css',
-                             script: url_root + 'script.js'),
-        posts:  posts.map(&:data),
-        tags:   tags.data,
-        root:   url_root
+      data = {
+        style: url_root + 'style.css',
+        script: url_root + 'script.js',
+        posts: posts.map(&:data),
+        tags: tags.data,
+        root: url_root,
+        url:  '/'
       }
+
+      {site: config.merge(data)}
     end
 
     def tags
@@ -68,7 +70,7 @@ module Henshin
     end
 
     def all_files
-      files + posts + tags + [style, script]
+      files + posts + tags.files + [tags] + [style, script]
     end
 
     def template(*names)

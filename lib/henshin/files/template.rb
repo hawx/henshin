@@ -1,5 +1,6 @@
 module Henshin
 
+  # A template file.
   class Template < SlimFile
 
     def text

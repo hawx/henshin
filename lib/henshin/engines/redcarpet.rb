@@ -3,6 +3,14 @@ require 'redcarpet'
 module Henshin
 
   # Engine which renders markdown using the redcarpet gem.
+  #
+  # @example
+  #
+  #   RedcarpetEngine.setup :strikethrough => false
+  #   # then later on...
+  #   RedcarpetEngine.render "Hello, World. __HELLO__"
+  #   #=> "..."
+  #
   # @see http://github.com/tanoku/redcarpet
   class RedcarpetEngine < Engine
 

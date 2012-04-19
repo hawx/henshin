@@ -1,3 +1,5 @@
+@import mixins
+
 $dark:      #2d2d2d
 $medium:    #777
 $light:     #eee
@@ -56,14 +58,8 @@ p
   width: auto
   margin: 0
   text-indent: 0
-
   text-align: justify
-
-  -webkit-hyphens: auto
-  -webkit-hyphenate-character: '-'
-  -webkit-locale: 'en'
-
-  -moz-hyphens: auto
+  @include hyphenate
 
   & + p
     text-indent: $line_height
@@ -92,7 +88,7 @@ blockquote
 a
   color: $dark
   text-decoration: underline
-  -webkit-transition: .1s color
+  @include transition(color, .1s)
 
   &:hover
     text-decoration: none
@@ -101,6 +97,23 @@ a
 ul, ol
   padding: 0 2em
 
+.meta
+  font:
+    size: 0.8em
+    family: Helvetica
+  margin-top: 3 * $line_height
+  background: $dark
+  color: $light
+  padding: .5em $line_height
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .5)
+  @include border-radius(5px)
+
+  a
+    color: $blinding
+    text-decoration: none
+
+  .tags
+    float: right
 
 // CODE ---------------------------------------------------------------------
 

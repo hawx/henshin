@@ -1,0 +1,16 @@
+@mixin border-radius($radius)
+  -webkit-border-radius: $radius
+  -moz-border-radius: $radius
+  -o-border-radius: $radius
+  border-radius: $radius
+
+@mixin transition($time, $property)
+  -webkit-transition: $property $time
+  -moz-transition: $property $time
+  -ms-transition: $property $time
+  transition: $property $time
+
+@mixin hyphenate
+  -webkit-hyphens: auto
+  -moz-hyphens: auto
+  hyphens: auto

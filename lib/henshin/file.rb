@@ -1,6 +1,60 @@
 module Henshin
 
+  # @abstract You will want to implement {#data}, {#text} and {#permalink}.
+  module FileInterface
+
+    # @return [Hash] Data for the file.
+    def data
+      {}
+    end
+
+    # @return [String] Text to write to the file.
+    def text
+      ""
+    end
+
+    # @return [String] The absolute url to the file.
+    def permalink
+      ""
+    end
+
+    # @return [String] A pretty url to the file, by default {#permalink}.
+    def url
+      permalink
+    end
+
+    # @param dir [Pathname] Path the site is being built to.
+    # @return [Pathname] Path to write the file to.
+    def write_path(dir)
+      dir + permalink[1..-1]
+    end
+
+    # Writes the file.
+    #
+    # @param dir [Pathname] Path the site is built to.
+    def write(dir)
+      Writer.write write_path(dir), text
+      UI.wrote permalink[1..-1]
+    end
+
+    # Compares the files based on their permalinks.
+    #
+    # @param other [File]
+    def <=>(other)
+      permalink <=> other.permalink
+    end
+
+    include Comparable
+
+    def inspect
+      "#<#{self.class} #{permalink}>"
+    end
+
+  end
+
+
   class File
+    include FileInterface
 
     @types = {}
 
@@ -22,20 +76,30 @@ module Henshin
       klass.new(site, path)
     end
 
-
+    # Regular expression to match the text of the file, contains two match
+    # groups; the first matches the yaml part, the second any text.
     YAML_REGEX = /\A---\n^(.*?)\n^---\n?(.*)\z/m
 
     attr_reader :path
 
-    # @param site [Site]
-    # @param path [Pathname, String]
+    # @param site [Site] Site the file is in.
+    # @param path [Pathname] Path to the file.
     def initialize(site, path)
       @site = site
-      @path = Pathname.new(path)
+      @path = path
     end
 
+    # Reads the file, splitting it in to two parts; the yaml and the text.
+    #
+    # @example
+    #
+    #   file = File.new(site, "hello-world.md")
+    #   file.read
+    #   #=> ["title: Hello World\ndate:  2012-02-03",
+    #   #    "Hello, world!"]
+    #
     # @return [Array<String>] An array of two parts. The first is the yaml part
-    # of the file, the second is the text part.
+    #   of the file, the second is the text part.
     def read
       contents = @path.read || ""
       if match = contents.match(YAML_REGEX)
@@ -45,12 +109,13 @@ module Henshin
       end
     end
 
-    # @return [Hash] Returns the data loaded from the file's yaml frontmatter.
+    # @return [Hash{Symbol=>Object}] Returns the data loaded from the file's
+    #   yaml frontmatter.
     def yaml
       Henshin.load_yaml read[0]
     end
 
-    # @return [Hash] Returns data for templating.
+    # @return [Hash{Symbol=>Object}] Returns data for templating.
     def data
       {
         url:       url,
@@ -68,6 +133,9 @@ module Henshin
       read[1]
     end
 
+    # If the file's yaml contains the "permalink" key, the value will be used as
+    # the permalink, otherwise the permalink is calculated from the file's path.
+    #
     # @return [String] Absolute url to the file, including 'index.html'.
     def permalink
       if yaml.key?(:permalink)
@@ -76,22 +144,6 @@ module Henshin
         ::File.join(@site.url_root, @path.relative_path_from(@site.root)).
           sub(@path.extname, extension)
       end
-    end
-
-    # @return [String] Pretty url to the file.
-    def url
-      permalink
-    end
-
-    # @param dir [String, Pathname] Directory the site is being built in.
-    # @return [Pathname]
-    def write_path(dir)
-      dir + permalink[1..-1]
-    end
-
-    def write(dir)
-      Writer.write write_path(dir), text
-      UI.wrote permalink[1..-1]
     end
 
   end

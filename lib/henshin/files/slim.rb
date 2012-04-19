@@ -1,6 +1,12 @@
 module Henshin
 
+  # Uses the {SlimEngine} to render text.
   class SlimFile < File
+
+    # Renders the slim source with the file's data. Applies a template to the
+    # result unless the yaml contains +template: none+.
+    #
+    # @return [String] Html compiled from the slim source and data.
     def text
       text = SlimEngine.render super, @site.data.merge(data)
 
@@ -13,6 +19,7 @@ module Henshin
       end
     end
 
+    # @return [String] The pretty url with the 'index.html' part.
     def url
       super.sub /index\.html$/, ''
     end
