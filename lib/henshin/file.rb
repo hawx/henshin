@@ -35,6 +35,11 @@ module Henshin
     def write(dir)
       Writer.write write_path(dir), text
       UI.wrote permalink[1..-1]
+    rescue => e
+      puts "\nError writing #{inspect}".red.bold
+      puts "  #{e.backtrace.shift}"
+      puts e.backtrace.take(3).map {|l| "    #{l}" }.join("\n")
+      exit 1
     end
 
     # Compares the files based on their permalinks.
