@@ -19,6 +19,36 @@ $ henshin view
 ...
 ```
 
+Henshin can upload your site using sftp, to set it up just add,
+
+``` yaml
+deploy:
+  host: sftp.myserver.com
+  base: /path/to/public
+  user: my_username
+  pass: my_password
+```
+
+It's usually a bad idea storing your password in plaintext. Instead you can make
+it execute a command which returns the password, from keychain for example:
+
+``` yaml
+deploy:
+  pass: $sh get-keychain-password myserver.pass
+```
+
+Then put this in a file called `get-keychain-password` somewhere on your $PATH
+(this was modified from the gist readme):
+
+```
+#!/usr/bin/env sh
+
+security 2>&1 >/dev/null find-generic-password -gs $1 | ruby -e 'print $1 if STDIN.gets.chomp =~ /password: \"(.*)\"/'
+```
+
+
+## Structure
+
 ### config.yml
 
 Contains the configuration data for your blog, you can put anything in here and
