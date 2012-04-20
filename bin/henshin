@@ -63,6 +63,10 @@ module Henshin
       $DRY_RUN = true
     end
 
+    opt :profile do
+      $PROFILE = true
+    end
+
     desc 'Do not use colours in output'
     opt :no_colour do
       UI.no_colour!
