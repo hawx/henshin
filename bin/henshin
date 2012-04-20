@@ -60,7 +60,7 @@ module Henshin
     desc 'Shows what a command will do, without writing any files'
     opt :dry_run do
       puts "Starting dry run..."
-      Writer.dry_run!
+      $DRY_RUN = true
     end
 
     desc 'Do not use colours in output'

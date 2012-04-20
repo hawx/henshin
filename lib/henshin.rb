@@ -44,7 +44,11 @@ module Henshin
   end
 
   def profile?
-    ENV['HENSHIN_PROFILE'] =~ /true/
+    $PROFILE == true
+  end
+
+  def dry_run?
+    $DRY_RUN == true
   end
 
   def site?(path)
@@ -68,7 +72,12 @@ module Henshin
   def deploy(root, opts={})
     if site?(root)
       s = Site.new(root)
-      SftpDeployer.deploy(s, s.config[:deploy].symbolise)
+
+      unless s.config.has_key?(:deploy)
+        UI.fail "No deploy configuration in config.yml."
+      end
+
+      SftpDeployer.deploy(s, s.config[:deploy])
     else
       UI.fail "No henshin site found, to create one use `henshin new`."
     end

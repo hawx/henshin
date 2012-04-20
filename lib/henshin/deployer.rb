@@ -18,7 +18,7 @@ module Henshin
     end
 
     def start
-
+      # ...
     end
 
     def get_required_opt(hsh, name)

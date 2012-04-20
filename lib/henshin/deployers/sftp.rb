@@ -31,7 +31,9 @@ module Henshin
     end
 
     def start
-      @sftp = Net::SFTP.start(@host, @username, password: @password)
+      unless Henshin.dry_run?
+        @sftp = Net::SFTP.start(@host, @username, password: @password)
+      end
 
       @site.all_files.each do |file|
         write file.write_path(@base), file.text
@@ -42,6 +44,8 @@ module Henshin
     private
 
     def write(path, contents)
+      return if Henshin.dry_run?
+
       write_dir path.dirname.to_s
       write_file path.to_s, contents
     end
