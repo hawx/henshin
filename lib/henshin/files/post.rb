@@ -30,7 +30,9 @@ module Henshin
 
     def data
       tags = @site.tags.files.find_all {|i| tag?(i.name) }.sort.map(&:basic_data)
-      super.merge(tags: tags)
+      d = super
+      d.delete(:tag)
+      d.merge(tags: tags)
     end
 
     # @param name [String] Name of tag to check for.
