@@ -32,11 +32,11 @@ module Henshin
     end
 
     def permalink
-      '/tag/index.html'
+      "#{@site.url_root}tag/index.html"
     end
 
     def url
-      '/tag/'
+      "#{@site.url_root}tag/"
     end
 
     def write(*args)

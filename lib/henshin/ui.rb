@@ -30,7 +30,7 @@ module Henshin
     def notify(msg, text)
       return if quiet?
 
-      s = ' ' * (LEFT_MARGIN - msg.clear_colours.size) + msg + '  ' + text
+      s = ' ' * (LEFT_MARGIN - msg.clear_colours.size) + msg + '  ' + text.to_s
       s.clear_colours! unless colour?
       puts s
     end

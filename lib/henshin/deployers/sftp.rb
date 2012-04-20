@@ -46,31 +46,37 @@ module Henshin
     def write(path, contents)
       return if Henshin.dry_run?
 
-      write_dir path.dirname.to_s
+      write_dir path.dirname
       write_file path.to_s, contents
     end
 
     def exist?(path)
-      @sftp.lstat!(path)
+      @sftp.lstat!(path.to_s)
       true
     rescue Net::SFTP::StatusException
       false
     end
 
     def directory?(dir)
-      @sftp.lstat!(dir).directory?
+      @sftp.lstat!(dir.to_s).directory?
     rescue Net::SFTP::StatusException
       false
     end
 
     def write_dir(dir)
-      @sftp.mkdir!(dir) unless directory?(dir)
+      dir.descend do |sub|
+        @sftp.mkdir!(sub) unless exist?(sub)
+      end
+    rescue => e
+      Error.prettify("Error writing directory: #{sub}", e)
     end
 
     def write_file(path, contents)
       @sftp.file.open(path, 'w') do |f|
         f.puts contents.force_encoding('binary')
       end
+    rescue => e
+      Error.prettify("Error writing file: #{path}", e)
     end
 
   end

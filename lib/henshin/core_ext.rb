@@ -35,6 +35,29 @@ class Hash
   end
 end
 
+class Pathname
+
+  # Same as #ascend but works in the opposite direction.
+  #
+  # @example
+  #
+  #   Pathname.new('/home/public/blog').descend do |dir|
+  #     puts dir
+  #   end
+  #   #=> #<Pathname:/>
+  #   #   #<Pathname:/home>
+  #   #   #<Pathname:/home/public>
+  #   #   #<Pathname:/home/public/blog>
+  #
+  def descend
+    arr = []
+    ascend {|p| arr << p }
+    until arr.empty?
+      yield arr.pop
+    end
+  end
+end
+
 class String
 
   # Converts the string to a format suitable for use as a url.

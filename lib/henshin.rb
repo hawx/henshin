@@ -2,6 +2,8 @@ $: << File.dirname(__FILE__)
 
 require 'yaml'
 
+require 'henshin/error'
+
 require 'henshin/compressor'
 require 'henshin/compressors/css'
 require 'henshin/compressors/js'
