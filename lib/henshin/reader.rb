@@ -7,7 +7,7 @@ module Henshin
     # @param root [Pathname] Path to read under.
     def initialize(root)
       @root = root
-      @ignore = ['config.yml']
+      @ignore = ['config.yml', 'init.rb']
     end
 
     # Adds the list of files given to the list to be ignored.

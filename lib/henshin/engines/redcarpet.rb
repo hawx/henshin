@@ -27,7 +27,7 @@ module Henshin
     end
 
     def self.render(text, data={})
-      @renderer.render(text).gsub('<code class="ruby">', '<code class="brush: ruby">')
+      @renderer.render(text)
     end
   end
 end

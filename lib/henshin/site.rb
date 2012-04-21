@@ -22,14 +22,6 @@ module Henshin
       u
     end
 
-    def build_path
-      @root + ('build' + url_root)
-    end
-
-    def build
-      write build_path
-    end
-
     def config
       Henshin.load_yaml (@root + 'config.yml').read
     end

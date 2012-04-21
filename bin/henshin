@@ -41,6 +41,7 @@ module Henshin
 
       action do
         require_relative '../lib/rack/henshin'
+        Henshin.eval_init root
         Henshin.serve root, @state.to_h
       end
     end

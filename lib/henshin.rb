@@ -66,13 +66,20 @@ module Henshin
     (path + 'config.yml').exist?
   end
 
+  def eval_init(root)
+    if (root + 'init.rb').exist?
+      eval (root + 'init.rb').read
+    end
+  end
+
   # @param root [Pathname]
   # @return [Site, nil]
   def build(root, opts={})
     time = Time.now if profile?
     if site?(root)
+      eval_init(root)
       s = Site.new(root)
-      s.build
+      s.write(root + ('build' + s.url_root))
       s
     else
       UI.fail "No henshin site found, to create one use `henshin new`."
