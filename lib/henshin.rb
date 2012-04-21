@@ -10,8 +10,8 @@ require 'henshin/compressors/js'
 
 require 'henshin/core_ext'
 
-require 'henshin/deployer'
-require 'henshin/deployers/sftp'
+require 'henshin/publisher'
+require 'henshin/publishers/sftp'
 
 require 'henshin/engine'
 require 'henshin/engines/coffeescript'
@@ -80,15 +80,15 @@ module Henshin
     puts "#{Time.now - time}s to build site." if profile?
   end
 
-  def deploy(root, opts={})
+  def publish(root, opts={})
     if site?(root)
       s = Site.new(root)
 
-      unless s.config.has_key?(:deploy)
-        UI.fail "No deploy configuration in config.yml."
+      unless s.config.has_key?(:publish)
+        UI.fail "No publish configuration in config.yml."
       end
 
-      SftpDeployer.deploy(s, s.config[:deploy])
+      SftpPublisher.publish(s, s.config[:publish])
     else
       UI.fail "No henshin site found, to create one use `henshin new`."
     end

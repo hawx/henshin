@@ -3,11 +3,11 @@ require 'highline/import'
 module Henshin
 
   # Publishes a site to your server.
-  class Deployer
+  class Publisher
 
     # @param site [Site]
     # @param opts [Hash]
-    def self.deploy(site, opts={})
+    def self.publish(site, opts={})
       new(site, opts).start
     end
 
@@ -22,7 +22,7 @@ module Henshin
     end
 
     def get_required_opt(hsh, name)
-      hsh[name] || UI.fail("Must give #{name} option to deploy.")
+      hsh[name] || UI.fail("Must give #{name} option to publish.")
     end
 
     def get_password(hsh, name)

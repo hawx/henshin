@@ -48,7 +48,7 @@ module Henshin
     desc 'Publishes the site'
     command :publish, arg: '[<root>]', as: Pathname do
       action do
-        Henshin.deploy root
+        Henshin.publish root
       end
     end
 
