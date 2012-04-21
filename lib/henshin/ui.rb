@@ -7,31 +7,11 @@ module Henshin
 
     LEFT_MARGIN = 10
 
-    @quiet = false
-    @colour = true
-
-    def quiet!
-      @quiet = true
-    end
-
-    def quiet?
-      @quiet
-    end
-
-    def no_colour!
-      @colour = false
-    end
-
-    def colour?
-      @colour
-    end
-
-
     def notify(msg, text)
-      return if quiet?
+      return if Henshin.quiet?
 
       s = ' ' * (LEFT_MARGIN - msg.clear_colours.size) + msg + '  ' + text.to_s
-      s.clear_colours! unless colour?
+      s.clear_colours! unless Henshin.colour?
       puts s
     end
 

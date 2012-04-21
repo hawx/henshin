@@ -54,6 +54,14 @@ module Henshin
     $DRY_RUN == true
   end
 
+  def colour?
+    $COLOUR != false
+  end
+
+  def quiet?
+    $QUIET == true
+  end
+
   def site?(path)
     (path + 'config.yml').exist?
   end
