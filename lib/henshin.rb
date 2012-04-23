@@ -9,6 +9,7 @@ require 'henshin/compressors/css'
 require 'henshin/compressors/js'
 
 require 'henshin/core_ext'
+require 'henshin/path'
 
 require 'henshin/publisher'
 require 'henshin/publishers/sftp'
