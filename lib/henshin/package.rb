@@ -1,5 +1,6 @@
 module Henshin
 
+  # @abstract Must implement {#permalink}.
   # Concatenates multiple files into one, compressed file.
   class Package
     include FileInterface
@@ -8,10 +9,9 @@ module Henshin
     # @param to [String]
     # @param paths [Array<Pathname>]
     # @param with [Compressor]
-    def initialize(site, to, paths, with)
+    def initialize(site, compressor)
       @site = site
-      @compressor = with.new(paths.map {|p| File.create(site, p) })
-      @to = to
+      @compressor = compressor
     end
 
     # @return [String]
@@ -20,13 +20,8 @@ module Henshin
     end
 
     # @return [String]
-    def extension
-      ::File.extname(@to)
-    end
-
-    # @return [String]
     def permalink
-      "#{@site.url_root}#{@to}"
+      # ...
     end
   end
 end

@@ -1,8 +1,14 @@
 module Henshin
 
   class StylePackage < Package
+
     def initialize(site, paths)
-      super(site, 'style.css', paths, CssCompressor)
+      compressor = CssCompressor.new(paths.map {|p| File.create(site, p) })
+      super(site, compressor)
+    end
+
+    def permalink
+      "#{@site.url_root}style.css"
     end
   end
 end

@@ -6,7 +6,12 @@ module Henshin
     # @param site [Site]
     # @param paths [Array<Pathname>]
     def initialize(site, paths)
-      super(site, 'script.js', paths, JsCompressor)
+      compressor = JsCompressor.new(paths.map {|p| File.create(site, p) })
+      super(site, compressor)
+    end
+
+    def permalink
+      "#{@site.url_root}script.js"
     end
   end
 end
