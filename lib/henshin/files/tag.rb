@@ -34,10 +34,6 @@ module Henshin
       @site.url_root + 'tag' + @name.slugify + 'index.html'
     end
 
-    def url
-      @site.url_root + 'tag' + @name.slugify
-    end
-
     def extension
       '.html'
     end

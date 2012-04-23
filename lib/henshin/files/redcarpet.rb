@@ -8,11 +8,6 @@ module Henshin
       RedcarpetEngine.render super
     end
 
-    # @return [String] The pretty url without the 'index.html' part.
-    def url
-      super.sub /index\.html$/, ''
-    end
-
     def extension
       '.html'
     end
