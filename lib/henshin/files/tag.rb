@@ -27,12 +27,7 @@ module Henshin
     end
 
     def text
-      template = @site.template!('tag_page')
-
-      if template
-        file_data = @site.data.merge(data.merge(:tag => @posts.map(&:data)))
-        SlimEngine.render template.text, file_data
-      end
+      @site.template!('tag_page').template(self)
     end
 
     def permalink

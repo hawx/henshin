@@ -8,9 +8,7 @@ module Henshin
     #
     # @return [String] Rendered text for the post.
     def text
-      file_data = @site.data.merge(data.merge(:yield => super))
-      template  = @site.template('post')
-      SlimEngine.render template.text, file_data
+      @site.template('post').template(self, :yield => super)
     end
 
     # @return [String] Title for the post.

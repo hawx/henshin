@@ -31,7 +31,7 @@ module Henshin
         style: url_root + 'style.css',
         script: url_root + 'script.js',
         posts: posts.map(&:data),
-        tags: tags.data,
+        tags: tags.files.map(&:data),
         root: url_root,
         url:  '/'
       }
@@ -75,7 +75,7 @@ module Henshin
         path = @reader.read('templates', "#{name}.*").first
         return Template.new(self, path) if path
       end
-      nil
+      EmptyTemplate.new
     end
 
     def write(dir)

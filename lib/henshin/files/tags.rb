@@ -16,19 +16,15 @@ module Henshin
     end
 
     def text
-      template = @site.template!('tag_index')
-
-      if template
-        SlimEngine.render template.text, @site.data
-      end
+      @site.template!('tag_index').template(self)
     end
 
     def files
       @tags.sort
     end
 
-    def data
-      files.map(&:data)
+    def find_for(name)
+      files.find_all {|i| tag?(name) }.sort
     end
 
     def permalink
