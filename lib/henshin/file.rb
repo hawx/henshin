@@ -142,7 +142,7 @@ module Henshin
     # @return [String] Absolute url to the file, including 'index.html'.
     def permalink
       if yaml.key?(:permalink)
-        @site.url_root + yaml[:permalink])
+        @site.url_root + yaml[:permalink]
       else
         (@site.url_root + @path.relative_path_from(@site.root)).
           sub(@path.extname, extension)
