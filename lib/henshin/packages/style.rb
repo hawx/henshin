@@ -8,7 +8,7 @@ module Henshin
     end
 
     def permalink
-      "#{@site.url_root}style.css"
+      @site.url_root + 'style.css'
     end
   end
 end

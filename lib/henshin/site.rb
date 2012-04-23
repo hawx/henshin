@@ -15,11 +15,12 @@ module Henshin
     end
 
     # Root url, this is guaranteed to begin and end with a forward-slash.
+    # @return [Pathname]
     def url_root
       u = config[:root] || '/'
       u = '/' + u if u[0] != '/'
       u = u + '/' if u[-1] != '/'
-      u
+      Pathname.new(u)
     end
 
     def config

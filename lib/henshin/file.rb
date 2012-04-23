@@ -18,9 +18,10 @@ module Henshin
       ""
     end
 
-    # @return [String] A pretty url to the file, by default {#permalink}.
+    # @return [String] A pretty url to the file, the permalink with 'index.html'
+    #   stripped from the end generally.
     def url
-      permalink
+      permalink.sub /index\.html$/, ''
     end
 
     # @param dir [Pathname] Path the site is being built to.
@@ -141,9 +142,9 @@ module Henshin
     # @return [String] Absolute url to the file, including 'index.html'.
     def permalink
       if yaml.key?(:permalink)
-        ::File.join(@site.url_root, yaml[:permalink])
+        @site.url_root + yaml[:permalink])
       else
-        ::File.join(@site.url_root, @path.relative_path_from(@site.root)).
+        (@site.url_root + @path.relative_path_from(@site.root)).
           sub(@path.extname, extension)
       end
     end

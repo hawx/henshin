@@ -31,11 +31,11 @@ module Henshin
     end
 
     def permalink
-      "#{@site.url_root}tag/#{@name.slugify}/index.html"
+      @site.url_root + 'tag' + @name.slugify + 'index.html'
     end
 
     def url
-      "#{@site.url_root}tag/#{@name.slugify}/"
+      @site.url_root + 'tag' + @name.slugify
     end
 
     def extension

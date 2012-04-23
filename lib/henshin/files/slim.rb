@@ -19,11 +19,6 @@ module Henshin
       end
     end
 
-    # @return [String] The pretty url with the 'index.html' part.
-    def url
-      super.sub /index\.html$/, ''
-    end
-
     def extension
       '.html'
     end

@@ -46,7 +46,7 @@ module Henshin
     #
     # @return [String] Permalink for the post.
     def permalink
-      "#{@site.url_root}#{title.slugify}/index.html"
+      @site.url_root + title.slugify + 'index.html'
     end
 
     # Compares posts on date, then on permalink if dates are the same.
