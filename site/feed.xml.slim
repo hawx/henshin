@@ -16,4 +16,4 @@ rss version='2.0' xmlns:atom="http://www.w3.org/2005/Atom"
         title = post.title
         description = post.text
         pubDate = post.date.strftime("%a, %d %b %Y %H:%M:%S %z")
-        link = site.url + post.url
+        link = site.url + post.url.to_s

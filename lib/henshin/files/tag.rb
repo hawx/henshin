@@ -12,6 +12,10 @@ module Henshin
       @site = site
     end
 
+    def path
+      Path @site, "/tag/#{@name.slugify}/index.html"
+    end
+
     def basic_data
       {
         title:     @name,
@@ -28,14 +32,6 @@ module Henshin
 
     def text
       @site.template!('tag_page').template(self)
-    end
-
-    def permalink
-      @site.url_root + 'tag' + @name.slugify + 'index.html'
-    end
-
-    def extension
-      '.html'
     end
 
     def <=>(other)

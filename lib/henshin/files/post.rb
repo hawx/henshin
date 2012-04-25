@@ -39,14 +39,8 @@ module Henshin
       tags.include?(name)
     end
 
-    # @example
-    #
-    #   post = Post.new(site, "posts/hello-world.md")
-    #   post.permalink #=> "/hello-world/index.html"
-    #
-    # @return [String] Permalink for the post.
-    def permalink
-      @site.url_root + title.slugify + 'index.html'
+    def path
+      Path @site, "/#{title.slugify}/index.html"
     end
 
     # Compares posts on date, then on permalink if dates are the same.

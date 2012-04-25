@@ -1,6 +1,6 @@
 module Henshin
 
-  # @abstract Must implement {#permalink}.
+  # @abstract Must implement {#path}.
   # Concatenates multiple files into one, compressed file.
   class Package
     include FileInterface
@@ -19,9 +19,8 @@ module Henshin
       @compressor.compress
     end
 
-    # @return [String]
-    def permalink
-      # ...
+    def path
+      # Path site, '...'
     end
   end
 end

@@ -15,19 +15,19 @@ module Henshin
 
     # @return [String] The absolute url to the file.
     def permalink
-      ""
+      path.permalink
     end
 
-    # @return [String] A pretty url to the file, the permalink with 'index.html'
-    #   stripped from the end generally.
+    # @return [Pathname] A pretty url to the file, the permalink with
+    #   'index.html' stripped from the end generally.
     def url
-      permalink.sub /index\.html$/, ''
+      path.url
     end
 
     # @param dir [Pathname] Path the site is being built to.
     # @return [Pathname] Path to write the file to.
     def write_path(dir)
-      dir + permalink[1..-1]
+      path.write(dir)
     end
 
     # Writes the file.
@@ -35,7 +35,7 @@ module Henshin
     # @param dir [Pathname] Path the site is built to.
     def write(dir)
       Writer.write write_path(dir), text
-      UI.wrote permalink[1..-1]
+      UI.wrote permalink
     rescue => e
       Error.prettify("Error writing #{inspect}", e)
     end
@@ -83,8 +83,6 @@ module Henshin
     # groups; the first matches the yaml part, the second any text.
     YAML_REGEX = /\A---\n^(.*?)\n^---\n?(.*)\z/m
 
-    attr_reader :path
-
     # @param site [Site] Site the file is in.
     # @param path [Pathname] Path to the file.
     def initialize(site, path)
@@ -128,7 +126,7 @@ module Henshin
 
     # @return [String] Extension for the file to be written.
     def extension
-      @path.extname
+      @path.extension
     end
 
     # @return [String] Text of the file.
@@ -136,17 +134,8 @@ module Henshin
       read[1]
     end
 
-    # If the file's yaml contains the "permalink" key, the value will be used as
-    # the permalink, otherwise the permalink is calculated from the file's path.
-    #
-    # @return [String] Absolute url to the file, including 'index.html'.
-    def permalink
-      if yaml.key?(:permalink)
-        @site.url_root + yaml[:permalink]
-      else
-        (@site.url_root + @path.relative_path_from(@site.root)).
-          sub(@path.extname, extension)
-      end
+    def path
+      Path @site, yaml.fetch(:permalink, @path.relative_path_from(@site.root))
     end
 
   end

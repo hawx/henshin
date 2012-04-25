@@ -7,8 +7,8 @@ module Henshin
       super(site, compressor)
     end
 
-    def permalink
-      @site.url_root + 'style.css'
+    def path
+      Path @site, '/style.css'
     end
   end
 end

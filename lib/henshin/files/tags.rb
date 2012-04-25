@@ -15,6 +15,10 @@ module Henshin
       @tags = tags
     end
 
+    def path
+      Path @site, '/tag/index.html'
+    end
+
     def text
       @site.template!('tag_index').template(self)
     end
@@ -25,10 +29,6 @@ module Henshin
 
     def find_for(name)
       files.find_all {|i| tag?(name) }.sort
-    end
-
-    def permalink
-      @site.url_root + 'tag' + 'index.html'
     end
 
     def write(*args)

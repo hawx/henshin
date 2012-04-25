@@ -4,7 +4,7 @@ module Henshin
   class Template < SlimFile
 
     def text
-      @path.read
+      ::File.read(@path.to_s)
     end
 
     def name

@@ -10,8 +10,8 @@ module Henshin
       super(site, compressor)
     end
 
-    def permalink
-      @site.url_root + 'script.js'
+    def path
+      Path @site, '/script.js'
     end
   end
 end

@@ -80,7 +80,7 @@ module Henshin
     if site?(root)
       eval_init(root)
       s = Site.new(root)
-      s.write(root + ('build' + s.url_root))
+      s.write(root + ('build' + s.url_root.to_s))
       s
     else
       UI.fail "No henshin site found, to create one use `henshin new`."

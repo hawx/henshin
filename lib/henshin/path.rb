@@ -31,8 +31,6 @@ module Henshin
       @path.inject(@site.url_root, :+).to_s
     end
 
-    alias_method :to_s, :permalink
-
     # @return [String] Pretty url to Path
     def url
       permalink.sub /index\.html$/, ''
@@ -42,6 +40,10 @@ module Henshin
     # @return [Pathname] Path to write to
     def write(dir)
       @path.inject(dir, :+)
+    end
+
+    def to_s
+      @path.inject(Pathname.new('.'), :+).to_s
     end
 
     def << other
@@ -71,6 +73,9 @@ module Henshin
     end
 
   end
+end
+
+module Kernel
 
   # @see Henshin::Path#initialize
   def Path(*args)

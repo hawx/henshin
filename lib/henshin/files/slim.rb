@@ -19,8 +19,8 @@ module Henshin
       end
     end
 
-    def extension
-      '.html'
+    def path
+      Path @site, super.to_s.sub(/\.slim$/, '.html')
     end
   end
 
