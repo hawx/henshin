@@ -50,12 +50,7 @@ module Henshin
       read(path << '*')
     end
 
-    # Reads all paths under the root this Reader was initialised with.
-    #
-    # @return [Array<Pathname>]
-    def all_paths
-      read_all '**'
-    end
+    alias_method :all, :read_all
 
     # Reads all paths under the root this Reader was initialised with, but
     # ignores all those under "reserved directories". These are directories used
@@ -63,7 +58,7 @@ module Henshin
     #
     # @return [Array<Pathname>]
     def safe_paths
-      all_paths - read_all("{#{RESERVED_DIRS.join(',')}}", '**')
+      read_all('**') - read_all("{#{RESERVED_DIRS.join(',')}}", '**')
     end
 
   end

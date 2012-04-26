@@ -57,14 +57,20 @@ module Henshin
       ScriptPackage.new self, @reader.read_all('assets', 'scripts')
     end
 
+    def read(sym, *args)
+      @reader.send(sym, *args).map {|p| File.create(self, p) }.sort
+    end
+
     def posts
-      @reader.read_all('posts').map {|p| Post.new(self, p) }.sort
+      read :all, 'posts'
+    end
+
+    def templates
+      read :all, 'templates'
     end
 
     def files
-      @reader.safe_paths.map do |path|
-        File.create(self, path)
-      end
+      read :safe_paths
     end
 
     def all_files
@@ -78,8 +84,8 @@ module Henshin
     # @return [Template, nil]
     def template!(*names)
       names.flatten.compact.each do |name|
-        path = @reader.read('templates', "#{name}.*").first
-        return Template.new(self, path) if path
+        template = templates.find {|t| t.name == name }
+        return template if template
       end
       EmptyTemplate.new
     end
