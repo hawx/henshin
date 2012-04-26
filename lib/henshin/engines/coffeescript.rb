@@ -14,8 +14,11 @@ module Henshin
   # @see http://github.com/josh/ruby-coffee-script
   class CoffeeScriptEngine < Engine
 
-    def self.render(text, data={})
+    def render(text, data={})
       CoffeeScript.compile text
     end
   end
+
+  Engines.register :coffee, CoffeeScriptEngine
+
 end

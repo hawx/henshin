@@ -21,13 +21,16 @@ module Henshin
       :superscript        => true
     }
 
-    def self.setup(opts={})
+    def setup(opts={})
       opts = DEFAULTS.merge(opts)
       @renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, opts)
     end
 
-    def self.render(text, data={})
+    def render(text, data={})
       @renderer.render(text)
     end
   end
+
+  Engines.register :redcarpet, RedcarpetEngine
+
 end

@@ -14,12 +14,15 @@ module Henshin
   # @see http://sass-lang.com
   class SassEngine < Engine
 
-    def self.setup(opts={})
+    def setup(opts={})
       @opts = opts
     end
 
-    def self.render(text, data={})
+    def render(text, data={})
       Sass::Engine.new(text, @opts).render
     end
   end
+
+  Engines.register :sass, SassEngine
+
 end

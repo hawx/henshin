@@ -53,13 +53,16 @@ module Henshin
       end
     end
 
-    def self.setup(opts={})
+    def setup(opts={})
       @opts = opts
     end
 
-    def self.render(text, data={})
+    def render(text, data={})
       data = ScopeObject.new(data)
       Slim::Template.new(@opts) { text }.render(data) { data.yield }
     end
   end
+
+  Engines.register :slim, SlimEngine
+
 end
