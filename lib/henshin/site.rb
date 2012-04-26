@@ -8,10 +8,7 @@ module Henshin
       @root = Pathname.new(root)
       @reader = Reader.new(root)
 
-      CoffeeScriptEngine.setup
-      RedcarpetEngine.setup
-      SassEngine.setup load_paths: [@root + 'assets' + 'styles']
-      SlimEngine.setup
+      Engines.setup config
     end
 
     # Root url, this is guaranteed to begin and end with a forward-slash.
@@ -23,8 +20,16 @@ module Henshin
       Pathname.new(u)
     end
 
+    def defaults
+      {
+        sass: {
+          load_paths: [@root + 'assets' + 'styles']
+        }
+      }
+    end
+
     def config
-      Henshin.load_yaml (@root + 'config.yml').read
+      defaults.merge Henshin.load_yaml (@root + 'config.yml').read
     end
 
     def data
