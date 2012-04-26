@@ -1,8 +1,7 @@
 module Henshin
 
   # A template file.
-  class Template < SlimFile
-
+  module Template
     def text
       ::File.read(@path.to_s)
     end
@@ -15,11 +14,14 @@ module Henshin
     # @param data [Hash] Extra data to merge before rendering
     def template(other, data={})
       data = @site.data.merge(other.data.merge(data))
-      SlimEngine.render text, data
+      Engines.render :slim, text, data
     end
   end
 
-  class EmptyTemplate < Template
+  File.apply %r{/templates/}, Template
+
+  class EmptyTemplate
+    include FileInterface
 
     def initialize
       # ...

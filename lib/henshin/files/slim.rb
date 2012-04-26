@@ -8,12 +8,10 @@ module Henshin
     #
     # @return [String] Html compiled from the slim source and data.
     def text
-      text = SlimEngine.render super, @site.data.merge(data)
+      text = Engines.render(:slim, super, @site.data.merge(data))
 
       if data[:template] != "none"
-        file_data = @site.data.merge(data.merge(:yield => text))
-        template = @site.template(data[:template])
-        SlimEngine.render template.text, file_data
+        @site.template(data[:template]).template(self, yield: text)
       else
         text
       end
@@ -24,6 +22,6 @@ module Henshin
     end
   end
 
-  File.register '.slim', SlimFile
+  File.register /\.slim/, SlimFile
 
 end

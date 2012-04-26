@@ -5,7 +5,7 @@ module Henshin
 
     # @return [String] Css compiled from the sass source.
     def text
-      SassEngine.render super
+      Engines.render :sass, super
     end
 
     def extension
@@ -13,6 +13,6 @@ module Henshin
     end
   end
 
-  File.register '.sass', SassFile
+  File.register /\.sass/, SassFile
 
 end

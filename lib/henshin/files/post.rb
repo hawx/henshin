@@ -1,7 +1,7 @@
 module Henshin
 
   # A post, stored in the /posts folder.
-  class Post < RedcarpetFile
+  module Post
 
     # Renders the file contents using {RedcarpetEngine} then applies the 'post'
     # template if it exists, falling back to the 'default' template.
@@ -50,4 +50,7 @@ module Henshin
     end
 
   end
+
+  File.apply %r{/posts/}, Post
+
 end

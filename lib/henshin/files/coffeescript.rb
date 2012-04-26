@@ -5,7 +5,7 @@ module Henshin
 
     # @return [String] Javascript compiled from the coffeescript source.
     def text
-      CoffeeScriptEngine.render super
+      Engines.render :coffee, super
     end
 
     def extension
@@ -13,6 +13,6 @@ module Henshin
     end
   end
 
-  File.register '.coffee', CoffeeScriptFile
+  File.register /\.coffee/, CoffeeScriptFile
 
 end

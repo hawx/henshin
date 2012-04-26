@@ -5,7 +5,7 @@ module Henshin
 
     # @return [String] Html rendered from the markdown source.
     def text
-      RedcarpetEngine.render super
+      Engines.render :redcarpet, super
     end
 
     def extension
@@ -13,6 +13,6 @@ module Henshin
     end
   end
 
-  File.register '.md', RedcarpetFile
+  File.register /\.md/, RedcarpetFile
 
 end

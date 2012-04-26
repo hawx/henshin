@@ -60,13 +60,18 @@ module Henshin
     include FileInterface
 
     @types = {}
+    @applies = {}
 
     # Registers a new file type which can then be used by {.create}.
     #
-    # @param ext [String] Extension to associate file type with
-    # @param type [File] Subclass of File
-    def self.register(ext, type)
-      @types[ext] = type
+    # @param match [#match] Extension to associate file type with
+    # @param klass [File] Subclass of File
+    def self.register(match, klass)
+      @types[match] = klass
+    end
+
+    def self.apply(match, mod)
+      @applies[match] = mod
     end
 
     # Creates a new File, or if possible a subclass of File, depending on the
@@ -75,8 +80,11 @@ module Henshin
     # @param site [Site]
     # @param path [Pathname]
     def self.create(site, path)
-      klass = @types[::File.extname(path)] || self
-      klass.new(site, path)
+      klass = (@types.find {|k,v| k =~ path.to_s } || [nil, self]).last
+      obj = klass.new(site, path)
+
+      @applies.find_all {|k,v| k =~ path.to_s }.each {|_,v| obj.extend(v) }
+      obj
     end
 
     # Regular expression to match the text of the file, contains two match
