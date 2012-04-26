@@ -25,7 +25,9 @@ module Henshin
 
   # A draft post. As drafts do not have a published date, this sets the date to
   # be tomorrow.
-  class Draft < Post
+  module Draft
+    include Post
+
     def date
       Date.today + 1
     end
@@ -34,6 +36,8 @@ module Henshin
       super.merge(date: date)
     end
   end
+
+  File.apply %r{/drafts/}, Draft
 
   module FileInterface
     # @return [String] The mime type for the file to be written.
@@ -71,7 +75,7 @@ module Henshin
 
     # Reads all drafts in.
     def drafts
-      @reader.read('drafts', '*').map {|p| Draft.new(self, p) }
+      @reader.read('drafts', '*').map {|p| File.create(self, p) }
     end
 
     # Adds the drafts to the Site data hash.
