@@ -20,8 +20,7 @@ module Henshin
 
   File.apply %r{/templates/}, Template
 
-  class EmptyTemplate
-    include FileInterface
+  class EmptyTemplate < AbstractFile
 
     def initialize
       # ...

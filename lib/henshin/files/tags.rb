@@ -1,8 +1,6 @@
 module Henshin
 
-  class Tags
-
-    include FileInterface
+  class Tags < AbstractFile
 
     def self.create(site, posts)
       names = posts.map(&:tags).flatten.uniq

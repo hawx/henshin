@@ -2,8 +2,7 @@ module Henshin
 
   # @abstract Must implement {#path}.
   # Concatenates multiple files into one, compressed file.
-  class Package
-    include FileInterface
+  class Package < AbstractFile
 
     # @param site [Site]
     # @param to [String]

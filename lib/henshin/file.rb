@@ -1,7 +1,7 @@
 module Henshin
 
   # @abstract You will want to implement {#data}, {#text} and {#permalink}.
-  module FileInterface
+  class AbstractFile
 
     # @return [Hash] Data for the file.
     def data
@@ -56,8 +56,8 @@ module Henshin
   end
 
 
-  class File
-    include FileInterface
+  # A physical file
+  class File < AbstractFile
 
     @types = {}
     @applies = {}
@@ -142,6 +142,8 @@ module Henshin
       read[1]
     end
 
+    # @return [Path] If a permalink has been set in the yaml frontmatter uses
+    #   that, otherwise uses the path to the file.
     def path
       Path @site, yaml.fetch(:permalink, @path.relative_path_from(@site.root))
     end

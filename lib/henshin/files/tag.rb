@@ -1,8 +1,6 @@
 module Henshin
 
-  class Tag
-
-    include FileInterface
+  class Tag < AbstractFile
 
     attr_reader :name
 

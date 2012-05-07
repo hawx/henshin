@@ -23,6 +23,17 @@ end
 
 module Henshin
 
+  class AbstractFile
+    # @return [String] The mime type for the file to be written.
+    def mime
+      Rack::Mime.mime_type ::File.extname(permalink)
+    end
+
+    def serve
+      [200, {"Content-Type" => mime}, [text]]
+    end
+  end
+
   # A draft post. As drafts do not have a published date, this sets the date to
   # be tomorrow.
   module Draft
@@ -39,38 +50,29 @@ module Henshin
 
   File.apply %r{/drafts/}, Draft
 
-  module FileInterface
-    # @return [String] The mime type for the file to be written.
-    def mime
-      Rack::Mime.mime_type ::File.extname(permalink)
-    end
-
-    def serve
-      [200, {"Content-Type" => mime}, [text]]
-    end
-  end
-
+  # Missing file implements #serve so that it shows a 404 error.
   class MissingFile
     def serve
       [400, {}, ["404 file not found"]]
     end
   end
 
-
-  # Don't compress files when serving as it can be quite slow.
-
+  # Reimplement CssCompressor so that it doesn't compress css. This speeds up
+  # rendering considerably.
   class CssCompressor
     def compress
       super
     end
   end
 
+  # Reimplement JsCompressor so that it doesn't compress js.
   class JsCompressor
     def compress
       super
     end
   end
 
+  # The preview site also displays draft posts.
   class PreviewSite < Site
 
     # Reads all drafts in.
