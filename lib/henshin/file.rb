@@ -1,6 +1,6 @@
 module Henshin
 
-  # @abstract You will want to implement {#data}, {#text} and {#permalink}.
+  # @abstract You will want to implement {#data}, {#text} and {#path}.
   class AbstractFile
 
     # @return [Hash] Data for the file.
@@ -134,7 +134,7 @@ module Henshin
 
     # @return [String] Extension for the file to be written.
     def extension
-      @path.extension
+      path.extension
     end
 
     # @return [String] Text of the file.
