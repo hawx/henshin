@@ -22,14 +22,14 @@ module Henshin
     end
 
     def get_required_opt(hsh, name)
-      hsh[name] || UI.fail("Must give #{name} option to publish.")
+      hsh[name] || UI.fail("Must give :#{name} option to publish.")
     end
 
     def get_password(hsh, name)
       if hsh.key?(name)
         val = hsh[name]
         if val =~ /^\$(\w+)\s+(.*)$/
-          `#{$1} -c '#{$2}'`
+          `#{$1} -c '#{$2}'`.chomp
         else
           val
         end
