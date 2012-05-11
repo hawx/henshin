@@ -61,6 +61,8 @@ module Henshin
       @reader.send(sym, *args).map {|p| File.create(self, p) }.sort
     end
 
+    private :read
+
     def posts
       read :all, 'posts'
     end
@@ -85,7 +87,7 @@ module Henshin
     def template!(*names)
       names.flatten.compact.each do |name|
         template = templates.find {|t| t.name == name }
-        return template if template
+        return template unless template.nil?
       end
       EmptyTemplate.new
     end

@@ -30,6 +30,11 @@ module Henshin
       path.write(dir)
     end
 
+    # @return [String] Extension for the file to be written.
+    def extension
+      path.extension
+    end
+
     # Writes the file.
     #
     # @param dir [Pathname] Path the site is built to.
@@ -110,7 +115,7 @@ module Henshin
     # @return [Array<String>] An array of two parts. The first is the yaml part
     #   of the file, the second is the text part.
     def read
-      contents = @path.read || ""
+      contents = ::File.read(@path.to_s) || ""
       if match = contents.match(YAML_REGEX)
         match.to_a[1..2]
       else
@@ -130,11 +135,6 @@ module Henshin
         url:       url,
         permalink: permalink
       }.merge(yaml)
-    end
-
-    # @return [String] Extension for the file to be written.
-    def extension
-      path.extension
     end
 
     # @return [String] Text of the file.
