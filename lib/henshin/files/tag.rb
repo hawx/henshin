@@ -4,14 +4,17 @@ module Henshin
 
     attr_reader :name
 
-    def initialize(name, posts, site)
-      @name = name || ''
-      @posts = posts.find_all {|p| p.tag?(name) }
-      @site = site
+    def initialize(name, site)
+      @name  = name
+      @site  = site
+    end
+
+    def posts
+      @site.posts.find_all {|p| p.tag?(name) }
     end
 
     def path
-      Path @site, "/tag/#{@name.slugify}/index.html"
+      Path @site.url_root, "/tag/#{@name.slugify}/index.html"
     end
 
     def basic_data

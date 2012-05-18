@@ -8,7 +8,7 @@ module Henshin
     end
 
     def path
-      Path @site, '/style.css'
+      Path @site.url_root, 'style.css'
     end
   end
 end

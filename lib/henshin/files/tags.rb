@@ -14,7 +14,7 @@ module Henshin
     end
 
     def path
-      Path @site, '/tag/index.html'
+      Path @site.url_root, '/tag/index.html'
     end
 
     def text

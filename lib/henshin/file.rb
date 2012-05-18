@@ -167,7 +167,7 @@ module Henshin
     # @return [Path] If a permalink has been set in the yaml frontmatter uses
     #   that, otherwise uses the path to the file.
     def path
-      Path @site, yaml.fetch(:permalink, @path.relative_path_from(@site.root))
+      Path @site.url_root, yaml.fetch(:permalink, @path.relative_path_from(@site.root))
     end
 
   end
