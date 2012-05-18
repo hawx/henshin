@@ -21,23 +21,23 @@ module Henshin
   #
   class SftpPublisher < Publisher
 
-    def initialize(site, opts={})
-      @site = site
+    def initialize(opts={})
+      opts[:pass] = get_password(opts, :pass)
+      requires_keys(opts, [:host, :base, :user, :pass])
+      opts[:base] = Pathname.new(opts[:base])
 
-      @host = get_required_opt(opts, :host)
-      @base = Pathname.new(get_required_opt(opts, :base))
-      @username = get_required_opt(opts, :user)
-      @password = get_password(opts, :pass)
+      @opts = opts
     end
 
-    def start
+    def start(files)
       unless Henshin.dry_run?
-        @sftp = Net::SFTP.start(@host, @username, password: @password)
+        @sftp = Net::SFTP.start(@opts[:host], @opts[:user], password: @opts[:pass])
       end
 
-      @site.all_files.each do |file|
-        write file.write_path(@base), file.text
-        UI.notify 'uploaded'.green.bold, file.permalink[1..-1]
+      files.each do |file|
+        next unless file.writeable?
+        write(file.write_path(@opts[:base]), file.text)
+        UI.uploaded file.permalink[1..-1]
       end
     end
 
@@ -46,7 +46,7 @@ module Henshin
     def write(path, contents)
       return if Henshin.dry_run?
 
-      write_dir path.dirname
+      write_dir  path.dirname
       write_file path.to_s, contents
     end
 
@@ -57,26 +57,20 @@ module Henshin
       false
     end
 
-    def directory?(dir)
-      @sftp.lstat!(dir.to_s).directory?
-    rescue Net::SFTP::StatusException
-      false
-    end
-
     def write_dir(dir)
       dir.descend do |sub|
         @sftp.mkdir!(sub) unless exist?(sub)
       end
-    rescue => e
-      Error.prettify("Error writing directory: #{sub}", e)
+    rescue => err
+      Error.prettify "Error writing directory: #{sub}", err
     end
 
     def write_file(path, contents)
-      @sftp.file.open(path, 'w') do |f|
-        f.puts contents.force_encoding('binary')
+      @sftp.file.open(path, 'w') do |file|
+        file.puts contents.force_encoding('binary')
       end
-    rescue => e
-      Error.prettify("Error writing file: #{path}", e)
+    rescue => err
+      Error.prettify "Error writing file: #{path}", err
     end
 
   end

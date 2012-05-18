@@ -15,6 +15,10 @@ module Henshin
       puts s
     end
 
+    def uploaded(path)
+      notify 'uploaded'.green.bold, path
+    end
+
     def wrote(path)
       notify 'wrote'.green.bold, path
     end
