@@ -13,6 +13,11 @@ module Henshin
       ""
     end
 
+    # @return [Path] Path to the file.
+    def path
+
+    end
+
     # @return [String] The absolute url to the file.
     def permalink
       path.permalink
@@ -61,7 +66,18 @@ module Henshin
   end
 
 
-  # A physical file
+  # A file physically located on the file system. A subclass of file will
+  # have a @path variable with it's location. Also a factory for creating
+  # instances of registered files. Instead of,
+  #
+  #   file = SomeFile.new(site, path)
+  #
+  # use,
+  #
+  #   File.register /pattern/, SomeFile
+  #   # ...
+  #   file = File.create(site, path)
+  #
   class File < AbstractFile
 
     @types = {}
