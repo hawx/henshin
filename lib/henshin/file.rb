@@ -40,10 +40,16 @@ module Henshin
       path.extension
     end
 
+    # @return Whether this file should be written.
+    def writeable?
+      true
+    end
+
     # Writes the file.
     #
     # @param dir [Pathname] Path the site is built to.
     def write(dir)
+      return unless writeable?
       Writer.write write_path(dir), text
       UI.wrote permalink
     rescue => e

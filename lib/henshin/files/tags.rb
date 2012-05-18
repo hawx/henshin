@@ -25,12 +25,8 @@ module Henshin
       @tags.sort
     end
 
-    def find_for(name)
-      files.find_all {|i| tag?(name) }.sort
-    end
-
-    def write(*args)
-      super(*args) if @site.template!('tag_page')
+    def writeable?
+      @site.templates.any? {|i| i.name == 'tag_page' }
     end
 
     def inspect

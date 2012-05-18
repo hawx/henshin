@@ -38,8 +38,8 @@ module Henshin
 
     include Comparable
 
-    def write(*args)
-      super(*args) if @site.template!('tag_page')
+    def writeable?
+      @site.templates.any? {|i| i.name == 'tag_page' }
     end
 
   end
