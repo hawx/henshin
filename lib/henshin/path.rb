@@ -49,12 +49,6 @@ module Henshin
       permalink.sub /index\.html$/, ''
     end
 
-    # @param dir [Pathname] Path site is being built to
-    # @return [Pathname] Path to write to
-    def write(dir)
-      @path.inject(dir + @root.to_s[1..-1], :+)
-    end
-
     # Appends a path onto the Path.
     #
     # @param other [String, Pathname]

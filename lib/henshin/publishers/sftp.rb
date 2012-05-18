@@ -36,19 +36,18 @@ module Henshin
 
       files.each do |file|
         next unless file.writeable?
-        write(file.write_path(@opts[:base]), file.text)
-        UI.uploaded file.permalink[1..-1]
+        file.write self
       end
     end
-
-    private
 
     def write(path, contents)
       return if Henshin.dry_run?
 
-      write_dir  path.dirname
-      write_file path.to_s, contents
+      write_dir @opts[:base] + path.dirname
+      write_file @opts[:base] + path, contents
     end
+
+    private
 
     def exist?(path)
       @sftp.lstat!(path.to_s)
@@ -66,7 +65,7 @@ module Henshin
     end
 
     def write_file(path, contents)
-      @sftp.file.open(path, 'w') do |file|
+      @sftp.file.open(path.to_s, 'w') do |file|
         file.puts contents.force_encoding('binary')
       end
     rescue => err

@@ -29,12 +29,6 @@ module Henshin
       path.url
     end
 
-    # @param dir [Pathname] Path the site is being built to.
-    # @return [Pathname] Path to write the file to.
-    def write_path(dir)
-      path.write(dir)
-    end
-
     # @return [String] Extension for the file to be written.
     def extension
       path.extension
@@ -47,10 +41,10 @@ module Henshin
 
     # Writes the file.
     #
-    # @param dir [Pathname] Path the site is built to.
-    def write(dir)
+    # @param writer [#write] Object which is able to write text to a path.
+    def write(writer)
       return unless writeable?
-      Writer.write write_path(dir), text
+      writer.write Pathname.new(permalink[1..-1]), text
       UI.wrote permalink
     rescue => e
       Error.prettify("Error writing #{inspect}", e)

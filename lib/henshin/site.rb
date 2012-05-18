@@ -93,8 +93,9 @@ module Henshin
     end
 
     def write(dir)
+      writer = Writer.new(dir)
       all_files.each do |file|
-        file.write(dir)
+        file.write writer
       end
     end
 
