@@ -27,7 +27,7 @@ module Henshin
 
     def data
       {
-        posts:     @posts.map(&:data)
+        posts:     posts.map(&:data)
       }.merge(basic_data)
     end
 

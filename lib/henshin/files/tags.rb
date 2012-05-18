@@ -4,7 +4,7 @@ module Henshin
 
     def self.create(site, posts)
       names = posts.map(&:tags).flatten.uniq
-      tags = names.map {|name| Tag.new(name, posts, site) }
+      tags = names.map {|name| Tag.new(name, site) }
       new(site, tags)
     end
 
