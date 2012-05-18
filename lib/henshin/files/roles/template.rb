@@ -18,6 +18,6 @@ module Henshin
     end
   end
 
-  File.apply %r{/templates/}, Template
+  File.apply %r{(^|/)templates/}, Template
 
 end

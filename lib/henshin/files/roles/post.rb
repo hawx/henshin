@@ -51,6 +51,6 @@ module Henshin
 
   end
 
-  File.apply %r{/posts/}, Post
+  File.apply %r{(^|/)posts/}, Post
 
 end
