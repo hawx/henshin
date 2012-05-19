@@ -2,13 +2,10 @@ module Henshin
 
   # @example
   #
-  #   site.url_root #=> #<Pathname:blog>
-  #
-  #   path = Path(site.url_root, 'tag', 'code', 'index.html')
+  #   path = Path('/blog', 'tag', 'code', 'index.html')
   #   path.extension   #=> 'html'
   #   path.permalink   #=> '/blog/tag/code/index.html'
   #   path.url         #=> '/blog/tag/code'
-  #   path.write       #=> #<Pathname:site/build/blog/tag/code/index.html>
   #
   #   path == '/blog/tag/code/'
   #   #=> true
@@ -18,18 +15,16 @@ module Henshin
     # Creates a new Path instance for the site given with the path provided.
     # The path is constructed from the parts passed in.
     #
-    # @param root [String, Pathname] Root folder of the path. This will usually
-    #   be equal to the site's #url_root.
     # @param path [String, Pathname] The path to the file the Path instance
     #   refers to.
     #
     # @example
     #
-    #   Path.new(site.url_root, 'folder', 'another-folder', 'file.txt')
+    #   Path.new('/', 'folder', 'another-folder', 'file.txt')
+    #   #=> #<Henshin::Path /folder/another-folder/file.txt>
     #
-    def initialize(root, *path)
-      @root = Pathname.new(root)
-      @path = path.flatten
+    def initialize(*path)
+      @path = path.flatten.map {|p| Pathname.new(p) }
     end
 
     # @return [String] Extension of the Path
@@ -37,14 +32,28 @@ module Henshin
       ::File.extname @path.last
     end
 
+    # Returns a full url path to the location specified.
+    #
     # @return [String] Full url to Path
+    # @example
+    #
+    #   Path('/', 'blog', '2011', 'hello-world', 'index.html').permalink
+    #   #=> '/blog/2011/hello-world/index.html'
+    #
     def permalink
-      @path.inject(@root, :+).to_s
+      @path.inject(:+).to_s
     end
 
     alias_method :to_s, :permalink
 
+    # Returns the url without +index.html+ at the end if possible.
+    #
     # @return [String] Pretty url to Path
+    # @example
+    #
+    #   Path('/', 'blog', '2011', 'hello-world', 'index.html').permalink
+    #   #=> '/blog/2011/hello-world/'
+    #
     def url
       permalink.sub /index\.html$/, ''
     end
@@ -55,7 +64,7 @@ module Henshin
     # @return [Path]
     # @example
     #
-    #   path = Path '.', 'folder'
+    #   path = Path('folder')
     #   path << 'another' << 'file.txt'
     #   path #=> #<Henshin::Path folder/another/file.txt>
     #
