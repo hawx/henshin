@@ -21,55 +21,52 @@ module Henshin
   #
   class SftpPublisher < Publisher
 
-    def initialize(opts={})
+    def self.create(opts={})
       opts[:pass] = get_password(opts, :pass)
       requires_keys(opts, [:host, :base, :user, :pass])
       opts[:base] = Pathname.new(opts[:base])
 
-      @opts = opts
-    end
-
-    def start(files)
+      sftp = nil
       unless Henshin.dry_run?
-        @sftp = Net::SFTP.start(@opts[:host], @opts[:user], password: @opts[:pass])
+        sftp = Net::SFTP.start(@opts[:host], @opts[:user], password: @opts[:pass])
       end
 
-      files.each do |file|
-        next unless file.writeable?
-        file.write self
+      SftpPublisher::Writer.new(sftp, @opts[:base])
+    end
+
+    class Writer
+      def initialize(sftp, root)
+        @sftp = sftp
+        @root = root
       end
-    end
 
-    def write(path, contents)
-      return if Henshin.dry_run?
+      def write(path, contents)
+        return if Henshin.dry_run?
 
-      write_dir @opts[:base] + path.dirname
-      write_file @opts[:base] + path, contents
-    end
-
-    private
-
-    def exist?(path)
-      @sftp.lstat!(path.to_s)
-      true
-    rescue Net::SFTP::StatusException
-      false
-    end
-
-    def write_dir(dir)
-      dir.descend do |sub|
-        @sftp.mkdir!(sub) unless exist?(sub)
+        write_dir @root + path.dirname
+        write_file @root + path, contents
       end
-    rescue => err
-      Error.prettify "Error writing directory: #{sub}", err
-    end
 
-    def write_file(path, contents)
-      @sftp.file.open(path.to_s, 'w') do |file|
-        file.puts contents.force_encoding('binary')
+      private
+
+      def exist?(path)
+        @sftp.lstat!(path.to_s)
+        true
+      rescue Net::SFTP::StatusException
+        false
       end
-    rescue => err
-      Error.prettify "Error writing file: #{path}", err
+
+      def write_dir(dir)
+        dir.descend do |sub|
+          @sftp.mkdir!(sub) unless exist?(sub)
+        end
+      end
+
+      def write_file(path, contents)
+        @sftp.file.open(path.to_s, 'w') do |file|
+          file.puts contents.force_encoding('binary')
+        end
+      end
     end
 
   end

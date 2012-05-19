@@ -1,5 +1,6 @@
 module Henshin
 
+  # Allows files to be written to the local file system.
   class Writer
 
     # @param base [Pathname]
@@ -7,6 +8,8 @@ module Henshin
       @base = base
     end
 
+    # Writes the +contents+ to the +path+ given.
+    #
     # @param path [Pathname]
     # @param contents [String]
     def write(path, contents)

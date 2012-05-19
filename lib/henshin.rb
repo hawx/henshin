@@ -78,29 +78,34 @@ module Henshin
   # @return [Site, nil]
   def build(root, opts={})
     time = Time.now if profile?
+
     if site?(root)
-      eval_init(root)
-      s = Site.new(root)
-      s.write(root + 'build')
-      s
+      site   = Site.new(root)
+      writer = Writer.new(root + 'build')
+      site.write(writer)
     else
       UI.fail "No henshin site found, to create one use `henshin new`."
     end
+
     puts "#{Time.now - time}s to build site." if profile?
   end
 
   def publish(root, opts={})
-    if site?(root)
-      s = Site.new(root)
+    time = Time.now if profile?
 
+    if site?(root)
       unless s.config.has_key?(:publish)
         UI.fail "No publish configuration in config.yml."
       end
 
-      SftpPublisher.publish(s, s.config[:publish])
+      site   = Site.new(root)
+      writer = SftpPublisher.create(site.config[:publish])
+      site.write(writer)
     else
       UI.fail "No henshin site found, to create one use `henshin new`."
     end
+
+    puts "#{Time.now - time}s to publish site." if profile?
   end
 
 end

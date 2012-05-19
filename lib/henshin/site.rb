@@ -92,11 +92,11 @@ module Henshin
       EmptyTemplate.new
     end
 
-    def write(dir)
-      writer = Writer.new(dir)
+    def write(writer)
       all_files.each do |file|
         file.write writer
       end
+      self
     end
 
   end

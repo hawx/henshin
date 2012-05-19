@@ -5,20 +5,9 @@ module Henshin
   # Publishes a site to your server.
   class Publisher
 
-    # @param site [Site]
-    # @param opts [Hash]
-    def self.publish(site, opts={})
-      new(opts).start(site.all_files)
-    end
+    # @return [#write]
+    def self.create(opts={})
 
-    # @param site [Site]
-    # @param opts [Hash]
-    def initialize(site, opts={})
-      @site = site
-    end
-
-    def start
-      # ...
     end
 
     # Checks that +hash+ contains all keys in +list+, raises error if not.
