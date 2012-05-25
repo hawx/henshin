@@ -1,20 +1,37 @@
 module Henshin
 
-  # A template file.
+  # Used to extend template files. These will generally be written in a language
+  # such as slim, as they have the ability to include data.
+  #
+  # @example
+  #
+  #   t = SlimFile.new(site, path)
+  #   t.extend Template
+  #
+  #   t.template :title => "Cool thing", :yield => "<p>Some content</p>"
+  #   #=> "..."
+  #
   module Template
-    def text
-      ::File.read(@path.to_s)
-    end
 
+    # Name used to refer to the template.
+    # @return [String]
     def name
       @path.basename.to_s.split('.').first
     end
 
-    # @param other [#text, #data] File to run through template
-    # @param data [Hash] Extra data to merge before rendering
-    def template(other, data={})
-      data = @site.data.merge(other.data.merge(data))
-      Engines.render :slim, text, data
+    # Sets the data and then uses the superclasses #text method to render the
+    # template.
+    #
+    # @param data [Hash]
+    def template(data)
+      data[:template] = 'none'
+      @data = data
+      text
+    end
+
+    # @return [Hash] The data set by #template.
+    def data
+      @data
     end
   end
 
