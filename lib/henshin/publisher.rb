@@ -1,5 +1,3 @@
-require 'highline/import'
-
 module Henshin
 
   # Publishes a site to your server.
@@ -36,7 +34,7 @@ module Henshin
           val
         end
       else
-        ask("Enter password: ") {|q| q.echo = false }
+        HighLine.new.ask("Enter password: ") {|q| q.echo = false }
       end
     end
 

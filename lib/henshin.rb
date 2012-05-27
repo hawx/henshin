@@ -1,6 +1,7 @@
 $: << File.dirname(__FILE__)
 
 require 'yaml'
+require 'highline'
 
 require 'henshin/error'
 
