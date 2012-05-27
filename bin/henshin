@@ -11,21 +11,22 @@ module Henshin
     config name: 'henshin'
 
     desc 'Builds the site'
-    command :build, arg: '[<root>]', as: Pathname do
+    command :build, arg: '[<root>]', as: Pathname, default: '.' do
       action do
+        Henshin.eval_init root
         Henshin.build root
       end
     end
 
     desc 'Creates a new site'
-    command :new, arg: '[<root>]', as: Pathname do
+    command :new, arg: '[<root>]', as: Pathname, default: '.' do
       action do
         Henshin.copy_site root
       end
     end
 
     desc 'Serves the site to view in a web browser'
-    command :view, arg: '[<root>]', as: Pathname do
+    command :view, arg: '[<root>]', as: Pathname, default: '.' do
 
       desc 'Specify port number'
       opt :p, :port, arg: '<num>', as: Integer
@@ -47,8 +48,9 @@ module Henshin
     end
 
     desc 'Publishes the site'
-    command :publish, arg: '[<root>]', as: Pathname do
+    command :publish, arg: '[<root>]', as: Pathname, default: '.' do
       action do
+        Henshin.eval_init root
         Henshin.publish root
       end
     end
