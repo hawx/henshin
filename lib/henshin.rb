@@ -94,11 +94,12 @@ module Henshin
     time = Time.now if profile?
 
     if site?(root)
-      unless s.config.has_key?(:publish)
+      site = Site.new(root)
+
+      unless site.config.has_key?(:publish)
         UI.fail "No publish configuration in config.yml."
       end
 
-      site   = Site.new(root)
       writer = SftpPublisher.create(site.config[:publish])
       site.write(writer)
     else
