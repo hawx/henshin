@@ -131,7 +131,7 @@ module Henshin
     # @return [Array<String>] An array of two parts. The first is the yaml part
     #   of the file, the second is the text part.
     def read
-      contents = ::File.read(@path.to_s) || ""
+      contents = @path.read || ""
       if match = contents.match(YAML_REGEX)
         match.to_a[1..2]
       else
