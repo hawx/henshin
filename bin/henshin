@@ -93,13 +93,13 @@ module Henshin
 
   def self.copy_site(to)
     from = Pathname.new(__FILE__) + '..' + '..' + 'site'
-    FileUtils.cp_r from, to
+    FileUtils.cp_r(from, to) unless Henshin.dry_run?
 
     Pathname.glob(from + '**' + '*').each do |path|
       if path.directory?
-        UI.made path.to_s[5..-1]
+        UI.made(to + path.relative_path_from(from))
       else
-        UI.wrote path.to_s[5..-1]
+        UI.wrote(to + path.relative_path_from(from))
       end
     end
   end
