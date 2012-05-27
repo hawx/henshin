@@ -22,29 +22,21 @@ $ henshin view
 Henshin can upload your site using sftp, to set it up just add,
 
 ``` yaml
-deploy:
+publish:
   host: sftp.myserver.com
   base: /path/to/public
   user: my_username
   pass: my_password
 ```
 
-It's usually a bad idea storing your password in plaintext. Instead you can make
-it execute a command which returns the password, from keychain for example:
+You can omit pass, in which case you will be prompted for it when publishing.
+Then you can type:
 
-``` yaml
-deploy:
-  pass: $sh get-keychain-password myserver.pass
+``` bash
+$ henshin publish
 ```
 
-Then put this in a file called `get-keychain-password` somewhere on your $PATH
-(this was modified from the gist readme):
-
-```
-#!/usr/bin/env sh
-
-security 2>&1 >/dev/null find-generic-password -gs $1 | ruby -e 'print $1 if STDIN.gets.chomp =~ /password: \"(.*)\"/'
-```
+To upload your site.
 
 
 ## Structure
@@ -104,3 +96,18 @@ I said it was focused. You get:
 [sss]: http://sass-lang.com/
 [slm]: http://slim-lang.com/
 [sh]:  http://alexgorbatchev.com/SyntaxHighlighter/
+
+
+## Extending
+
+Henshin isn't a static-blog-generator it's a static-site-generator with
+blogginess bolted on. This means it should be possible to extend in such a way
+that it fits your problem. Check out these classes depending on what you need to
+do:
+
+- Site, the orchestrator
+- AbstractFile, a virtual file
+- File, a physical file
+- Writer, writes to local file system (`henshin build`)
+- Publisher, writes to remote file system (`henshin publish`)
+- Engine, renders text
