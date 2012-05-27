@@ -2,6 +2,8 @@ module Henshin
 
   class Tag < AbstractFile
 
+    TEMPLATE = 'tag_page'
+
     attr_reader :name
 
     def initialize(name, site)
@@ -10,7 +12,8 @@ module Henshin
     end
 
     def posts
-      @site.posts.find_all {|p| p.tag?(name) }
+      posts = @site.posts
+      posts.find_all {|p| p.has_tag?(name) }
     end
 
     def path
@@ -32,7 +35,7 @@ module Henshin
     end
 
     def text
-      @site.template!('tag_page').template(self)
+      @site.template TEMPLATE, data
     end
 
     def <=>(other)
@@ -42,7 +45,7 @@ module Henshin
     include Comparable
 
     def writeable?
-      @site.templates.any? {|i| i.name == 'tag_page' }
+      @site.has_template? TEMPLATE
     end
 
   end

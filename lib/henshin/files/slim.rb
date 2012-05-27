@@ -10,11 +10,8 @@ module Henshin
     def text
       text = Engines.render(:slim, super, @site.data.merge(data))
 
-      if data[:template] != "none"
-        @site.template(data[:template]).template(self, yield: text)
-      else
-        text
-      end
+      return text if data[:template] == "none"
+      @site.template data[:template], data.merge(:yield => text)
     end
 
     def path

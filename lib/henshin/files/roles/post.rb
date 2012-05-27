@@ -3,12 +3,14 @@ module Henshin
   # A post, stored in the /posts folder.
   module Post
 
+    TEMPLATE = 'post'
+
     # Renders the file contents using {RedcarpetEngine} then applies the 'post'
     # template if it exists, falling back to the 'default' template.
     #
     # @return [String] Rendered text for the post.
     def text
-      @site.template('post').template(self, :yield => super)
+      @site.template TEMPLATE, data.merge(:yield => super)
     end
 
     # @return [String] Title for the post.
@@ -26,17 +28,19 @@ module Henshin
       yaml[:tags] || [yaml[:tag]].compact
     end
 
-    def data
-      tags = @site.tags.files.find_all {|i| tag?(i.name) }.sort.map(&:basic_data)
-      d = super
-      d.delete(:tag)
-      d.merge(tags: tags)
+    def tagged_in
+      @site.tags.find_by_name(tags).map(&:basic_data)
     end
 
-    # @param name [String] Name of tag to check for.
-    # @return Whether the post has the tag given.
-    def tag?(name)
-      tags.include?(name)
+    def has_tag?(name)
+      tags.include? name
+    end
+
+    def data
+      d = super
+      d.delete :tag
+      d[:tags] = tagged_in
+      d
     end
 
     def path
