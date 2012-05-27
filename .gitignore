@@ -1,3 +1,4 @@
 cov/
 doc/
 _labs_site/
+Gemfile.lock
