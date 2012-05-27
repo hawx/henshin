@@ -7,7 +7,9 @@ module Rack
   class Henshin
 
     def initialize(app, opts={})
-      @site = ::Henshin::PreviewSite.new(opts[:root])
+      @site = ::Henshin::DraftSite.new(opts[:root])
+      @site.extend ::Henshin::Site::Servable
+      ::Henshin::AbstractFile.send(:include, ::Henshin::AbstractFile::Servable)
     end
 
     def call(env)
@@ -23,14 +25,28 @@ end
 
 module Henshin
 
-  class AbstractFile
-    # @return [String] The mime type for the file to be written.
-    def mime
-      Rack::Mime.mime_type ::File.extname(permalink)
-    end
+  class Site
+    module Servable
+      def find_file(path)
+        all_files.find {|file| file.path === path } || MissingFile.new
+      end
 
-    def serve
-      [200, {"Content-Type" => mime}, [text]]
+      def serve(path)
+        find_file(path).serve
+      end
+    end
+  end
+
+  class AbstractFile
+    module Servable
+      # @return [String] The mime type for the file to be written.
+      def mime
+        Rack::Mime.mime_type ::File.extname(permalink)
+      end
+
+      def serve
+        [200, {"Content-Type" => mime}, [text]]
+      end
     end
   end
 
@@ -72,33 +88,21 @@ module Henshin
     end
   end
 
-  # The preview site also displays draft posts.
-  class PreviewSite < Site
+  class DraftSite < Site
 
-    # Reads all drafts in.
-    def drafts
-      @reader.read('drafts', '*').map {|p| File.create(self, p) }
-    end
+    # def drafts
+    #   read :all, 'drafts'
+    # end
 
-    # Adds the drafts to the Site data hash.
-    def data
-      super.deep_merge(site: {drafts: drafts.map(&:data) })
-    end
+    # Would love to be able to do this!!!
+    files :drafts, 'drafts'
 
-    def all_files
-      super + drafts
-    end
+    # def data
+    #   super.deep_merge(site: {drafts: drafts.map(&:data)})
+    # end
 
-    # Finds the file at the path given, failing returns an instance of
-    # MissingFile.
-    def find_file(path)
-      all_files.find {|file| file.path === path } || MissingFile.new
-    end
-
-    # Serves the file at the path given.
-    def serve(path)
-      find_file(path).serve
-    end
-
+    # def all_files
+    #   super + drafts
+    # end
   end
 end
