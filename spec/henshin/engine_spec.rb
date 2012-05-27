@@ -1,96 +1,33 @@
 require_relative '../helper'
 
 describe Henshin::Engine do
+  subject { Henshin::Engine.new }
 
-end
-
-describe Henshin::CoffeeScriptEngine do
-  subject { Henshin::CoffeeScriptEngine }
-  before { subject.setup }
-
-  it 'renders coffeescript' do
-    input = <<EOS
-sq = (x) -> x * x
-alert sq(4)
-EOS
-
-    subject.render(input).must_equal <<EOS
-(function() {
-  var sq;
-
-  sq = function(x) {
-    return x * x;
-  };
-
-  alert(sq(4));
-
-}).call(this);
-EOS
+  describe '#render' do
+    it 'returns the text, unchanged' do
+      subject.render("apples").must_equal "apples"
+    end
   end
 end
 
-describe Henshin::RedcarpetEngine do
-  subject { Henshin::RedcarpetEngine }
-  before { subject.setup }
-
-  it 'renders markdown' do
-    input = <<EOS
-# A Test
-
-Yes a test. A great man once said
-
-> This is a test.
-EOS
-
-    subject.render(input).must_equal <<EOS
-<h1>A Test</h1>
-
-<p>Yes a test. A great man once said</p>
-
-<blockquote>
-<p>This is a test.</p>
-</blockquote>
-EOS
+describe Henshin::Engines do
+  describe '.register' do
+    it 'registers a new Engine'
   end
-end
 
-describe Henshin::SassEngine do
-  subject { Henshin::SassEngine }
-  before { subject.setup }
-
-  it 'renders sass' do
-    input = <<EOS
-body
-  color: rgba(red, .5)
-EOS
-
-    subject.render(input).must_equal <<EOS
-body {
-  color: rgba(255, 0, 0, 0.5); }
-EOS
+  describe '.find' do
+    it 'returns the Engine with the given name'
   end
-end
 
-describe Henshin::SlimEngine do
-  subject { Henshin::SlimEngine }
-  before { subject.setup }
+  describe '.render' do
+    it 'renders the text with the correct Engine'
+  end
 
-  it 'renders slim' do
-    input = <<EOS
-doctype html
-html
-  head
-    title = title
+  describe '.setup' do
+    it 'sets up all the Engines'
+  end
 
-body
-  h1 = title
-
-  == yield
-EOS
-
-    data = {:title => "Test", :yield => "Hey guys!"}
-    res = subject.render(input, data).must_equal "<!DOCTYPE html><html><head><title>Test</title></head\
-></html><body><h1>Test</h1>Hey guys!</body>"
-
+  describe '.each' do
+    it 'iterates through each engine'
   end
 end
