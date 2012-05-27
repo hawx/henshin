@@ -23,8 +23,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pelusa', '~> 0.2.0'
   s.add_development_dependency 'minitest', '~> 2.12'
 
-  s.files        = %w(README.md Rakefile LICENCE)
-  s.files       += Dir["{bin,lib,spec}/**/*"] & `git ls-files`.split("\n")
+  s.files        = %w(README.md LICENCE Rakefile)
+  s.files       += Dir["{bin,lib,spec,site}/**/*"] & `git ls-files`.split("\n")
   s.test_files   = Dir["spec/**/*"] & `git ls-files`.split("\n")
   s.executables  = %w(henshin)
 end
