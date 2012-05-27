@@ -1,6 +1,10 @@
 module Henshin
 
   # @abstract You will want to implement {#data}, {#text} and {#path}.
+  #
+  # This class implements all the functionality that is required to build or
+  # serve a file. AbstractFile instances do not relate to a file in the file
+  # system, use File in this case.
   class AbstractFile
 
     # @return [Hash] Data for the file.
