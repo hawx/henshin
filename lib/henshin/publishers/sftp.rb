@@ -28,10 +28,10 @@ module Henshin
 
       sftp = nil
       unless Henshin.dry_run?
-        sftp = Net::SFTP.start(@opts[:host], @opts[:user], password: @opts[:pass])
+        sftp = Net::SFTP.start(opts[:host], opts[:user], password: opts[:pass])
       end
 
-      SftpPublisher::Writer.new(sftp, @opts[:base])
+      SftpPublisher::Writer.new(sftp, opts[:base])
     end
 
     class Writer
@@ -63,7 +63,8 @@ module Henshin
       end
 
       def write_file(path, contents)
-        @sftp.file.open(path.to_s, 'w') do |file|
+        file = @sftp.file
+        file.open(path.to_s, 'w') do |file|
           file.puts contents.force_encoding('binary')
         end
       end

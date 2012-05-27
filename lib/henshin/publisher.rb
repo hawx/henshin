@@ -14,19 +14,20 @@ module Henshin
     #
     # @param hash [Hash]
     # @param list [Array]
-    def requires_keys(hash, list)
+    def self.requires_keys(hash, list)
       list.each do |key|
         unless hash.key?(key)
           UI.fail "Publish hash must contain :#{name} key."
         end
       end
+      true
     end
 
-    def get_required_opt(hsh, name)
+    def self.get_required_opt(hsh, name)
       hsh[name] || UI.fail("Must give :#{name} option to publish.")
     end
 
-    def get_password(hsh, name)
+    def self.get_password(hsh, name)
       if hsh.key?(name)
         val = hsh[name]
         if val =~ /^\$(\w+)\s+(.*)$/
