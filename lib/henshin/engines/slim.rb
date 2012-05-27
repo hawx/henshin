@@ -29,16 +29,18 @@ module Henshin
       # @param data [Hash]
       def initialize(data)
         meta = (class << self; self; end)
-        data.each do |k,v|
-          case v
+        data.each do |name, val|
+          case val
           when ::Hash
-            meta.send(:define_method, k) { ScopeObject.new(v) }
+            meta.send(:define_method, name) { ScopeObject.new(val) }
           when ::Array
-            meta.send(:define_method, k) { v.map {|i|
-                i.is_a?(Hash) ? ScopeObject.new(i) : i }
+            meta.send(:define_method, name) {
+              val.map {|i|
+                i.is_a?(Hash) ? ScopeObject.new(i) : i
+              }
             }
           else
-            meta.send(:define_method, k) { v }
+            meta.send(:define_method, name) { val }
           end
         end
       end
