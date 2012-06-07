@@ -1,7 +1,8 @@
 $: << File.dirname(__FILE__)
 
-require 'yaml'
 require 'highline'
+require 'tilt'
+require 'yaml'
 
 require 'henshin/error'
 
@@ -14,12 +15,6 @@ require 'henshin/path'
 
 require 'henshin/publisher'
 require 'henshin/publishers/sftp'
-
-require 'henshin/engine'
-require 'henshin/engines/coffeescript'
-require 'henshin/engines/redcarpet'
-require 'henshin/engines/sass'
-require 'henshin/engines/slim'
 
 require 'henshin/file'
 require 'henshin/files/coffeescript'

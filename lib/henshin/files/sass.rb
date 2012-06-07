@@ -5,7 +5,7 @@ module Henshin
 
     # @return [String] Css compiled from the sass source.
     def text
-      Engines.render :sass, super
+      Tilt::SassTemplate.new(nil, nil, @site.config[:sass]) { super }.render
     end
 
     def extension

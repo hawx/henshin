@@ -10,7 +10,7 @@ module Henshin
     #
     # @return [String] Rendered text for the post.
     def text
-      @site.template TEMPLATE, data.merge(:yield => super)
+      @site.template TEMPLATE, data.merge(yield: super)
     end
 
     # @return [String] Title for the post.

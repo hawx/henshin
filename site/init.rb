@@ -1,8 +1,8 @@
 # Edits the output from markdown files to work with SyntaxHighlighter.
-class ModifiedRedcarpetEngine < RedcarpetEngine
-  def render(*args)
+class ModifiedRedcarpetFile < RedcarpetFile
+  def text
     super.gsub('<code class="ruby">', '<code class="brush: ruby">')
   end
 end
 
-Engines.register :redcarpet, ModifiedRedcarpetEngine
+File.register /\.md/, ModifiedRedcarpetFile

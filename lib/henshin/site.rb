@@ -5,6 +5,7 @@ module Henshin
   DEFAULT_TEMPLATE = 'default'
 
   class Site
+
     class_attr_accessor :files_list, :file_list, :default => []
 
     def self.file(name)
@@ -28,10 +29,8 @@ module Henshin
     attr_reader :root
 
     def initialize(root='.')
-      @root = Pathname.new(root)
       @reader = Reader.new(root)
-
-      Engines.setup config
+      @root   = Pathname.new(root)
     end
 
     # Root url, this is guaranteed to begin and end with a forward-slash.
@@ -47,6 +46,12 @@ module Henshin
       {
         sass: {
           load_paths: [@root + 'assets' + 'styles']
+        },
+        redcarpet: {
+          no_intra_emphasis:  true,
+          fenced_code_blocks: true,
+          strikethrough:      true,
+          superscript:        true
         }
       }
     end
