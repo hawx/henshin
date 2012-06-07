@@ -11,6 +11,10 @@ module Henshin
       file_list << name
     end
 
+    # @example
+    #
+    #   files :posts, 'posts'
+    #
     def self.files(name, folder=nil)
       files_list << name
       return unless folder
@@ -19,7 +23,6 @@ module Henshin
         read :all, folder
       end
     end
-
 
 
     attr_reader :root
@@ -56,15 +59,13 @@ module Henshin
       data = {
         style: url_root + 'style.css',
         script: url_root + 'script.js',
-        # posts: posts.map(&:data),
         tags: tags.map(&:data),
         root: url_root,
         url:  '/'
       }
 
       list = Hash[files_list.map {|files| [files, send(files).map(&:data)] }]
-
-      data.merge(list)
+      data.merge!(list)
 
       {site: config.merge(data)}
     end

@@ -89,20 +89,6 @@ module Henshin
   end
 
   class DraftSite < Site
-
-    # def drafts
-    #   read :all, 'drafts'
-    # end
-
-    # Would love to be able to do this!!!
     files :drafts, 'drafts'
-
-    # def data
-    #   super.deep_merge(site: {drafts: drafts.map(&:data)})
-    # end
-
-    # def all_files
-    #   super + drafts
-    # end
   end
 end
