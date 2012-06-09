@@ -1,3 +1,5 @@
+require 'redcarpet'
+
 module Henshin
 
   # Uses {RedcarpetEngine} to render text.
@@ -5,9 +7,8 @@ module Henshin
 
     # @return [String] Html rendered from the markdown source.
     def text
-      puts Tilt::RedcarpetTemplate.new(:fenced_code_blocks => true) { super }.render
-
-      Tilt::RedcarpetTemplate.new(nil, nil, @site.config[:redcarpet]) { super }.render
+      engine = Redcarpet::Markdown.new(Redcarpet::Render::HTML, @site.config[:redcarpet])
+      engine.render(super)
     end
 
     def extension
