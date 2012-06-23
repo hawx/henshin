@@ -5,7 +5,7 @@ module Henshin
   module UI
     extend self
 
-    LEFT_MARGIN = 10
+    LEFT_MARGIN = 14
 
     def notify(msg, text)
       return if Henshin.quiet?
@@ -15,8 +15,12 @@ module Henshin
       puts s
     end
 
-    def wrote(path)
-      notify 'wrote'.green.bold, path
+    def wrote(path, time=nil)
+      if time
+        notify (('%.3f' % time) + 's ').grey + 'wrote'.green.bold, path
+      else
+        notify 'wrote'.green.bold, path
+      end
     end
 
     def made(dir)

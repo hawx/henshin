@@ -48,8 +48,13 @@ module Henshin
     # @param writer [#write] Object which is able to write text to a path.
     def write(writer)
       return unless writeable?
+      start = Time.now if Henshin.profile?
       writer.write Pathname.new(permalink.sub(/^\//, '')), text
-      UI.wrote permalink
+      if Henshin.profile?
+        UI.wrote permalink, (Time.now - start)
+      else
+        UI.wrote permalink
+      end
     rescue => e
       Error.prettify("Error writing #{inspect}", e)
     end
