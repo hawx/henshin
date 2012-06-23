@@ -33,7 +33,16 @@ module Henshin
       @root   = Pathname.new(root)
     end
 
+    # Destination folder to build into. Uses destination set in config if
+    # available, which can be either a relative path or absolute.
+    #
+    # @return [Pathname]
+    def dest
+      @root + (config[:dest] || 'build')
+    end
+
     # Root url, this is guaranteed to begin and end with a forward-slash.
+    #
     # @return [Pathname]
     def url_root
       u = config[:root] || '/'

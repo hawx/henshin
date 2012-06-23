@@ -77,7 +77,7 @@ module Henshin
 
     if site?(root)
       site   = Site.new(root)
-      writer = Writer.new(root + 'build')
+      writer = Writer.new(site.dest)
       site.write(writer)
     else
       UI.fail "No henshin site found, to create one use `henshin new`."
