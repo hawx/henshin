@@ -41,7 +41,9 @@ module Henshin
     #   #=> '/blog/2011/hello-world/index.html'
     #
     def permalink
-      @path.inject(:+).to_s
+      url = @path.inject(:+).to_s
+
+      Henshin.local? ? url[1..-1] : url
     end
 
     alias_method :to_s, :permalink
@@ -55,7 +57,11 @@ module Henshin
     #   #=> '/blog/2011/hello-world/'
     #
     def url
-      permalink.sub /index\.html$/, ''
+      if Henshin.local?
+        permalink
+      else
+        permalink.sub /index\.html$/, ''
+      end
     end
 
     # Appends a path onto the Path.

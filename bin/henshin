@@ -57,22 +57,28 @@ module Henshin
 
     desc 'Only display errors'
     opt :quiet do
-      $QUIET = true
+      Henshin.set :quiet
     end
 
     desc 'Shows what a command will do, without writing any files'
     opt :dry_run do
       puts "Starting dry run..."
-      $DRY_RUN = true
+      Henshin.set :dry_run
     end
 
+    desc 'Use local links between files'
+    opt :local do
+      Henshin.set :local
+    end
+
+    desc 'Print time taken to generate site'
     opt :profile do
-      $PROFILE = true
+      Henshin.set :profile
     end
 
     desc 'Do not use colours in output'
     opt :no_colour do
-      $COLOUR = false
+      Henshin.unset :colour
     end
 
     desc 'Kills any running henshin daemon'

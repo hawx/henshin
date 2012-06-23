@@ -1,5 +1,6 @@
 $: << File.dirname(__FILE__)
 
+require 'fileutils'
 require 'highline'
 require 'tilt'
 require 'yaml'
@@ -44,20 +45,40 @@ module Henshin
     (YAML.load(text) || {}).symbolise
   end
 
-  def profile?
-    $PROFILE == true
+  SETTINGS = {
+    colour:  true,
+    dry_run: false,
+    local:   false,
+    profile: false,
+    quiet:   false
+  }
+
+  def set(k)
+    SETTINGS[k] = true
   end
 
-  def dry_run?
-    $DRY_RUN == true
+  def unset(k)
+    SETTINGS[k] = false
   end
 
   def colour?
-    $COLOUR != false
+    SETTINGS[:colour]
+  end
+
+  def dry_run?
+    SETTINGS[:dry_run]
+  end
+
+  def local?
+    SETTINGS[:local]
+  end
+
+  def profile?
+    SETTINGS[:profile]
   end
 
   def quiet?
-    $QUIET == true
+    SETTINGS[:quiet]
   end
 
   def site?(path)
