@@ -7,7 +7,15 @@ html lang='en'
 
   body
 
+    - if prev_post
+      a href=prev_post.url Prev
+
     a href=site.root Home
+
+    - if next_post
+      a href=next_post.url Next
+
+
 
     header
       h1 = title

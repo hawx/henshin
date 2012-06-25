@@ -28,6 +28,14 @@ module Henshin
       yaml[:tags] || [yaml[:tag]].compact
     end
 
+    def next=(post)
+      @next = post
+    end
+
+    def prev=(post)
+      @prev = post
+    end
+
     def tagged_in
       @site.tags.find_by_name(tags).map(&:basic_data)
     end
@@ -36,10 +44,21 @@ module Henshin
       tags.include? name
     end
 
-    def data
-      d = super
+    def basic_data
+      d ={
+        url:       url,
+        permalink: permalink
+      }.merge(yaml)
+
       d.delete :tag
       d[:tags] = tagged_in
+      d
+    end
+
+    def data
+      d = basic_data
+      d[:next_post] = @next.basic_data if @next
+      d[:prev_post] = @prev.basic_data if @prev
       d
     end
 

@@ -18,10 +18,11 @@ module Henshin
     #
     def self.files(name, folder=nil)
       files_list << name
-      return unless folder
 
-      define_method name do
-        read :all, folder
+      if folder
+        define_method name do
+          read :all, folder
+        end
       end
     end
 
@@ -109,7 +110,23 @@ module Henshin
 
     private :read
 
-    files :posts, 'posts'
+    def posts
+      posts = read(:all, 'posts').sort
+
+      posts.each_index do |i|
+        if i < posts.length
+          posts[i].prev = posts[i+1]
+        end
+
+        if i > 0
+          posts[i].next = posts[i-1]
+        end
+      end
+
+      posts
+    end
+
+    files :posts
 
     def templates
       read :all, 'templates'
