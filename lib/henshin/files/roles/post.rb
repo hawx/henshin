@@ -36,30 +36,12 @@ module Henshin
       @prev = post
     end
 
-    def tagged_in
-      @site.tags.find_by_name(tags).map(&:basic_data)
+    def next_post
+      @next
     end
 
-    def has_tag?(name)
-      tags.include? name
-    end
-
-    def basic_data
-      d ={
-        url:       url,
-        permalink: permalink
-      }.merge(yaml)
-
-      d.delete :tag
-      d[:tags] = tagged_in
-      d
-    end
-
-    def data
-      d = basic_data
-      d[:next_post] = @next.basic_data if @next
-      d[:prev_post] = @prev.basic_data if @prev
-      d
+    def prev_post
+      @prev
     end
 
     def path
