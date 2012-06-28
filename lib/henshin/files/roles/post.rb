@@ -2,6 +2,9 @@ module Henshin
 
   # A post, stored in the /posts folder.
   module Post
+    extend FileAttributes
+
+    requires :title, :date
 
     TEMPLATE = 'post'
 
@@ -10,22 +13,16 @@ module Henshin
     #
     # @return [String] Rendered text for the post.
     def text
-      @site.template TEMPLATE, data.merge(yield: super)
+      res  = super
+      data = dup
+
+      (class << data; self; end).send(:define_method, :text) { res }
+
+      @site.template TEMPLATE, data
     end
 
-    # @return [String] Title for the post.
-    def title
-      yaml[:title] or UI.fail(inspect + " does not have a title.")
-    end
-
-    # @return [Date] Date for the post.
-    def date
-      yaml[:date]  or UI.fail(inspect + " does not have a date.")
-    end
-
-    # @return [Array<String>] Tags for the post.
-    def tags
-      yaml[:tags] || [yaml[:tag]].compact
+    def rss_date
+      date.rfc2822
     end
 
     def next=(post)
@@ -45,7 +42,7 @@ module Henshin
     end
 
     def path
-      Path @site.url_root, "#{title.slugify}/index.html"
+      Path @site.url_root, title.slugify, 'index.html'
     end
 
     # Compares posts on date, then on permalink if dates are the same.

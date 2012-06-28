@@ -70,27 +70,56 @@ module Henshin
       defaults.merge Henshin.load_yaml (@root + 'config.yml').read
     end
 
-    def data
-      data = {
-        style: url_root + 'style.css',
-        script: url_root + 'script.js',
-        tags: tags.map(&:data),
-        root: url_root,
-        url:  '/'
+    def basic_data
+      {
+        root: url_root
       }
-
-      list = Hash[files_list.map {|files| [files, send(files).map(&:data)] }]
-      data.merge!(list)
-
-      {site: config.merge(data)}
     end
 
-    def tags
-      Tags.create(self, posts)
+    def data
+      list = Hash[(files_list + file_list).map {|file| [file, send(file)] }]
+
+      {
+        site:   config.merge(basic_data)
+      }.merge(list)
     end
 
-    # TODO: Fix tags, returns wrong thing!
-    # files :tags
+    class Scope
+      def initialize(hash)
+        meta = (class << self; self; end)
+
+        hash.each do |name, val|
+          case val
+          when ::Hash
+            meta.send(:define_method, name) { Scope.new(val) }
+          when ::Array
+            meta.send(:define_method, name) {
+              val.map {|i|
+                i.is_a?(::Hash) ? Scope.new(i) : i
+              }
+            }
+          else
+            meta.send(:define_method, name) { val }
+          end
+        end
+      end
+
+      def method_missing(sym, *args)
+        nil
+      end
+    end
+
+    def data_for(file)
+      obj = file.dup
+
+      data.each do |key, val|
+        (class << obj; self; end).send(:define_method, key) {
+          val.is_a?(Hash) ? Scope.new(val) : val
+        }
+      end
+
+      obj
+    end
 
     def style
       StylePackage.new self, @reader.read_all('assets', 'styles')

@@ -5,11 +5,7 @@ module Henshin
 
     # @return [String] Javascript compiled from the coffeescript source.
     def text
-      Tilt::CoffeeScriptTemplate.new(nil, nil, @site.config[:coffeescript]) { super }.render
-    end
-
-    def extension
-      '.js'
+      Tilt[:coffee].new(nil, nil, @site.config[:coffee]) { super }.render
     end
   end
 

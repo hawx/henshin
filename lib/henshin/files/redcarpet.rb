@@ -10,10 +10,6 @@ module Henshin
       engine = Redcarpet::Markdown.new(Redcarpet::Render::HTML, @site.config[:redcarpet])
       engine.render(super)
     end
-
-    def extension
-      '.html'
-    end
   end
 
   File.register /\.md/, RedcarpetFile

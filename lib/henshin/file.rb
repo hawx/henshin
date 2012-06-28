@@ -1,16 +1,26 @@
 module Henshin
 
+  module FileAttributes
+
+    def requires(*keys)
+      @required ||= []
+      @required  += keys
+    end
+
+    def required
+      @required || []
+    end
+
+  end
+
+
   # @abstract You will want to implement {#data}, {#text} and {#path}.
   #
   # This class implements all the functionality that is required to build or
   # serve a file. AbstractFile instances do not relate to a file in the file
   # system, use File in this case.
   class AbstractFile
-
-    # @return [Hash] Data for the file.
-    def data
-      {}
-    end
+    extend FileAttributes
 
     # @return [String] Text to write to the file.
     def text
@@ -36,11 +46,6 @@ module Henshin
     # @return [String] Extension for the file to be written.
     def extension
       path.extension
-    end
-
-    # @return Whether this file should be written.
-    def writeable?
-      true
     end
 
     # Writes the file.
@@ -70,6 +75,13 @@ module Henshin
 
     def inspect
       "#<#{self.class} #{permalink}>"
+    end
+
+    private
+
+    # @return Whether this file should be written.
+    def writeable?
+      true
     end
 
   end
@@ -117,6 +129,7 @@ module Henshin
       obj
     end
 
+
     # Regular expression to match the text of the file, contains two match
     # groups; the first matches the yaml part, the second any text.
     YAML_REGEX = /\A---\n^(.*?)\n^---\n?(.*)\z/m
@@ -127,6 +140,41 @@ module Henshin
       @site = site
       @path = path
     end
+
+    # Allow yaml attributes to be accessed in templates.
+    def method_missing(sym, *args, &block)
+      if yaml.key?(sym)
+        yaml[sym]
+      else
+        nil
+      end
+    end
+
+    attr_accessor :template
+
+    def yield
+      text
+    end
+
+    # @return [String] Text of the file.
+    def text
+      read[1]
+    end
+
+    # @return [Path] If a permalink has been set in the yaml frontmatter uses
+    #   that, otherwise uses the path to the file.
+    def path
+      if yaml.key?(:permalink)
+        Path @site.url_root, yaml[:permalink]
+      else
+        path = @path.relative_path_from(@site.root)
+        ext  = path.extname
+        file = path.to_s[0..-ext.size-1]
+        Path @site.url_root, file
+      end
+    end
+
+    private
 
     # Reads the file, splitting it in to two parts; the yaml and the text.
     #
@@ -151,26 +199,19 @@ module Henshin
     # @return [Hash{Symbol=>Object}] Returns the data loaded from the file's
     #   yaml frontmatter.
     def yaml
-      Henshin.load_yaml read[0]
-    end
+      loaded = Henshin.load_yaml read[0]
 
-    # @return [Hash{Symbol=>Object}] Returns data for templating.
-    def data
-      {
-        url:       url,
-        permalink: permalink
-      }.merge(yaml)
-    end
+      singleton_class.ancestors.find_all {|klass|
+        klass.singleton_class.include?(FileAttributes)
 
-    # @return [String] Text of the file.
-    def text
-      read[1]
-    end
+      }.map {|klass|
+        klass.required
 
-    # @return [Path] If a permalink has been set in the yaml frontmatter uses
-    #   that, otherwise uses the path to the file.
-    def path
-      Path @site.url_root, yaml.fetch(:permalink, @path.relative_path_from(@site.root))
+      }.flatten.each {|key|
+        UI.fail(inspect + " requires #{key}.") unless loaded.key?(key)
+      }
+
+      loaded
     end
 
   end

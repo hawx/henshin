@@ -24,7 +24,7 @@ module Henshin
     #
     # @param data [Hash]
     def template(data)
-      data[:template] = 'none'
+      data.template = 'none'
       @data = data
       text
     end
