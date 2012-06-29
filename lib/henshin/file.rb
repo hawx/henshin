@@ -1,14 +1,16 @@
+require 'set'
+
 module Henshin
 
   module FileAttributes
 
     def requires(*keys)
-      @required ||= []
+      @required ||= Set.new
       @required  += keys
     end
 
     def required
-      @required || []
+      @required || Set.new
     end
 
   end
