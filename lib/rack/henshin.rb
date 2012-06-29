@@ -58,18 +58,14 @@ module Henshin
     def date
       Date.today + 1
     end
-
-    def data
-      super.merge(date: date)
-    end
   end
 
-  File.apply %r{/drafts/}, Draft
+  File.apply %r{(^|/)drafts/}, Draft
 
   # Missing file implements #serve so that it shows a 404 error.
   class MissingFile
     def serve
-      [400, {}, ["404 file not found"]]
+      [404, {}, ["404 file not found"]]
     end
   end
 
