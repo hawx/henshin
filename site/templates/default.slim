@@ -2,7 +2,7 @@ doctype html
 html lang='en'
   head
     meta charset='utf-8'
-    link rel='stylesheet' href=site.style
+    link rel='stylesheet' href=style.url
     - if title
       title = title
     - else
@@ -11,4 +11,4 @@ html lang='en'
   body
     == yield
 
-    script src=site.script
+    script src=script.url

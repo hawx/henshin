@@ -2,7 +2,7 @@ doctype html
 html lang='en'
   head
     meta charset='utf-8'
-    link rel='stylesheet' href=site.style
+    link rel='stylesheet' href=style.url
     title = title
 
   body
@@ -15,8 +15,6 @@ html lang='en'
     - if next_post
       a href=next_post.url Next
 
-
-
     header
       h1 = title
 
@@ -26,11 +24,6 @@ html lang='en'
       span.date
         ' Posted on #{date.strftime("%B %e, %Y")}
 
-      - if tags.size > 0
-        span.tags
-          ' Tagged in
-             #{{tags.map {|t| "<a href='#{t.url}'>#{t.title}</a>" }.join(', ')}}
-
     script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js'
     script src='http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js'
-    script src=site.script
+    script src=script.url
