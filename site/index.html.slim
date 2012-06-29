@@ -2,16 +2,16 @@ header
   h1 = site.title
 
 
-- if site.drafts
+- if drafts
 
   ul.list
     h3 Posts
 
-    - for draft in site.drafts do
+    - for draft in drafts do
       li#draft
         a href=draft.url = draft.title
 
-    - for post in site.posts do
+    - for post in posts do
       li
         a href=post.url = post.title
 
@@ -19,7 +19,7 @@ header
 
   ul.list
     h3 Posts
-    - for post in site.posts do
+    - for post in posts do
       li
         a href=post.url = post.title
 
