@@ -14,7 +14,7 @@ module Henshin
     # @return [String] Rendered text for the post.
     def text
       res  = super
-      data = dup
+      data = clone
 
       (class << data; self; end).send(:define_method, :text) { res }
 

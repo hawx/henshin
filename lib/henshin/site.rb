@@ -110,7 +110,7 @@ module Henshin
     end
 
     def data_for(file)
-      obj = file.dup
+      obj = file.clone
 
       data.each do |key, val|
         (class << obj; self; end).send(:define_method, key) {
