@@ -207,10 +207,13 @@ module Henshin
         klass.singleton_class.include?(FileAttributes)
 
       }.map {|klass|
-        klass.required
+        klass.required.to_a
 
-      }.flatten.each {|key|
-        UI.fail(inspect + " requires #{key}.") unless loaded.key?(key)
+      }.flatten.reject {|key|
+        respond_to?(key) || loaded.key?(key)
+
+      }.each {|key|
+        UI.fail(inspect + " requires #{key}.")
       }
 
       loaded
