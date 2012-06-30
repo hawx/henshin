@@ -169,10 +169,14 @@ module Henshin
       if yaml.key?(:permalink)
         Path @site.url_root, yaml[:permalink]
       else
-        path = @path.relative_path_from(@site.root)
-        ext  = path.extname
-        file = path.to_s[0..-ext.size-1]
-        Path @site.url_root, file
+        if @path.basename.to_s.count('.') == 1
+          Path @site.url_root, @path.relative_path_from(@site.root)
+        else
+          path = @path.relative_path_from(@site.root)
+          ext  = path.extname
+          file = path.to_s[0..-ext.size-1]
+          Path @site.url_root, file
+        end
       end
     end
 
