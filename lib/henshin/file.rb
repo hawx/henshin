@@ -103,19 +103,19 @@ module Henshin
   #
   class File < AbstractFile
 
-    @types = {}
-    @applies = {}
+    @types = []
+    @applies = []
 
     # Registers a new file type which can then be used by {.create}.
     #
     # @param match [#match] Extension to associate file type with
     # @param klass [File] Subclass of File
     def self.register(match, klass)
-      @types[match] = klass
+      @types.unshift [match, klass]
     end
 
     def self.apply(match, mod)
-      @applies[match] = mod
+      @applies.unshift [match, mod]
     end
 
     # Creates a new File, or if possible a subclass of File, depending on the
