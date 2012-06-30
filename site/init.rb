@@ -1,8 +1,10 @@
 # Edits the output from markdown files to work with SyntaxHighlighter.
-class ModifiedRedcarpetFile < RedcarpetFile
+class ModifiedRedcarpetFile < TiltFile
   def text
-    super.gsub('<code class="ruby">', '<code class="brush: ruby">')
+    super.gsub /<code class="(.*)">/ do
+      "<code class='brush: #{$1}'>"
+    end
   end
 end
 
-File.register /\.md/, ModifiedRedcarpetFile
+File.register /\.(md|mkd|markdown)\Z/, ModifiedRedcarpetFile

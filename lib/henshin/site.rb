@@ -57,7 +57,7 @@ module Henshin
         sass: {
           load_paths: [@root + 'assets' + 'styles']
         },
-        redcarpet: {
+        md: {
           no_intra_emphasis:  true,
           fenced_code_blocks: true,
           strikethrough:      true,

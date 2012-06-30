@@ -5,6 +5,10 @@ require 'highline'
 require 'tilt'
 require 'yaml'
 
+require 'slim'
+require 'redcarpet'
+Object.send(:remove_const, :RedcarpetCompat) if defined?(::RedcarpetCompat)
+
 require 'henshin/error'
 
 require 'henshin/compressor'
@@ -18,10 +22,7 @@ require 'henshin/publisher'
 require 'henshin/publishers/sftp'
 
 require 'henshin/file'
-require 'henshin/files/coffeescript'
-require 'henshin/files/redcarpet'
-require 'henshin/files/sass'
-require 'henshin/files/slim'
+require 'henshin/files/tilt'
 require 'henshin/files/empty_template'
 require 'henshin/files/roles/post'
 require 'henshin/files/roles/template'
