@@ -6,6 +6,7 @@ $light:     #eee
 $blinding:  #fafafa
 
 $line_height: 1.5em
+$page_width: 37em
 
 $body_font: Cambria, Georgia, serif
 $header_font: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif
@@ -20,7 +21,7 @@ html
   line-height: $line_height
 
 body
-  max-width: 37em
+  max-width: $page_width
   margin: 0 auto
   padding: $line_height * 2
 
@@ -39,17 +40,35 @@ h1, h2, h3, h4, h5, h6
     family: $header_font
 
 header
-  margin: $line_height * 3 0
+  margin: ($line_height * 4) 0 ($line_height * 3)
 
   h1, h2
     font:
       weight: normal
       style:  italic
-      size:   2.4em
+      size:   2.7em
     text-align: center
 
   h2
     font-size: 1.4em
+
+// TOP ----------------------------------------------------------------------
+
+#top
+  position: absolute
+  top: 0
+  height: 1.5em
+  padding: 0.5em 0
+  width: $page_width
+  text-align: center
+  border-bottom: 1px solid $light
+
+  a
+    margin: 0 1em
+    color: $medium
+
+  &:hover a
+    color: inherit
 
 
 // TEXT ---------------------------------------------------------------------
