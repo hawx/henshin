@@ -23,8 +23,11 @@ module Henshin
     #   begins with an underscore.
     def ignore?(path)
       path = Pathname.new(path).relative_path_from(@root)
-      return true if @ignore.include?(path.to_s)
-      path.ascend {|p| return true if p.basename.to_s[0] == "_" }
+      
+      path.ascend do |part| 
+        return true if part.basename.to_s[0] == "_" 
+        return true if @ignore.include?(part.to_s)
+      end
     end
 
     # Reads the files using the glob pattern given. Ignores files matching
