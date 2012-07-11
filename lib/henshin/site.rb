@@ -32,6 +32,10 @@ module Henshin
     def initialize(root='.')
       @reader = Reader.new(root)
       @root   = Pathname.new(root)
+      
+      if config[:ignore]
+        @reader.ignore *config[:ignore]
+      end
     end
 
     # Destination folder to build into. Uses destination set in config if
