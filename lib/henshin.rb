@@ -47,6 +47,7 @@ module Henshin
   SETTINGS = {
     colour:  true,
     dry_run: false,
+    klass:   Site,
     local:   false,
     profile: false,
     quiet:   false
@@ -79,6 +80,10 @@ module Henshin
   def quiet?
     SETTINGS[:quiet]
   end
+  
+  def use(klass)
+    SETTINGS[:klass] = klass
+  end
 
   def site?(path)
     (path + 'config.yml').exist?
@@ -96,7 +101,7 @@ module Henshin
     time = Time.now if profile?
 
     if site?(root)
-      site   = Site.new(root)
+      site   = SETTINGS[:klass].new(root)
       writer = Writer.new(site.dest)
       site.write(writer)
     else
@@ -110,7 +115,7 @@ module Henshin
     time = Time.now if profile?
 
     if site?(root)
-      site = Site.new(root)
+      site = SETTINGS[:klass].new(root)
 
       unless site.config.has_key?(:publish)
         UI.fail "No publish configuration in config.yml."

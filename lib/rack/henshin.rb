@@ -7,7 +7,7 @@ module Rack
   class Henshin
 
     def initialize(app, opts={})
-      @site = ::Henshin::DraftSite.new(opts[:root])
+      @site = ::Henshin::SETTINGS[:klass].new(opts[:root])
       @site.extend ::Henshin::Site::Servable
       ::Henshin::AbstractFile.send(:include, ::Henshin::AbstractFile::Servable)
     end
@@ -87,4 +87,6 @@ module Henshin
   class DraftSite < Site
     files :drafts, 'drafts'
   end
+  
+  use DraftSite
 end
