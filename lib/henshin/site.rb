@@ -32,7 +32,7 @@ module Henshin
     def initialize(root='.')
       @reader = Reader.new(root)
       @root   = Pathname.new(root)
-      
+
       if config[:ignore]
         @reader.ignore *config[:ignore]
       end
@@ -143,9 +143,7 @@ module Henshin
 
     private :read
 
-    def posts
-      posts = read(:all, 'posts').sort
-
+    def weave_posts(posts)
       posts.each_index do |i|
         if i < posts.length
           posts[i].prev = posts[i+1]
@@ -157,6 +155,12 @@ module Henshin
       end
 
       posts
+    end
+
+    private :weave_posts
+
+    def posts
+      weave_posts read(:all, 'posts').sort
     end
 
     files :posts

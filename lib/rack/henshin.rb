@@ -58,6 +58,16 @@ module Henshin
     def date
       Date.today + 1
     end
+
+    def published?
+      false
+    end
+  end
+
+  module Post
+    def published?
+      true
+    end
   end
 
   File.apply %r{(^|/)drafts/}, Draft
@@ -84,9 +94,12 @@ module Henshin
     end
   end
 
+  # Site which adds all drafts to the list of posts.
   class DraftSite < Site
-    files :drafts, 'drafts'
+    def posts
+      weave_posts read(:all, 'drafts').sort + super
+    end
   end
-  
+
   use DraftSite
 end
