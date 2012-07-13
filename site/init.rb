@@ -8,3 +8,9 @@ class ModifiedRedcarpetFile < TiltFile
 end
 
 File.register /\.(md|mkd|markdown)\Z/, ModifiedRedcarpetFile
+
+module Helpers
+  def format_date(date)
+    date.strftime("%B %e, %Y")
+  end
+end

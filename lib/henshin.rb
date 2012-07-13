@@ -17,6 +17,7 @@ require 'henshin/compressors/js'
 
 require 'henshin/core_ext'
 require 'henshin/path'
+require 'henshin/scope'
 
 require 'henshin/publisher'
 require 'henshin/publishers/sftp'
@@ -80,7 +81,7 @@ module Henshin
   def quiet?
     SETTINGS[:quiet]
   end
-  
+
   def use(klass)
     SETTINGS[:klass] = klass
   end

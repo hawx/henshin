@@ -93,31 +93,6 @@ module Henshin
       }.merge(list)
     end
 
-    class Scope
-      def initialize(hash)
-        meta = (class << self; self; end)
-
-        hash.each do |name, val|
-          case val
-          when ::Hash
-            meta.send(:define_method, name) { Scope.new(val) }
-          when ::Array
-            meta.send(:define_method, name) {
-              val.map {|i|
-                i.is_a?(::Hash) ? Scope.new(i) : i
-              }
-            }
-          else
-            meta.send(:define_method, name) { val }
-          end
-        end
-      end
-
-      def method_missing(sym, *args)
-        nil
-      end
-    end
-
     def data_for(file)
       obj = file.clone
 
@@ -127,6 +102,7 @@ module Henshin
         }
       end
 
+      obj.extend Helpers
       obj
     end
 
