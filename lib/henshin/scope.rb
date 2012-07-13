@@ -2,9 +2,7 @@ module Henshin
 
   # Add methods here to make them available in slim templates.
   module Helpers
-    def help(name)
-      "Coming to the rescue #{name}!"
-    end
+
   end
 
   # Creates an object that can be passed to a template from a Hash of data. Each
