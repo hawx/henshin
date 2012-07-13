@@ -66,6 +66,11 @@ module Henshin
           fenced_code_blocks: true,
           strikethrough:      true,
           superscript:        true
+        },
+        compress: {
+          scripts: true,
+          styles:  true,
+          images:  true
         }
       }
     end

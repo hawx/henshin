@@ -79,23 +79,16 @@ module Henshin
     end
   end
 
-  # Reimplement CssCompressor so that it doesn't compress css. This speeds up
-  # rendering considerably.
-  class CssCompressor
-    def compress
-      super
-    end
-  end
-
-  # Reimplement JsCompressor so that it doesn't compress js.
-  class JsCompressor
-    def compress
-      super
-    end
-  end
-
   # Site which adds all drafts to the list of posts.
   class DraftSite < Site
+    def defaults
+      super.deep_merge compress: {
+        scripts: false,
+        styles:  false,
+        images:  false
+      }
+    end
+
     def posts
       weave_posts read(:all, 'drafts').sort + super
     end

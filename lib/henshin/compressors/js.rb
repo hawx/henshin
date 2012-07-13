@@ -12,7 +12,7 @@ module Henshin
 
     # @return [String] The compressed, joined text from the given js files.
     def compress
-      @compressor.compress(super)
+      @compressor.compress(join)
     end
   end
 

@@ -10,6 +10,10 @@ module Henshin
       super(site, compressor)
     end
 
+    def enabled?
+      @site.config[:compress][:scripts]
+    end
+
     def path
       Path @site.url_root, 'script.js'
     end

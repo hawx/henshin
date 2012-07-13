@@ -7,6 +7,10 @@ module Henshin
       super(site, compressor)
     end
 
+    def enabled?
+      @site.config[:compress][:styles]
+    end
+
     def path
       Path @site.url_root, 'style.css'
     end

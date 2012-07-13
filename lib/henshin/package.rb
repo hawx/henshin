@@ -13,9 +13,13 @@ module Henshin
       @compressor = compressor
     end
 
+    def enabled?
+      true
+    end
+
     # @return [String]
     def text
-      @compressor.compress
+      enabled? ? @compressor.compress : @compressor.join
     end
 
     def path
