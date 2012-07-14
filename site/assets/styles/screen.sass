@@ -54,21 +54,33 @@ header
 
 // TOP ----------------------------------------------------------------------
 
-#top
+nav
   position: absolute
   top: 0
   height: 1.5em
   padding: 0.5em 0
   width: $page_width
-  text-align: center
   border-bottom: 1px solid $light
 
   a
     margin: 0 1em
     color: $medium
+    text-decoration: none
 
   &:hover a
     color: inherit
+
+  .prev
+    float: left
+
+  .next
+    float: right
+
+  .home
+    position: absolute
+    width: 50px
+    margin-left: -25px
+    left: 50%
 
 
 // TEXT ---------------------------------------------------------------------
