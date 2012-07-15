@@ -23,10 +23,10 @@ require 'henshin/publisher'
 require 'henshin/publishers/sftp'
 
 require 'henshin/file'
-require 'henshin/files/tilt'
 require 'henshin/files/empty_template'
-require 'henshin/files/roles/post'
-require 'henshin/files/roles/template'
+require 'henshin/files/post'
+require 'henshin/files/template'
+require 'henshin/files/tilt'
 
 require 'henshin/package'
 require 'henshin/packages/script'
