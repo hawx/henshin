@@ -29,6 +29,8 @@ module Henshin
       text
     end
 
+    alias_method :render, :template
+
     # @return [Hash] The data set by #template.
     def data
       @data

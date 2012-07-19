@@ -33,6 +33,10 @@ class Hash
     m = proc {|_,o,n| o.respond_to?(:merge) ? o.merge(n, &m) : n }
     merge(other, &m)
   end
+
+  def to_hash
+    self
+  end
 end
 
 class String

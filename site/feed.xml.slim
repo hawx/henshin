@@ -11,7 +11,7 @@ rss version='2.0' xmlns:atom="http://www.w3.org/2005/Atom"
     link        = site.url
     description = site.description
 
-    - for post in posts.take(10)
+    - for post in site.posts.take(10)
       item
         title       = post.title
         description = post.text

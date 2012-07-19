@@ -1,6 +1,8 @@
 $: << File.dirname(__FILE__)
 
+require 'attr_plus/class'
 require 'fileutils'
+require 'hashie/mash'
 require 'highline'
 require 'tilt'
 require 'yaml'

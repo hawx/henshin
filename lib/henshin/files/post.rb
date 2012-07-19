@@ -18,7 +18,7 @@ module Henshin
 
       (class << data; self; end).send(:define_method, :text) { res }
 
-      @site.template TEMPLATE, data
+      @site.template(TEMPLATE, Henshin::DEFAULT_TEMPLATE, true).render(data)
     end
 
     def rss_date
@@ -42,7 +42,7 @@ module Henshin
     end
 
     def path
-      Path @site.url_root, title.slugify, 'index.html'
+      Path @site.root, title.slugify, 'index.html'
     end
 
     # Compares posts on date, then on permalink if dates are the same.

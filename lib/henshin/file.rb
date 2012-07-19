@@ -22,7 +22,15 @@ module Henshin
   # serve a file. AbstractFile instances do not relate to a file in the file
   # system, use File in this case.
   class AbstractFile
-    extend FileAttributes
+
+    include  Helpers, Comparable
+    extend   FileAttributes
+
+    attr_reader :site
+
+    def initialize(site)
+      @site = site
+    end
 
     # @return [String] Text to write to the file.
     def text
@@ -72,8 +80,6 @@ module Henshin
     def <=>(other)
       permalink <=> other.permalink
     end
-
-    include Comparable
 
     def inspect
       "#<#{self.class} #{permalink}>"
@@ -167,15 +173,15 @@ module Henshin
     #   that, otherwise uses the path to the file.
     def path
       if yaml.key?(:permalink)
-        Path @site.url_root, yaml[:permalink]
+        Path @site.root, yaml[:permalink]
       else
         if @path.basename.to_s.count('.') == 1
-          Path @site.url_root, @path.relative_path_from(@site.root)
+          Path @site.root, @path.relative_path_from(@site.dest)
         else
-          path = @path.relative_path_from(@site.root)
+          path = @path.relative_path_from(@site.dest)
           ext  = path.extname
           file = path.to_s[0..-ext.size-1]
-          Path @site.url_root, file
+          Path @site.root, file
         end
       end
     end

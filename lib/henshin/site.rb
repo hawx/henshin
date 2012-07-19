@@ -1,5 +1,3 @@
-require 'attr_plus/class'
-
 module Henshin
 
   DEFAULT_TEMPLATE = 'default'
@@ -8,30 +6,20 @@ module Henshin
 
     class_attr_accessor :files_list, :file_list, :default => []
 
-    def self.file(name)
-      file_list << name
+    def self.file(*names)
+      names.each {|n| file_list << n }
     end
 
-    # @example
-    #
-    #   files :posts, 'posts'
-    #
-    def self.files(name, folder=nil)
-      files_list << name
-
-      if folder
-        define_method name do
-          read :all, folder
-        end
-      end
+    def self.files(*names)
+      names.each {|n| files_list << n }
     end
 
 
-    attr_reader :root
+    attr_reader :source
 
     def initialize(root='.')
       @reader = Reader.new(root)
-      @root   = Pathname.new(root)
+      @source = Pathname.new(root)
 
       if config[:ignore]
         @reader.ignore *config[:ignore]
@@ -43,13 +31,13 @@ module Henshin
     #
     # @return [Pathname]
     def dest
-      @root + (config[:dest] || 'build')
+      source + (config[:dest] || 'build')
     end
 
     # Root url, this is guaranteed to begin and end with a forward-slash.
     #
     # @return [Pathname]
-    def url_root
+    def root
       u = config[:root] || '/'
       u = '/' + u if u[0] != '/'
       u = u + '/' if u[-1] != '/'
@@ -59,7 +47,7 @@ module Henshin
     def defaults
       {
         sass: {
-          load_paths: [@root + 'assets' + 'styles']
+          load_paths: [source + 'assets' + 'styles']
         },
         md: {
           no_intra_emphasis:  true,
@@ -75,48 +63,43 @@ module Henshin
       }
     end
 
+    def yaml
+      Hashie::Mash.new Henshin.load_yaml (source + 'config.yml').read
+    end
+
     def config
-      defaults.merge Henshin.load_yaml (@root + 'config.yml').read
+      Hashie::Mash.new defaults.merge(yaml)
     end
 
-    def basic_data
-      {
-        root: url_root
-      }
-    end
 
-    def data
-      list = Hash[(files_list + file_list).map {|file| [file, send(file)] }]
-
-      {
-        site:   config.merge(basic_data)
-      }.merge(list)
-    end
-
-    def data_for(file)
-      obj = file.clone
-
-      data.each do |key, val|
-        (class << obj; self; end).send(:define_method, key) {
-          val.is_a?(Hash) ? Scope.new(val) : val
-        }
-      end
-
-      obj.extend Helpers
-      obj
+    def script
+      ScriptPackage.new self, @reader.read_all('assets', 'scripts')
     end
 
     def style
       StylePackage.new self, @reader.read_all('assets', 'styles')
     end
 
-    file :style
+    file :script, :style
 
-    def script
-      ScriptPackage.new self, @reader.read_all('assets', 'scripts')
+    def posts
+      weave_posts read(:all, 'posts').sort
     end
 
-    file :script
+    def files
+      read :safe_paths
+    end
+
+    files :posts, :files
+
+    def all_files
+      files_list.map {|fs| send(fs) }.reduce(:+) + file_list.map {|f| send(f) }
+    end
+
+    def templates
+      read :all, 'templates'
+    end
+
 
     def read(sym, *args)
       @reader.send(sym, *args).map {|p| File.create(self, p) }.sort
@@ -140,45 +123,13 @@ module Henshin
 
     private :weave_posts
 
-    def posts
-      weave_posts read(:all, 'posts').sort
-    end
 
-    files :posts
-
-    def templates
-      read :all, 'templates'
-    end
-
-    def files
-      read :safe_paths
-    end
-
-    files :files
-
-    def all_files
-      files_list.map {|fs| send(fs) }.reduce(:+) + file_list.map {|f| send(f) }
-    end
-
-    def template(name, data)
-      find_template(name, true).template(data)
-    end
-
-    def has_template?(name)
-      templates.any? {|t| t.name == name }
-    end
-
-    # @return [Template, nil]
-    def find_template(name, default=false)
-      template = templates.find {|t| t.name == name }
-      return template if template
-
-      if default
-        template = templates.find {|t| t.name == DEFAULT_TEMPLATE }
-        return template if template
+    def method_missing(sym, *args, &block)
+      if yaml.key?(sym)
+        yaml[sym]
+      else
+        nil
       end
-
-      EmptyTemplate.new
     end
 
     def write(writer)
@@ -186,6 +137,16 @@ module Henshin
         file.write writer
       end
       self
+    end
+
+    def template(*names)
+      names.each do |name|
+        if tmp = templates.find {|t| t.name == name }
+          return tmp
+        end
+      end
+
+      EmptyTemplate.new
     end
 
   end

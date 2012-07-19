@@ -14,7 +14,7 @@ module Henshin
 
     def text
       ext = @path.extname[1..-1].to_sym
-      Tilt[ext].new(nil, nil, @site.config[ext]) { super }.render
+      Tilt[ext].new(nil, nil, (@site.config[ext] || {}).to_hash.symbolise) { super }.render
     end
 
   end
@@ -37,15 +37,15 @@ module Henshin
 
     def text
       ext = @path.extname[1..-1].to_sym
-      scope = @site.data_for(data)
+      scope = data
 
-      text = Tilt[ext].new(nil, nil, @site.config[ext]) {
+      text = Tilt[ext].new(nil, nil, (@site.config[ext] || {}).to_hash.symbolise) {
         super
       }.render(scope) { scope.yield }
 
       return text if scope.template == 'none'
 
-      @site.template(scope.template, data)
+      @site.template(scope.template, Henshin::DEFAULT_TEMPLATE).render(data)
     end
 
   end

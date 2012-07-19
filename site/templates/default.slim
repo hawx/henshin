@@ -2,13 +2,10 @@ doctype html
 html lang='en'
   head
     meta charset='utf-8'
-    link rel='stylesheet' href=style.url
-    - if title
-      title = title
-    - else
-      title = site.title
+    link rel='stylesheet' href=site.style.url
+    title = (title || site.title)
 
   body
     == yield
 
-    script src=script.url
+    script src=site.script.url

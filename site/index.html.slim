@@ -3,7 +3,7 @@ header
 
 ul.list
   h3 Posts
-  - for post in posts do
+  - for post in site.posts do
     - if post.published?
       li
         a href=post.url = post.title

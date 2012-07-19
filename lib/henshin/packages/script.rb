@@ -15,7 +15,7 @@ module Henshin
     end
 
     def path
-      Path @site.url_root, 'script.js'
+      Path @site.root, 'script.js'
     end
   end
 end
