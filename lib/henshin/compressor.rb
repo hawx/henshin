@@ -15,7 +15,7 @@ module Henshin
     end
 
     def join
-      @files.map {|f| f.text }.join("\n")
+      @files.map {|file| file.text }.join("\n")
     end
 
     # @return [String] The text of the given files joined together.
