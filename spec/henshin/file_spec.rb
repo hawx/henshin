@@ -1,18 +1,42 @@
 require_relative '../helper'
 
+describe Henshin::FileAttributes do
+
+  subject {
+    obj = Object.new
+    obj.extend Henshin::FileAttributes
+    obj
+  }
+
+  describe '#requires' do
+    it 'adds a required key to the list' do
+      subject.requires :apples
+      subject.required.must_include :apples
+    end
+  end
+
+  describe '#required' do
+    it 'returns the required keys' do
+      subject.requires :apples, :oranges
+      subject.required.to_a.must_equal [:apples, :oranges]
+    end
+  end
+
+end
+
 describe Henshin::AbstractFile do
 
   let(:subclass) {
     Class.new(Henshin::AbstractFile) {
-      def path; @path ||= Object.new; end
+      def path
+        @path ||= Object.new
+      end
     }
   }
 
-  subject { subclass.new }
+  let(:site) { test_site }
 
-  it 'returns a Hash for #data' do
-    subject.data.must_be_kind_of Hash
-  end
+  subject { subclass.new(site) }
 
   it 'returns a String for #text' do
     subject.text.must_be_kind_of String
@@ -33,10 +57,6 @@ describe Henshin::AbstractFile do
     subject.extension.must_equal '.txt'
   end
 
-  it 'is #writeable?' do
-    subject.must_be :writeable?
-  end
-
   describe '#write' do
     it 'writes the file' do
       writer = mock()
@@ -45,6 +65,41 @@ describe Henshin::AbstractFile do
       subject.stubs(:text).returns('text')
       subject.stubs(:permalink).returns('/here')
       Henshin::UI.expects(:wrote).with('/here')
+
+      subject.write writer
+    end
+
+    it 'passes time taken to UI if in profile mode' do
+      with_profiling! do
+        writer = mock()
+        writer.expects(:write).with(Pathname.new('here'), 'text')
+
+        Time.stubs(:now).returns(5, 6)
+
+        subject.stubs(:text).returns('text')
+        subject.stubs(:permalink).returns('/here')
+        Henshin::UI.expects(:wrote).with('/here', 1)
+
+        subject.write writer
+      end
+    end
+
+    # it 'raises a pretty error if problem occurs' do
+    #   writer = mock()
+    #   def writer.write(where, what)
+    #     raise IOError,'Problems, what did you expect?'
+    #   end
+
+    #   proc {
+    #     subject.stubs(:permalink).returns(:here)
+    #     subject.write(writer)
+    #   }.must_output
+    # end
+
+    it 'does nothing if not #writeable?' do
+      subject.stubs(:writeable?).returns(false)
+      writer = mock()
+      writer.expects(:write).never
 
       subject.write writer
     end
@@ -78,8 +133,8 @@ EOS
 
   subject { Henshin::File }
 
-  let(:site) { DummySite.new('.') }
-  let(:file) { Henshin::File.new(site, Pathname.new('test.txt')) }
+  let(:site) { DummySite.new(test_path) }
+  let(:file) { Henshin::File.new(site, test_path + 'test.txt') }
 
   before {
     file.instance_variable_get(:@path).stubs(:read).returns(text)
@@ -95,29 +150,20 @@ EOS
     end
   end
 
-  describe '#read' do
-    it 'returns the yaml part' do
-      file.read[0].must_equal "title: Test\ndate:  2012-01-03"
-    end
+  describe 'registering new module to apply' do
+    it 'is picked up by .create' do
+      mod = Module.new
+      subject.apply /\.apply/, mod
 
-    it 'returns the text part' do
-      file.read[1].must_equal "\nSo, here we are. A test.\n"
-    end
-  end
-
-  describe '#yaml' do
-    it 'returns the parsed yaml' do
-      file.yaml.must_equal title: 'Test',
-                           date: Date.new(2012, 1, 3)
+      file = subject.create(site, Pathname.new('something.apply'))
+      file.singleton_class.ancestors.must_include mod
     end
   end
 
-  describe '#data' do
-    it 'returns data for the file' do
-      file.data.must_equal title: 'Test',
-                           date: Date.new(2012, 1, 3),
-                           url: '/test.txt',
-                           permalink: '/test.txt'
+  describe '#method_missing' do
+    it 'accesses yaml attributes' do
+      file.title.must_equal 'Test'
+      file.date.must_equal Date.new(2012, 1, 3)
     end
   end
 
@@ -130,6 +176,17 @@ EOS
   describe '#permalink' do
     it 'returns the permalink' do
       file.permalink.must_equal '/test.txt'
+    end
+
+    it 'returns yaml permalink if set' do
+      file.stubs(:yaml).returns(permalink: '/cool.permalink')
+      file.permalink.must_equal '/cool.permalink'
+    end
+
+    it 'removes input file extension if it exists' do
+      file = subject.new(site, test_path + 'index.html.slim')
+      file.instance_variable_get(:@path).stubs(:read).returns(text)
+      file.permalink.must_equal '/index.html'
     end
   end
 

@@ -8,7 +8,7 @@ describe Henshin::Path do
   let(:root) { Pathname.new('/') }
   let(:path) { subject.new(root, 'tag', 'code', 'index.html') }
 
-  it 'has an #extname' do
+  it 'has an #extension' do
     path.extension.must_equal '.html'
   end
 
@@ -51,6 +51,6 @@ describe Henshin::Path do
   end
 
   it 'defines #Path()' do
-    Henshin::Path(root, 'test').must_equal subject.new(root, 'test')
+    Path(root, 'test').must_equal subject.new(root, 'test')
   end
 end

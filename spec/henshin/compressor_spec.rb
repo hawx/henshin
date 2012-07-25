@@ -10,8 +10,14 @@ describe Henshin::Compressor do
 
   let(:compressor) { subject.new([f1, f2, f3]) }
 
+  describe '#join' do
+    it 'joins the contents of the files together' do
+      compressor.join.must_equal "f1\nf2\nf3"
+    end
+  end
+
   describe '#compress' do
-    it 'concatenates the files' do
+    it 'calls #join' do
       compressor.compress.must_equal "f1\nf2\nf3"
     end
   end

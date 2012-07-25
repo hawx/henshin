@@ -6,8 +6,8 @@ describe Henshin::Template do
   let(:site) { test_site }
   let(:path) { Pathname.new('templates/default.slim') }
   let(:template) {
-    f = Henshin::SlimFile.new(site, path)
-    f.extend Henshin::Template
+    f = Henshin::TiltTemplateFile.new(site, path)
+    f.extend subject
     f
   }
 
@@ -24,10 +24,18 @@ h1 = title
 == yield
 EOS
 
-      res = template.template(:title => "Cool post",
-                              :yield => "<p>Hey so here is the text.</p>")
+      other = Henshin::File.new(site, 'sometest.md')
+      other.stubs(:title).returns('Cool post')
+      other.stubs(:text).returns('<p>Hey so here is the text.</p>')
+      other.instance_variable_get(:@path).stubs(:read).returns <<EOS
+---
+title: Cool post
+---
 
-      res.must_equal "<h1>Cool post</h1><p>Hey so here is the text.</p>"
+Hey so here is the text.
+EOS
+
+      template.template(other).must_equal "<h1>Cool post</h1><p>Hey so here is the text.</p>"
     end
   end
 

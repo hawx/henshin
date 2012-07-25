@@ -3,8 +3,10 @@ $: << File.dirname(__FILE__) + '/..'
 begin
   require 'duvet'
   Duvet.start :filter => 'lib/henshin'
-rescue LoadError
+rescue LoadError => e
   # Doesn't matter if duvet doesn't run
+  warn 'Problem with duvet?'
+  raise e
 end
 
 gem 'minitest'
@@ -13,22 +15,33 @@ require 'minitest/pride'
 require 'mocha'
 require 'lib/henshin'
 
-$DRY_RUN = true
+Henshin.set :dry_run
 
 def with_writing!
-  $DRY_RUN = false
+  Henshin.unset :dry_run
   yield
-  $DRY_RUN = true
+  Henshin.set :dry_run
 end
 
-def test_site
-  Henshin::Site.new(Pathname.new(__FILE__).dirname + '..' + 'site')
+def with_profiling!
+  Henshin.set :profile
+  yield
+  Henshin.unset :profile
 end
+
 
 class DummySite < Henshin::Site
   def config
     {}
   end
+end
+
+def test_path
+  Pathname.new(__FILE__).dirname + '..' + 'site'
+end
+
+def test_site
+  Henshin::Site.new test_path
 end
 
 
