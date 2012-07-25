@@ -28,9 +28,12 @@ module Henshin
   class Site
     module Servable
       def find_file(path)
-        all_files.find {|file| file.path === path } || MissingFile.new
+        all_files.find {|file| file.path === path } || MissingFile
       end
 
+      # Finds the file which resolves the path given and serves it.
+      #
+      # @param path [String]
       def serve(path)
         find_file(path).serve
       end
@@ -44,6 +47,7 @@ module Henshin
         Rack::Mime.mime_type ::File.extname(permalink)
       end
 
+      # Returns the files content for serving through Rack.
       def serve
         [200, {"Content-Type" => mime}, [text]]
       end
@@ -55,16 +59,22 @@ module Henshin
   module Draft
     include Post
 
+    # @return [Date] Returns tomorrows date, since Drafts have no published date
+    # yet, but it is useful to have a date for previewing.
     def date
       Date.today + 1
     end
 
+    # @return [false] Drafts have not been published.
     def published?
       false
     end
   end
 
   module Post
+
+    # @return [true] Posts have been published.
+    # @see Draft#published?
     def published?
       true
     end
@@ -72,15 +82,19 @@ module Henshin
 
   File.apply %r{(^|/)drafts/}, Draft
 
-  # Missing file implements #serve so that it shows a 404 error.
-  class MissingFile
-    def serve
-      [404, {}, ["404 file not found"]]
-    end
+  # The sole missing file instance.
+  MissingFile = Object.new
+
+  # When served the missing file returns a 404 with appropriate message.
+  def MissingFile.serve
+    [404, {}, ["404 file not found"]]
   end
 
   # Site which adds all drafts to the list of posts.
   class DraftSite < Site
+
+    # For the draft site speed is preferred over "smallness" so turn off any
+    # compression.
     def defaults
       super.deep_merge compress: {
         scripts: false,
@@ -89,8 +103,16 @@ module Henshin
       }
     end
 
+    # @return [Array<Draft>] Returns all draft posts read from the +drafts+
+    # folder.
+    def drafts
+      read(:all, 'drafts').sort
+    end
+
+    # @return [Array<Post, Draft>] To make previewing draft posts in a site
+    # easier drafts are mixed into the posts.
     def posts
-      weave_posts read(:all, 'drafts').sort + super
+      weave_posts(drafts + super)
     end
   end
 

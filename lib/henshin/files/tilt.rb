@@ -11,10 +11,10 @@ module Henshin
                     wiki creaole
                     mediawiki mw).map(&:to_sym)
 
-
     def text
-      ext = @path.extname[1..-1].to_sym
-      Tilt[ext].new(nil, nil, (@site.config[ext] || {}).to_hash.symbolise) { super }.render
+      ext    = @path.extname[1..-1].to_sym
+      config = (@site.config[ext] || {}).to_hash.symbolise
+      Tilt[ext].new(nil, nil, config) { super }.render
     end
 
   end

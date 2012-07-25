@@ -115,11 +115,6 @@ module Henshin
     SETTINGS[:klass] = klass
   end
 
-  # @return Whether the path given contains a Henshin site.
-  def site?(path)
-    (path + 'config.yml').exist?
-  end
-
   # Evaluates the +init.rb+ file if it exists.
   #
   # @param root [Pathname] Root of the site.
@@ -133,13 +128,9 @@ module Henshin
   def build(root, opts={})
     time = Time.now if profile?
 
-    if site?(root)
-      site   = SETTINGS[:klass].new(root)
-      writer = Writer.new(site.dest)
-      site.write(writer)
-    else
-      UI.fail "No henshin site found, to create one use `henshin new`."
-    end
+    site   = SETTINGS[:klass].new(root)
+    writer = Writer.new(site.dest)
+    site.write(writer)
 
     puts "#{Time.now - time}s to build site." if profile?
   end
@@ -148,18 +139,14 @@ module Henshin
   def publish(root, opts={})
     time = Time.now if profile?
 
-    if site?(root)
-      site = SETTINGS[:klass].new(root)
+    site = SETTINGS[:klass].new(root)
 
-      unless site.config.has_key?(:publish)
-        UI.fail "No publish configuration in config.yml."
-      end
-
-      writer = SftpPublisher.create(site.config[:publish])
-      site.write(writer)
-    else
-      UI.fail "No henshin site found, to create one use `henshin new`."
+    unless site.config.has_key?(:publish)
+      UI.fail "No publish configuration in config.yml."
     end
+
+    writer = SftpPublisher.create(site.config[:publish])
+    site.write(writer)
 
     puts "#{Time.now - time}s to publish site." if profile?
   end
