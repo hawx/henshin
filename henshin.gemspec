@@ -14,20 +14,23 @@ Gem::Specification.new do |s|
     changed files.
   DESC
 
-  s.add_dependency 'rack', '~> 1.4'
-  s.add_dependency 'redcarpet', '~> 2.1'
-  s.add_dependency 'sass', '~> 3.1'
-  s.add_dependency 'slim', '~> 1.2'
-  s.add_dependency 'coffee-script', '~> 2.2'
-  s.add_dependency 'clive', '~> 1.1'
-  s.add_dependency 'yui-compressor', '~> 0.9.6'
-  s.add_dependency 'highline', '~> 1.6'
-  s.add_dependency 'net-sftp', '~> 2.0'
-  s.add_dependency 'attr_plus', '~> 0.4.1'
 
-  s.add_development_dependency 'pelusa', '~> 0.2.0'
+  s.add_dependency 'attr_plus',            '~> 0.4.1'
+  s.add_dependency 'clive',                '~> 1.1'
+  s.add_dependency 'coffee-script',        '~> 2.2'
+  s.add_dependency 'highline',             '~> 1.6'
+  s.add_dependency 'hashie',               '~> 1.2'
+  s.add_dependency 'net-sftp',             '~> 2.0'
+  s.add_dependency 'rack',                 '~> 1.4'
+  s.add_dependency 'redcarpet',            '~> 2.1'
+  s.add_dependency 'sass',                 '~> 3.1'
+  s.add_dependency 'slim',                 '~> 1.2'
+  s.add_dependency 'yui-compressor',       '~> 0.9.6'
+
+  s.add_development_dependency 'duvet',    '~> 0.4.0'
   s.add_development_dependency 'minitest', '~> 3.0'
-  s.add_development_dependency 'mocha', '~> 0.11.4'
+  s.add_development_dependency 'mocha',    '~> 0.11.4'
+  s.add_development_dependency 'pelusa',   '~> 0.2.0'
 
   s.files        = %w(README.md LICENCE Rakefile)
   s.files       += Dir["{bin,lib,spec,site}/**/*"] & `git ls-files`.split("\n")
