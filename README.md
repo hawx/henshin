@@ -127,11 +127,6 @@ combined and minimised when you build your site.
 
 ## Configuration
 
-| *Setting*      | *Usage*       | *Description*                               |
-| Ignore         | ignore: files | Ignores the files passed                    |
-| Destination    | dest: path    | Path to write site to (defaults to 'build') |
-| Root           | root: url     | Set root for all urls                       |
-
 
 ## Extending/Hacking
 
