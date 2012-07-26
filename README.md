@@ -1,113 +1,138 @@
 # Henshin
 
-__NOTE:__ this is a work-in-progress. It should be safe to use to build your
-blog but don't go trying to hack the internals because stuff __will__ change.
-
-Henshin, should have been called yassg. It's a static site generator, focused on
-bloggin' and focused in general.
+Yes it's another static site generator. Out of the box it's set up for blogging
+but henshin is so flexible and configurable it is useful in most situations
+where you need to generate a static site from some data.
 
 
 ## Usage
 
+First install the gem (it requires ruby 1.9.3),
+
 ``` bash
 $ gem install henshin
-$ henshin new my_blag
-$ cd my_blag
-$ ls
-assets/    config.yml  drafts/    index.slim  media/    posts/    templates
+```
+
+Next create an empty site,
+
+``` bash
+$ henshin new my_site
+```
+
+Now we can start a server to view the site,
+
+``` bash
+$ cd my_site
 $ henshin view
 ...
 ```
 
-Henshin can upload your site using sftp, to set it up just add,
+Henshin rebuilds the pages when requested so edit `index.slim.html` and reload
+the page now.
+
+To build the site into the `build` folder, run:
+
+``` bash
+$ henshin build
+```
+
+But one of the key features of henshin is that you (probably) __never__ need to
+run `henshin build`. Henshin can upload your site straight to a server using
+sftp. To set it up you just need to add this to the `config.yml` file,
 
 ``` yaml
 publish:
   host: sftp.myserver.com
   base: /path/to/public
-  user: my_username
-  pass: my_password
+  user: username
 ```
 
-You can omit pass, in which case you will be prompted for it when publishing.
-Then you can type:
-
-``` bash
-$ henshin publish
-```
-
-To upload your site.
+And when running `henshin publish` you will be prompted for the password.
 
 
 ## Structure
 
-### config.yml
+Sites have a lot in common. Henshin forces some conventions but not too many.
 
-Contains the configuration data for your blog, you can put anything in here and
-it will be available in templates under the `site` prefix. For example if you
-set `bio: Hi ...` you can use `site.bio` in your templates. Useful options:
+### ./config.yml
 
-* title - give your site a name
-* root - allows your site to be built into a subfolder
+Contains configuration and data for your site. Anything in here is accessible in
+templates and files. For instance you could add,
 
-### templates
+``` yaml
+likes:
+- Italian food
+- Football
+- ...
+```
 
-Templates, by default files will use the template called, ...drum roll...,
-"default". If it exists posts will try to use the template called "post".
+So that you can add a list of things you like to the homepage,
 
-### posts
+``` slim
+ul
+  h1 I like
+  - for like in site.likes
+    li = like
+```
 
-These are your published posts, the title/date etc. are __not__ taken from the
-filename so feel free to call the files what you want, I put a number in front
-so I know the order without having to put the whole date in. Date/title/etc. are
-taken from the yaml frontmatter of the post.
+### ./init.rb
 
-### drafts
+This file lets you alter Henshin in any way you imagine.
 
-These are unfinished posts and will not be put in your built site. They are
-shown when previewing your site, so you can see what it will look
-like.
+### ./posts/
 
-### assets
+These are your published posts. They must contain yaml frontmatter with at least
+title and date attributes.
 
-Assets contains scripts and stylesheets, throw any coffeescript/javascript in
-`scripts` and any sass/css in `styles`, they will then be magically compiled,
-collected and minimised (soon!). All the files in `scripts` become `script.js`
-and the files in `styles` become `style.css`. Simple!
+``` md
+---
+title:  My First Post
+date:   2012-01-01
+---
 
-### media
+So, ...
+```
 
-Put any media in here, it will be copied along verbatim. Really you could delete
-this and create a folder called `images` or whatever.
+### ./drafts/
+
+These are your unpublished posts and will not be in your built site. They are
+shown when previewing your site with `henshin view` so it is easy to see what
+they will look like when finished.
+
+### ./templates/
+
+Most files will try to use a template, the default template used is called
+"default", posts will attempt to use the "post" template if it exists. And you
+can force a file to use a different template by setting `template:` in the
+yaml frontmatter, for instance
+
+``` md
+---
+...
+template: strange
+---
+...
+```
+
+### ./assets/scripts/
+
+Contains scripts (these can be javascript or coffeescript). They are combined
+and minimised when you build your site.
+
+### ./assets/styles/
+
+Contains stylesheet files (css, sass, scss or less files). Like scripts they are
+combined and minimised when you build your site.
 
 
-## Choices
+## Configuration
 
-I said it was focused. You get:
-
-- Coffeescript with [ruby-coffee-script][rcs]
-- Markdown with [redcarpet][rc]
-- [Sass][sss]
-- [Slim][slm]
-- Code highlighting with [SyntaxHighlighter][sh]
-
-[rcs]: https://github.com/josh/ruby-coffee-script
-[rc]:  https://github.com/tanoku/redcarpet
-[sss]: http://sass-lang.com/
-[slm]: http://slim-lang.com/
-[sh]:  http://alexgorbatchev.com/SyntaxHighlighter/
+| *Setting*      | *Usage*       | *Description*                               |
+| Ignore         | ignore: files | Ignores the files passed                    |
+| Destination    | dest: path    | Path to write site to (defaults to 'build') |
+| Root           | root: url     | Set root for all urls                       |
 
 
-## Extending
+## Extending/Hacking
 
-Henshin isn't a static-blog-generator it's a static-site-generator with
-blogginess bolted on. This means it should be possible to extend in such a way
-that it fits your problem. Check out these classes depending on what you need to
-do:
-
-- Site, the orchestrator
-- AbstractFile, a virtual file
-- File, a physical file
-- Writer, writes to local file system (`henshin build`)
-- Publisher, writes to remote file system (`henshin publish`)
-- Engine, renders text
+...
