@@ -176,11 +176,10 @@ module Henshin
         Path @site.root, yaml[:permalink]
       else
         if @path.basename.to_s.count('.') == 1
-          Path @site.root, @path.relative_path_from(@site.dest)
+          Path @site.root, @path
         else
-          path = @path.relative_path_from(@site.dest)
-          ext  = path.extname
-          file = path.to_s[0..-ext.size-1]
+          ext  = @path.extname
+          file = @path.to_s[0..-ext.size-1]
           Path @site.root, file
         end
       end

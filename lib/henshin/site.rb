@@ -99,7 +99,7 @@ EOS
     #
     # @return [Pathname]
     def dest
-      @source + config.fetch(:dest, 'build')
+      @source + (config[:dest] || 'build')
     end
 
     # Root url, this is guaranteed to begin and end with a forward-slash. All
@@ -108,7 +108,7 @@ EOS
     #
     # @return [Pathname]
     def root
-      u = config.fetch(:root, '/')
+      u = config[:root] || '/'
       u = '/' + u if u[0] != '/'
       u = u + '/' if u[-1] != '/'
       Pathname.new(u)
