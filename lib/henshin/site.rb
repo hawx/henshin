@@ -99,7 +99,7 @@ EOS
     #
     # @return [Pathname]
     def dest
-      @source + (config[:dest] || 'build')
+      @source.expand_path + (config[:dest] || 'build')
     end
 
     # Root url, this is guaranteed to begin and end with a forward-slash. All

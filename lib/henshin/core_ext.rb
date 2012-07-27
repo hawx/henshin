@@ -39,6 +39,16 @@ class Hash
   end
 end
 
+class Pathname
+  def same_type?(other)
+    if relative?
+      other.relative?
+    else
+      other.absolute?
+    end
+  end
+end
+
 class String
 
   # Converts the string to a format suitable for use as a url.

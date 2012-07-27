@@ -24,6 +24,27 @@ describe Hash do
 
 end
 
+describe Pathname do
+
+  describe '#same_type?' do
+    it 'returns true if both absolute' do
+      a, b = Pathname.new('/a'), Pathname.new('/b')
+      a.must_be :same_type?, b
+    end
+
+    it 'returns true if both relative' do
+      a, b = Pathname.new('a'), Pathname.new('b')
+      a.must_be :same_type?, b
+    end
+
+    it 'returns false otherwise' do
+      a, b = Pathname.new('a'), Pathname.new('/b')
+      a.wont_be :same_type?, b
+    end
+  end
+
+end
+
 describe String do
 
   describe '#slugify' do
