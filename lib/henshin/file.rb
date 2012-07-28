@@ -186,8 +186,8 @@ module Henshin
       else
         rel = @path
 
-        if @path.same_type?(@site.dest)
-          rel = @path.relative_path_from(@site.dest)
+        if @path.same_type?(@site.source)
+          rel = @path.relative_path_from(@site.source)
         end
 
         if @path.basename.to_s.count('.') == 1

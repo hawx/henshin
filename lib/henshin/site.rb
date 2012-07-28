@@ -93,6 +93,8 @@ EOS
       end
     end
 
+    attr_reader :source
+
     # Destination folder to build into. Uses destination set in config if
     # available which can be either a relative path or absolute. By default uses
     # 'build'.
