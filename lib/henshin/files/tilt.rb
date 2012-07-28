@@ -45,7 +45,14 @@ module Henshin
 
       return text if scope.template == 'none'
 
-      @site.template(scope.template, Henshin::DEFAULT_TEMPLATE).render(data)
+      default = nil
+      singleton_class.ancestors.find {|klass|
+        default = klass.default_template if klass.respond_to?(:default_template)
+      }
+
+      templates = [scope.template, default, Henshin::DEFAULT_TEMPLATE].compact
+
+      @site.template(*templates).render(data)
     end
 
   end

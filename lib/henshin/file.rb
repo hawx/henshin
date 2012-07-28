@@ -13,6 +13,14 @@ module Henshin
       @required || Set.new
     end
 
+    def template(name)
+      @template = name
+    end
+
+    def default_template
+      @template
+    end
+
   end
 
 

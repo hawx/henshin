@@ -5,8 +5,7 @@ module Henshin
     extend FileAttributes
 
     requires :title, :date
-
-    TEMPLATE = 'post'
+    template 'post'
 
     # Renders the file contents using {RedcarpetEngine} then applies the 'post'
     # template if it exists, falling back to the 'default' template.
@@ -16,9 +15,14 @@ module Henshin
       res  = super
       data = clone
 
-      (class << data; self; end).send(:define_method, :text) { res }
+      data.singleton_class.send(:define_method, :text) { res }
 
-      @site.template(TEMPLATE, Henshin::DEFAULT_TEMPLATE, true).render(data)
+      default = nil
+      singleton_class.ancestors.find {|klass|
+        default = klass.default_template if klass.respond_to?(:default_template)
+      }
+
+      @site.template(default, Henshin::DEFAULT_TEMPLATE, true).render(data)
     end
 
     def rss_date
