@@ -119,6 +119,7 @@ EOS
     # @return [Hash] Defaults to use.
     def defaults
       {
+        permalink: '/:title/index.html',
         sass: {
           load_paths: [@source + 'assets' + 'styles']
         },

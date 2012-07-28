@@ -46,7 +46,20 @@ module Henshin
     end
 
     def path
-      Path @site.root, title.slugify, 'index.html'
+      style = @site.config[:permalink]
+
+      data = {
+        year:  date.strftime('%Y'),
+        month: date.strftime('%m'),
+        day:   date.strftime('%d'),
+        title: title.slugify
+      }
+
+      url = data.inject(style) {|res, (tok, val)|
+        res.gsub /:#{Regexp.escape(tok)}/, val
+      }
+
+      Path @site.root, url
     end
 
     # Compares posts on date, then on permalink if dates are the same.
