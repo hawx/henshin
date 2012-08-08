@@ -277,7 +277,7 @@ EOS
         end
       end
 
-      EmptyTemplate.new
+      File::EmptyTemplate.new
     end
 
   end

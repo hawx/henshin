@@ -54,33 +54,28 @@ module Henshin
     end
   end
 
-  # A draft post. As drafts do not have a published date, this sets the date to
-  # be tomorrow.
-  module Draft
-    include Post
+  class File
 
-    # @return [Date] Returns tomorrows date, since Drafts have no published date
-    # yet, but it is useful to have a date for previewing.
-    def date
-      Date.today + 1
+    # A draft post. As drafts do not have a published date, this sets the date to
+    # be tomorrow.
+    module Draft
+      include Post
+
+      # @return [Date] Returns tomorrows date, since Drafts have no published date
+      # yet, but it is useful to have a date for previewing.
+      def date
+        Date.today + 1
+      end
+
+      # @return [false] Drafts have not been published.
+      def published?
+        false
+      end
     end
 
-    # @return [false] Drafts have not been published.
-    def published?
-      false
-    end
+    apply %r{(^|/)drafts/}, Draft
+
   end
-
-  module Post
-
-    # @return [true] Posts have been published.
-    # @see Draft#published?
-    def published?
-      true
-    end
-  end
-
-  File.apply %r{(^|/)drafts/}, Draft
 
   # The sole missing file instance.
   MissingFile = Object.new
