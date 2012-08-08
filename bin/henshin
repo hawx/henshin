@@ -43,7 +43,12 @@ module Henshin
       action do
         require_relative '../lib/rack/henshin'
         Henshin.eval_init root
-        Henshin.serve root, @state.to_h
+
+        site = ::Henshin::SETTINGS[:klass].new(root)
+        site.extend ::Henshin::Site::Servable
+        ::Henshin::AbstractFile.send :include, ::Henshin::AbstractFile::Servable
+
+        Henshin.serve site, @state.to_h
       end
     end
 
@@ -124,7 +129,7 @@ module Henshin
 
     app = Rack::Builder.new do
       use Rack::ShowExceptions
-      run Rack::Henshin.new(nil, root: site)
+      run Rack::Henshin.new(nil, site: site)
     end
 
     handler.run app, Host: opts[:host], Port: opts[:port]

@@ -7,9 +7,7 @@ module Rack
   class Henshin
 
     def initialize(app, opts={})
-      @site = ::Henshin::SETTINGS[:klass].new(opts[:root])
-      @site.extend ::Henshin::Site::Servable
-      ::Henshin::AbstractFile.send(:include, ::Henshin::AbstractFile::Servable)
+      @site = opts[:site]
     end
 
     def call(env)
