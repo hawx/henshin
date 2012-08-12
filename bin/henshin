@@ -124,7 +124,8 @@ module Henshin
       at_exit { ::File.delete('henshin.pid') if ::File.exist?('henshin.pid') }
     end
 
-    handler = Rack::Handler.get(opts[:handler])
+    config  = site.config.server
+    handler = Rack::Handler.get(opts[:handler] || config.handler)
     handler = Rack::Handler.default unless handler
 
     app = Rack::Builder.new do
@@ -132,8 +133,9 @@ module Henshin
       run Rack::Henshin.new(nil, site: site)
     end
 
-    handler.run app, Host: opts[:host], Port: opts[:port]
-
+    handler.run app,
+                Host: (opts[:host] || config.host),
+                Port: (opts[:port] || config.port)
   end
 end
 
