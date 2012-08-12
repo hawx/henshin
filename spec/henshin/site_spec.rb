@@ -89,7 +89,7 @@ describe Henshin::Site do
 
   describe '#posts' do
     it 'returns the posts' do
-      site.posts.all? {|p| p.kind_of?(Henshin::Post) }.must_equal true
+      site.posts.all? {|p| p.kind_of?(Henshin::File::Post) }.must_equal true
     end
   end
 
@@ -132,13 +132,13 @@ describe Henshin::Site do
   describe '#template' do
     it 'finds the template' do
       default = site.template('default')
-      default.must_be_kind_of Henshin::Template
+      default.must_be_kind_of Henshin::File::Template
       default.name.must_equal 'default'
     end
 
     it 'returns the EmptyTemplate if not found' do
       temp = site.template('non-existent')
-      temp.must_be_kind_of Henshin::EmptyTemplate
+      temp.must_be_kind_of Henshin::File::EmptyTemplate
     end
   end
 

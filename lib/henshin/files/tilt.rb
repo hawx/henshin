@@ -2,7 +2,7 @@ module Henshin
 
   class File
 
-    class TiltFile < File
+    class Tilt < File
 
       EXTENSIONS = %w(str
                       sass scss less
@@ -16,12 +16,12 @@ module Henshin
       def text
         ext    = @path.extname[1..-1].to_sym
         config = (@site.config[ext] || {}).to_hash.symbolise
-        Tilt[ext].new(nil, nil, config) { super }.render
+        ::Tilt[ext].new(nil, nil, config) { super }.render
       end
 
     end
 
-    class TiltTemplateFile < File
+    class TiltTemplate < File
 
       EXTENSIONS = %w(erb rhtml erubis
                       haml
@@ -41,7 +41,7 @@ module Henshin
         ext = @path.extname[1..-1].to_sym
         scope = data
 
-        text = Tilt[ext].new(nil, nil, (@site.config[ext] || {}).to_hash.symbolise) {
+        text = ::Tilt[ext].new(nil, nil, (@site.config[ext] || {}).to_hash.symbolise) {
           super
         }.render(scope) { scope.yield }
 
@@ -59,8 +59,8 @@ module Henshin
 
     end
 
-    register /\.(#{TiltFile::EXTENSIONS.join('|')})\Z/, TiltFile
-    register /\.(#{TiltTemplateFile::EXTENSIONS.join('|')})\Z/, TiltTemplateFile
+    register /\.(#{Tilt::EXTENSIONS.join('|')})\Z/, Tilt
+    register /\.(#{TiltTemplate::EXTENSIONS.join('|')})\Z/, TiltTemplate
 
   end
 end

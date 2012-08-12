@@ -1,8 +1,8 @@
 require_relative '../../helper'
 
-describe Henshin::TiltFile do
+describe Henshin::File::Tilt do
 
-  subject { Henshin::TiltFile }
+  subject { Henshin::File::Tilt }
   let(:site) { test_site }
 
   describe '#text' do
@@ -24,9 +24,9 @@ EOS
 
 end
 
-describe Henshin::TiltTemplateFile do
+describe Henshin::File::TiltTemplate do
 
-  subject { Henshin::TiltTemplateFile }
+  subject { Henshin::File::TiltTemplate }
   let(:site) { test_site }
 
   describe '#text' do
@@ -40,7 +40,7 @@ title: Some File
 A _lot_ of markdown is __good__ for `testing`.
 EOS
 
-      file = Henshin::TiltFile.new(site, path)
+      file = Henshin::File::Tilt.new(site, path)
 
       path = Pathname.new('template/page.slim')
       path.stubs(:read).returns <<EOS

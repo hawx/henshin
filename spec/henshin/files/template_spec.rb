@@ -1,12 +1,12 @@
 require_relative '../../helper'
 
-describe Henshin::Template do
+describe Henshin::File::Template do
 
-  subject { Henshin::Template }
+  subject { Henshin::File::Template }
   let(:site) { test_site }
   let(:path) { Pathname.new('templates/default.slim') }
   let(:template) {
-    f = Henshin::TiltTemplateFile.new(site, path)
+    f = Henshin::File::TiltTemplate.new(site, path)
     f.extend subject
     f
   }

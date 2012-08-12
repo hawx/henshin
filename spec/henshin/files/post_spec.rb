@@ -1,6 +1,6 @@
 require_relative '../../helper'
 
-describe Henshin::Post do
+describe Henshin::File::Post do
 
   let(:text) {
     <<EOS
@@ -16,7 +16,7 @@ EOS
 
   let(:site) { test_site }
 
-  subject { Henshin::Post }
+  subject { Henshin::File::Post }
   let(:post) {
     file = Henshin::File.new(site, Pathname.new('posts/1-hello-world.md'))
     file.extend subject
