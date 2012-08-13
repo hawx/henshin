@@ -3,7 +3,7 @@ module Henshin
   class File
     # A post, stored in the /posts folder.
     module Post
-      include Henshin::File::Templatable
+      include Templatable
       extend  FileAttributes
 
       requires :title, :date

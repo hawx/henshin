@@ -2,6 +2,9 @@ require 'set'
 
 module Henshin
 
+  # Extend any module (classes will generally be inheriting from {AbstractFile}
+  # so will pick this up) with this module to gain the ability to set required
+  # yaml keys and default templates.
   module FileAttributes
 
     def requires(*keys)
@@ -22,7 +25,6 @@ module Henshin
     end
 
   end
-
 
   # @abstract You will want to implement {#text} and {#path}.
   #
@@ -128,6 +130,8 @@ module Henshin
         res  = super
         data = clone
 
+        return res if data.template == "none"
+
         data.singleton_class.send(:define_method, :text) { res }
 
         default = nil
@@ -144,7 +148,7 @@ module Henshin
 
     # Registers a new file type which can then be used by {.create}.
     #
-    # @param match [#match] Extension to associate file type with
+    # @param match [#match] Regexp path must match to be +klass+ type
     # @param klass [File] Subclass of File
     def self.register(match, klass)
       @types.unshift [match, klass]

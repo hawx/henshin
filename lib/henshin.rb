@@ -29,6 +29,7 @@ require 'henshin/files/empty_template'
 require 'henshin/files/post'
 require 'henshin/files/template'
 require 'henshin/files/tilt'
+require 'henshin/files/tilt_template'
 
 require 'henshin/package'
 require 'henshin/packages/script'

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Edits the output from markdown files to work with SyntaxHighlighter.
 
-class ModifiedRedcarpetFile < File::Tilt
+class ModifiedRedcarpetFile < File::TiltWithTemplate
   def text
     super.gsub /<code class="(.*)">/ do
       "<code class='brush: #{$1}'>"
