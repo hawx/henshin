@@ -124,7 +124,7 @@ module Henshin
       at_exit { ::File.delete('henshin.pid') if ::File.exist?('henshin.pid') }
     end
 
-    config  = site.config.server
+    config  = site.config.server || Hashie::Mash.new
     handler = Rack::Handler.get(opts[:handler] || config.handler)
     handler = Rack::Handler.default unless handler
 
