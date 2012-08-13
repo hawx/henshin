@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 # Edits the output from markdown files to work with SyntaxHighlighter.
-class File
-  class ModifiedRedcarpetFile < TiltFile
-    def text
-      super.gsub /<code class="(.*)">/ do
-        "<code class='brush: #{$1}'>"
-      end
+
+class ModifiedRedcarpetFile < File::Tilt
+  def text
+    super.gsub /<code class="(.*)">/ do
+      "<code class='brush: #{$1}'>"
     end
   end
-
-  register /\.(md|mkd|markdown)\Z/, ModifiedRedcarpetFile
 end
+
+File.register /\.(md|mkd|markdown)\Z/, ModifiedRedcarpetFile
 
 module Helpers
   def format_date(date)
