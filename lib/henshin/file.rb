@@ -24,7 +24,7 @@ module Henshin
   end
 
 
-  # @abstract You will want to implement {#data}, {#text} and {#path}.
+  # @abstract You will want to implement {#text} and {#path}.
   #
   # This class implements all the functionality that is required to build or
   # serve a file. AbstractFile instances do not relate to a file in the file
