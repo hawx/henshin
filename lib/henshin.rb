@@ -21,6 +21,7 @@ require 'henshin/core_ext'
 require 'henshin/path'
 require 'henshin/scope'
 
+require 'henshin/writer'
 require 'henshin/publisher'
 require 'henshin/publishers/sftp'
 
@@ -43,7 +44,6 @@ require 'henshin/packages/style'
 require 'henshin/reader'
 require 'henshin/site'
 require 'henshin/ui'
-require 'henshin/writer'
 require 'henshin/version'
 
 module Henshin

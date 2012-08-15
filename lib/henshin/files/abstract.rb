@@ -5,8 +5,8 @@ module Henshin
     # @abstract You will want to implement {#text} and {#path}.
     #
     # This class implements all the functionality that is required to build or
-    # serve a file. AbstractFile instances do not relate to a file in the file
-    # system, use File in this case.
+    # serve a file. {Abstract} instances do not relate to a file in the file
+    # system, use {Physical} in this case.
     class Abstract
 
       include  Henshin::Helpers, Comparable

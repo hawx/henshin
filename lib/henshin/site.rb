@@ -31,13 +31,13 @@ EOS
     # @see .files
     # @example
     #
-    #   class IndexFile < File
+    #   class IndexFile < File::Abstract
     #     # ...
     #   end
     #
     #   class IndexedSite < Site
     #     def index
-    #       IndexFile.new
+    #       IndexFile.new(self)
     #     end
     #
     #     file :index
@@ -56,7 +56,7 @@ EOS
     # @see .file
     # @example
     #
-    #   class Recipe < File
+    #   class Recipe < File::Physical
     #     # ...
     #   end
     #
@@ -154,23 +154,23 @@ EOS
     end
 
 
-    # @return [ScriptPackage] Returns the script package file. This is a
+    # @return [Package::Script] Returns the script package file. This is a
     #   combined and minified file containing the contents of the files in
     #   +assets/scripts+.
     def script
-      ScriptPackage.new self, @reader.read_all('assets', 'scripts')
+      Package::Script.new self, @reader.read_all('assets', 'scripts')
     end
 
-    # @return [StylePackage] Returns the style package file. This is a combined
+    # @return [Package::Style] Returns the style package file. This is a combined
     #   and minified file containing the contents of the files in
     #   +assets/styles+.
     def style
-      StylePackage.new self, @reader.read_all('assets', 'styles')
+      Package::Style.new self, @reader.read_all('assets', 'styles')
     end
 
     file :script, :style
 
-    # @return [Array<Post>] Returns the posts read from the +posts+ folder.
+    # @return [Array<File::Post>] Returns the posts read from the +posts+ folder.
     #   These are sorted and all posts have had the next and previous posts set
     #   correctly.
     def posts
@@ -191,7 +191,7 @@ EOS
       files_list.map {|fs| send(fs) }.reduce(:+) + file_list.map {|f| send(f) }
     end
 
-    # @return [Array<Template>] Returns a list of all template files read from
+    # @return [Array<File::Template>] Returns a list of all template files read from
     #   the +templates+ directory.
     def templates
       read :all, 'templates'
