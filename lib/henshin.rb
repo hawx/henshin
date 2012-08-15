@@ -25,6 +25,11 @@ require 'henshin/publisher'
 require 'henshin/publishers/sftp'
 
 require 'henshin/file'
+require 'henshin/files/attributes'
+require 'henshin/files/abstract'
+require 'henshin/files/physical'
+require 'henshin/files/templatable'
+
 require 'henshin/files/empty_template'
 require 'henshin/files/post'
 require 'henshin/files/template'

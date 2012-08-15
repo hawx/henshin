@@ -1,7 +1,7 @@
 module Henshin
 
   class File
-    class EmptyTemplate < AbstractFile
+    class EmptyTemplate < Abstract
 
       def initialize
         # ...
@@ -15,7 +15,7 @@ module Henshin
         "none"
       end
 
-      def template(*args)
+      def render(*args)
         ""
       end
 

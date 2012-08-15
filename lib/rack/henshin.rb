@@ -38,7 +38,7 @@ module Henshin
     end
   end
 
-  class AbstractFile
+  class File
     module Servable
       # @return [String] The mime type for the file to be written.
       def mime

@@ -2,7 +2,7 @@ module Henshin
 
   class File
 
-    class TiltTemplate < File
+    class TiltTemplate < Physical
 
       EXTENSIONS = %w(erb rhtml erubis
                       haml

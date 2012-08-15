@@ -6,7 +6,7 @@ module Henshin
     # with file types which would never use templates.
     #
     # @see http://github.com/rtomayko/tilt
-    class Tilt < File
+    class Tilt < Physical
 
       EXTENSIONS = %w(sass scss less coffee).map(&:to_sym)
 

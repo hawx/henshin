@@ -4,7 +4,7 @@ module Henshin
     # A post, stored in the /posts folder.
     module Post
       include Templatable
-      extend  FileAttributes
+      extend  Attributes
 
       requires :title, :date
       template 'post'
