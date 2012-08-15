@@ -35,8 +35,7 @@ describe Henshin::File::Abstract do
 
   describe '#write' do
     it 'writes the file' do
-      writer = mock()
-      writer.expects(:write).with(Pathname.new('here'), 'text')
+      writer = mock { expects(:write).with(Pathname.new('here'), 'text') }
 
       subject.stubs(:text).returns('text')
       subject.stubs(:permalink).returns('/here')
@@ -47,8 +46,7 @@ describe Henshin::File::Abstract do
 
     it 'passes time taken to UI if in profile mode' do
       with_profiling! do
-        writer = mock()
-        writer.expects(:write).with(Pathname.new('here'), 'text')
+        writer = mock { expects(:write).with(Pathname.new('here'), 'text') }
 
         Time.stubs(:now).returns(5, 6)
 
@@ -74,8 +72,7 @@ describe Henshin::File::Abstract do
 
     it 'does nothing if not #writeable?' do
       subject.stubs(:writeable?).returns(false)
-      writer = mock()
-      writer.expects(:write).never
+      writer = mock { expects(:write).never }
 
       subject.write writer
     end

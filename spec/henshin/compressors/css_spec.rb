@@ -4,7 +4,6 @@ describe Henshin::Compressor::Css do
 
   subject { Henshin::Compressor::Css }
 
-  let(:yui) { mock() }
   before { YUI::CssCompressor.stubs(:new).returns(yui) }
 
   let(:f1) { stub(:text => "f1") }
@@ -12,10 +11,10 @@ describe Henshin::Compressor::Css do
   let(:f3) { stub(:text => "f3") }
 
   let(:compressor) { subject.new([f1, f2, f3]) }
+  let(:yui)        { mock(:compress => "f1\nf2\nf3") }
 
   describe '#compress' do
     it 'concatenates the files' do
-      yui.expects(:compress).with("f1\nf2\nf3")
       compressor.compress
     end
   end

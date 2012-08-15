@@ -34,8 +34,7 @@ describe Henshin::Publisher do
     end
 
     it 'prompts for password' do
-      m = mock()
-      m.expects(:ask)
+      m = mock { expects(:ask) }
       HighLine.expects(:new).returns(m)
 
       subject.get_password({}, :pass)
