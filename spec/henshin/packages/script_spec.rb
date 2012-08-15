@@ -1,18 +1,11 @@
 require_relative '../../helper'
 
-describe Henshin::ScriptPackage do
+describe Henshin::Package::Script do
 
   let(:value) { Object.new }
+  let(:site)  { stub(:config => {compress: { scripts: value }}) }
 
-  let(:site) {
-    obj = Object.new
-    obj.stubs(:config).returns compress: {
-      scripts: value
-    }
-    obj
-  }
-
-  subject { Henshin::ScriptPackage }
+  subject     { Henshin::Package::Script }
 
   describe '#enabled?' do
     it 'uses value from site config' do

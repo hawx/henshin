@@ -1,8 +1,8 @@
 require_relative '../../helper'
 
-describe Henshin::JsCompressor do
+describe Henshin::Compressor::Js do
 
-  subject { Henshin::JsCompressor }
+  subject { Henshin::Compressor::Js }
 
   let(:yui) { mock() }
   before { YUI::JavaScriptCompressor.stubs(:new).returns(yui) }

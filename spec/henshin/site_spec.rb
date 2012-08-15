@@ -64,7 +64,7 @@ describe Henshin::Site do
   end
 
   describe '#defaults' do
-    # ...
+    it 'does something'
   end
 
   describe '#yaml' do
@@ -77,13 +77,13 @@ describe Henshin::Site do
 
   describe '#script' do
     it 'returns the script package' do
-      site.script.must_be_kind_of Henshin::ScriptPackage
+      site.script.must_be_kind_of Henshin::Package::Script
     end
   end
 
   describe '#style' do
     it 'returns the style package' do
-      site.style.must_be_kind_of Henshin::StylePackage
+      site.style.must_be_kind_of Henshin::Package::Style
     end
   end
 
@@ -119,11 +119,9 @@ describe Henshin::Site do
 
   describe '#write' do
     it 'writes all the files' do
-      a, b, writer = mock(), mock(), mock()
-
+      writer = Object.new
+      a, b = mock(:write => writer), mock(:write => writer)
       site.expects(:all_files).returns([a, b])
-      a.expects(:write).with(writer)
-      b.expects(:write).with(writer)
 
       site.write(writer)
     end

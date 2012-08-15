@@ -24,7 +24,7 @@ h1 = title
 == yield
 EOS
 
-      other = Henshin::File.new(site, 'sometest.md')
+      other = Henshin::File::Physical.new(site, 'sometest.md')
       other.stubs(:title).returns('Cool post')
       other.stubs(:text).returns('<p>Hey so here is the text.</p>')
       other.instance_variable_get(:@path).stubs(:read).returns <<EOS

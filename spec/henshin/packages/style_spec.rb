@@ -1,18 +1,11 @@
 require_relative '../../helper'
 
-describe Henshin::StylePackage do
+describe Henshin::Package::Style do
 
   let(:value) { Object.new }
+  let(:site)  { stub(:config => {compress: {styles: value}}) }
 
-  let(:site) {
-    obj = Object.new
-    obj.stubs(:config).returns compress: {
-      styles: value
-    }
-    obj
-  }
-
-  subject { Henshin::StylePackage }
+  subject     { Henshin::Package::Style }
 
   describe '#enabled?' do
     it 'uses value from site config' do

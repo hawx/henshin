@@ -18,7 +18,7 @@ EOS
 
   subject { Henshin::File::Post }
   let(:post) {
-    file = Henshin::File.new(site, Pathname.new('posts/1-hello-world.md'))
+    file = Henshin::File::Physical.new(site, Pathname.new('posts/1-hello-world.md'))
     file.extend subject
     file
   }
