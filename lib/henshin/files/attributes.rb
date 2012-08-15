@@ -4,8 +4,8 @@ module Henshin
 
   class File
 
-    # Extend any module (classes will generally be inheriting from {AbstractFile}
-    # so will pick this up) with this module to gain the ability to set required
+    # Extend any module (classes will generally be inheriting from {Abstract} so
+    # will pick this up) with this module to gain the ability to set required
     # yaml keys and default templates.
     module Attributes
 

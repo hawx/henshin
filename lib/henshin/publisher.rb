@@ -1,7 +1,7 @@
 module Henshin
 
   # Publishes a site to your server.
-  class Publisher
+  class Publisher < Writer
 
     # @return [#write]
     def self.create(opts={})

@@ -2,18 +2,19 @@ require 'yui/compressor'
 
 module Henshin
 
-  # Compresses js files using the yui-compressor.
-  class JsCompressor < Compressor
+  class Compressor
+    # Compresses js files using the yui-compressor.
+    class Js < Compressor
 
-    def initialize(*args)
-      super
-      @compressor = YUI::JavaScriptCompressor.new
-    end
+      def initialize(*args)
+        super
+        @compressor = YUI::JavaScriptCompressor.new
+      end
 
-    # @return [String] The compressed, joined text from the given js files.
-    def compress
-      @compressor.compress(join)
+      # @return [String] The compressed, joined text from the given js files.
+      def compress
+        @compressor.compress(join)
+      end
     end
   end
-
 end

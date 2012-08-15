@@ -10,7 +10,7 @@ module Henshin
     #   t = SlimFile.new(site, path)
     #   t.extend Template
     #
-    #   t.template :title => "Cool thing", :yield => "<p>Some content</p>"
+    #   t.template other_file
     #   #=> "..."
     #
     module Template

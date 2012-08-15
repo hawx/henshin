@@ -5,9 +5,7 @@ module Henshin
   class Package < File::Abstract
 
     # @param site [Site]
-    # @param to [String]
-    # @param paths [Array<Pathname>]
-    # @param with [Compressor]
+    # @param compressor [Compressor]
     def initialize(site, compressor)
       @site = site
       @compressor = compressor

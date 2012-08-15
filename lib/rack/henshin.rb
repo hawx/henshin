@@ -39,20 +39,21 @@ module Henshin
   end
 
   class File
+
+    # Extend a File instance with this module to allow it to be served using a
+    # rack interface.
     module Servable
+
       # @return [String] The mime type for the file to be written.
       def mime
         Rack::Mime.mime_type ::File.extname(permalink)
       end
 
-      # Returns the files content for serving through Rack.
+      # @return [Array] The files content for serving through Rack.
       def serve
         [200, {"Content-Type" => mime}, [text]]
       end
     end
-  end
-
-  class File
 
     # A draft post. As drafts do not have a published date, this sets the date to
     # be tomorrow.
@@ -72,7 +73,6 @@ module Henshin
     end
 
     apply %r{(^|/)drafts/}, Draft
-
   end
 
   # The sole missing file instance.
@@ -105,7 +105,7 @@ module Henshin
     # @return [Array<Post, Draft>] To make previewing draft posts in a site
     # easier drafts are mixed into the posts.
     def posts
-      weave_posts(drafts + super)
+      weave_posts (drafts + super).sort
     end
   end
 

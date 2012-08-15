@@ -261,14 +261,14 @@ EOS
     # Finds the template with the name given. Given a list of names it tries to
     # find a template for a signle name working down the list, this allows
     # "fallback" options to be given. If none are found it returns an instance
-    # of the {EmptyTemplate}.
+    # of the {File::EmptyTemplate}.
     #
     # @param names [String]
-    # @return [Template, EmptyTemplate]
+    # @return [File::Template, File::EmptyTemplate]
     # @example
     #
     #   site.template('recipe', Henshin::DEFAULT_TEMPLATE)
-    #   #=> #<Henshin::Template ...>
+    #   #=> #<Henshin::File::Template ...>
     #
     def template(*names)
       names.each do |name|
