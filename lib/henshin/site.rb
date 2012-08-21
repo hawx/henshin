@@ -21,7 +21,7 @@ EOS
       end
     end
 
-    class_attr_accessor :files_list, :file_list, :default => []
+    class_attr_accessor :files_list, :file_list, :ignore_list, :default => []
 
     # Adds the methods specified to the file list. These methods must returns
     # a single File object (or subclass). This adds the File to those returned
@@ -74,6 +74,22 @@ EOS
       names.each {|n| files_list << n }
     end
 
+    # Makes this site ignore the paths given. This has the same effect as
+    # setting the ignore option in a site's +config.yml+, but has effect for any
+    # site using this specific class, regardless of the config.
+    #
+    # @param paths [String]
+    # @example
+    #
+    #   class DataSite
+    #     ignore 'data'
+    #     # ...
+    #   end
+    #
+    def self.ignore(*paths)
+      paths.each {|p| ignore_list << p }
+    end
+
     # @param root [String, Pathname]
     #   Path to where the site is located. This must contain a +config.yml+
     #   file, or an error is raised.
@@ -88,6 +104,7 @@ EOS
         raise NotSiteError, @source
       end
 
+      @reader.ignore *ignore_list
       if config[:ignore]
         @reader.ignore *config[:ignore]
       end
