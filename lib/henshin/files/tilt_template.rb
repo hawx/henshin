@@ -23,7 +23,7 @@ module Henshin
         scope = data
 
         text = ::Tilt[ext].new(nil, nil, (@site.config[ext] || {}).to_hash.symbolise) {
-          super
+          raw_text
         }.render(scope) { scope.yield }
 
         return text if scope.template == 'none'

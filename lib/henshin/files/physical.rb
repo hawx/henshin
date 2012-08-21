@@ -36,7 +36,7 @@ module Henshin
       end
 
       # @return [String] Text of the file.
-      def text
+      def raw_text
         read[1]
       end
 

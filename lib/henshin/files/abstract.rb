@@ -2,7 +2,7 @@ module Henshin
 
   class File
 
-    # @abstract You will want to implement {#text} and {#path}.
+    # @abstract You will want to implement {#raw_text}, {#path} and maybe {#text}.
     #
     # This class implements all the functionality that is required to build or
     # serve a file. {Abstract} instances do not relate to a file in the file
@@ -18,9 +18,19 @@ module Henshin
         @site = site
       end
 
+      # Simple version of text. This is raw in that it has not been run 
+      # through a template. It may still have been passed through an ordinary
+      # rendering engine (for instance a Markdown engine).
+      #
+      # @return [String]
+      # @see #text
+      def raw_text
+        ""
+      end
+
       # @return [String] Text to write to the file.
       def text
-        ""
+        raw_text
       end
 
       # @return [Path] Path to the file.

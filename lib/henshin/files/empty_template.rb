@@ -7,7 +7,7 @@ module Henshin
         # ...
       end
 
-      def text
+      def raw_text
         ""
       end
 

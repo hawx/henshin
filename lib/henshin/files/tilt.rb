@@ -14,7 +14,7 @@ module Henshin
       # configuration for the engine, if any, from {Site#config}.
       #
       # @return [String] The rendered file contents
-      def text
+      def raw_text
         ext    = @path.extname[1..-1].to_sym
         config = (@site.config[ext] || {}).to_hash.symbolise
         ::Tilt[ext].new(nil, nil, config) { super }.render

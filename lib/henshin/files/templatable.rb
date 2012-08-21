@@ -10,7 +10,7 @@ module Henshin
       #
       # @return [String]
       def text
-        res  = super
+        res  = raw_text
         data = clone
 
         return res if data.template == "none"
