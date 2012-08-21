@@ -151,7 +151,7 @@ module Henshin
       UI.fail "No publish configuration in config.yml."
     end
 
-    writer = SftpPublisher.create(site.config[:publish])
+    writer = Publisher::Sftp.create(site.config[:publish])
     site.write(writer)
 
     puts "#{Time.now - time}s to publish site." if profile?
