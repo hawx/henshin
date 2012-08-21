@@ -46,7 +46,7 @@ module Henshin
       
       # Allow template to be set, needed for Template to work properly.
       def template
-        @template || yaml[:template]
+        @template || nil
       end
       attr_writer :template
 
