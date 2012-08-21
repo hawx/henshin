@@ -26,12 +26,6 @@ module Henshin
         end
       end
 
-      # Allow template to be set, needed for Template to work properly.
-      def template
-        @template || yaml[:template]
-      end
-      attr_writer :template
-
       def yield
         text
       end
