@@ -63,16 +63,15 @@ describe Henshin::Site do
     end
   end
 
-  describe '#defaults' do
-    it 'does something'
-  end
-
-  describe '#yaml' do
-    it 'loads config.yml'
-  end
-
   describe '#config' do
-    it 'combines the loaded config.yml with the defaults'
+    it 'combines the loaded config.yml with the defaults' do
+      site.config.author.must_equal "You"
+      site.config.md.superscript.must_equal true
+    end
+
+    it 'is a Hashie::Mash' do
+      site.config.must_be_kind_of Hashie::Mash
+    end
   end
 
   describe '#script' do
