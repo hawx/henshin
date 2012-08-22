@@ -86,7 +86,7 @@ module Henshin
   # Site which adds all drafts to the list of posts.
   class DraftSite < Site
 
-    # For the draft site speed is preferred over "smallness" so turn off any
+    # For the draft site speed is preferred over file size, so turn off any
     # compression.
     def defaults
       super.deep_merge compress: {
@@ -96,14 +96,14 @@ module Henshin
       }
     end
 
-    # @return [Array<Draft>] Returns all draft posts read from the +drafts+
-    # folder.
+    # @return [Array<Draft>] Returns all Draft posts read from the +drafts+
+    #   folder.
     def drafts
       read(:all, 'drafts').sort
     end
 
-    # @return [Array<Post, Draft>] To make previewing draft posts in a site
-    # easier drafts are mixed into the posts.
+    # @return [Array<Post, Draft>] Sorted array of Posts and Drafts, making
+    #   previewing easier.
     def posts
       weave_posts (drafts + super).sort
     end

@@ -2,9 +2,15 @@ module Henshin
 
   DEFAULT_TEMPLATE = 'default'
 
+  # The Site represents a site in the filesystem, it is in charge of reading and
+  # writing files.
   class Site
 
+    # Error for when a path given to {Site#initialize} does not contain a
+    # config.yml file.
     class NotSiteError < StandardError
+
+      # @param place [Pathname, String] Path where site is expected
       def initialize(place)
         @place = place
       end
@@ -16,6 +22,7 @@ Create one using `henshin new`, or find out more by reading `henshin help`.
 EOS
       end
 
+      # @return Empty array as backtrace is unnecessary.
       def backtrace
         []
       end
@@ -90,11 +97,13 @@ EOS
       paths.each {|p| ignore_list << p }
     end
 
+    # Creates a new instance of Site.
+    #
     # @param root [String, Pathname]
-    #   Path to where the site is located. This must contain a +config.yml+
-    #   file, or an error is raised.
+    #   Path to where the site is located.
     #
     # @raise [NotSiteError]
+    #   Raised if +root+ does not contain a +config.yml+ file.
     #
     def initialize(root='.')
       @reader = Reader.new(root)
@@ -110,13 +119,14 @@ EOS
       end
     end
 
+    # @return [Pathname] Path of site being read
     attr_reader :source
 
     # Destination folder to build into. Uses destination set in config if
     # available which can be either a relative path or absolute. By default uses
     # 'build'.
     #
-    # @return [Pathname]
+    # @return [Pathname] Path to build site to
     def dest
       @source.expand_path + (config[:dest] || 'build')
     end
@@ -125,7 +135,7 @@ EOS
     # urls and permalinks should begin with this. Uses +:root+ option from
     # config if set, otherwise defaults to using +/+.
     #
-    # @return [Pathname]
+    # @return [Pathname] Root url
     def root
       u = config[:root] || '/'
       u = '/' + u if u[0] != '/'
@@ -133,7 +143,7 @@ EOS
       Pathname.new(u)
     end
 
-    # @return [Hash] Defaults to use.
+    # @return [Hash] Defaults to for the Site.
     def defaults
       {
         permalink: '/:title/index.html',
@@ -170,25 +180,22 @@ EOS
       Hashie::Mash.new defaults.merge(yaml)
     end
 
-
-    # @return [Package::Script] Returns the script package file. This is a
-    #   combined and minified file containing the contents of the files in
-    #   +assets/scripts+.
+    # @return [Package::Script] The script package file. This is a combined and
+    #   minified file containing the contents of the files in +assets/scripts+.
     def script
       Package::Script.new self, @reader.read_all('assets', 'scripts')
     end
 
-    # @return [Package::Style] Returns the style package file. This is a combined
-    #   and minified file containing the contents of the files in
-    #   +assets/styles+.
+    # @return [Package::Style] The style package file. This is a combined and
+    #   minified file containing the contents of the files in +assets/styles+.
     def style
       Package::Style.new self, @reader.read_all('assets', 'styles')
     end
 
     file :script, :style
 
-    # @return [Array<File::Post>] Returns the posts read from the +posts+ folder.
-    #   These are sorted and all posts have had the next and previous posts set
+    # @return [Array<File::Post>] The Posts read from the +posts+ folder.  These
+    #   are sorted and all posts have had the next and previous posts set
     #   correctly.
     def posts
       weave_posts read(:all, 'posts')
@@ -244,9 +251,9 @@ EOS
 
     private :weave_posts
 
-    # As the Site object is actually used in templates missing method calls are
-    # either resolved by returning the corresponding value from +config.yml+ or
-    # return nil.
+    # If +sym+ is a key in the loaded +config.yml+ file, the value is returned,
+    # otherwise returns +nil+. This is so the Site object itself can be passed
+    # to templates.
     def method_missing(sym, *args, &block)
       if yaml.key?(sym)
         yaml[sym]
@@ -255,7 +262,7 @@ EOS
       end
     end
 
-    # Writes the site using the given writer.
+    # Writes the site using the given +writer+.
     #
     # @param writer [#write]
     # @example
@@ -276,7 +283,7 @@ EOS
     end
 
     # Finds the template with the name given. Given a list of names it tries to
-    # find a template for a signle name working down the list, this allows
+    # find a template for a single name working down the list, this allows
     # "fallback" options to be given. If none are found it returns an instance
     # of the {File::EmptyTemplate}.
     #

@@ -1,7 +1,9 @@
 module Henshin
 
-  # Factory class which abstracts away the process of creating File (subclass)
-  # objects. File types can be registered using {.register} and then the
+  # A Factory class which abstracts away the process of creating File (subclass)
+  # objects.
+  #
+  # File types can be registered using {.register} and then the
   # appropriate class will be used when {.create} is used. You can also add
   # functionality that is meant for broader use than a specific file type using
   # modules, these can be registered using the {.apply} method and when
@@ -34,11 +36,16 @@ module Henshin
     # Registers a new file type which can then be used by {.create}.
     #
     # @param match [#match] Regexp path must match to be +klass+ type
-    # @param klass [File] Subclass of File
+    # @param klass [Class] Subclass of File
     def self.register(match, klass)
       @types.unshift [match, klass]
     end
 
+    # Registers a module to be applied to files which have a path matching
+    # +match+.
+    #
+    # @param match [#match] Regexp path must match to extend +mod+
+    # @param mod [Module]
     def self.apply(match, mod)
       @applies.unshift [match, mod]
     end

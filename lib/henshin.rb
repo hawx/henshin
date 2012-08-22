@@ -69,6 +69,11 @@ module Henshin
   # Sets a global Henshin setting.
   #
   # @param key [Symbol]
+  # @example
+  #
+  #   Henshin.set :colour
+  #   Henshin.colour? #=> true
+  #
   def set(key)
     SETTINGS[key] = true
   end
@@ -76,6 +81,11 @@ module Henshin
   # Unsets a global Henshin setting.
   #
   # @param key [Symbol]
+  # @example
+  #
+  #   Henshin.unset :colour
+  #   Henshin.colour? #=> false
+  #
   def unset(key)
     SETTINGS[key] = false
   end
@@ -111,11 +121,11 @@ module Henshin
   # @param klass [Class]
   # @example
   #
-  #   class MyCoolSite < Site
+  #   class MyCoolSite < Henshin::Site
   #     # ...
   #   end
   #
-  #   use MyCoolSite
+  #   Henshin.use MyCoolSite
   #
   def use(klass)
     SETTINGS[:klass] = klass
@@ -130,6 +140,8 @@ module Henshin
     end
   end
 
+  # Builds the site in +root+.
+  #
   # @param root [Pathname]
   def build(root, opts={})
     time = Time.now if profile?
@@ -141,6 +153,8 @@ module Henshin
     puts "#{Time.now - time}s to build site." if profile?
   end
 
+  # Publishes the site in +root+.
+  #
   # @param root [Pathname]
   def publish(root, opts={})
     time = Time.now if profile?

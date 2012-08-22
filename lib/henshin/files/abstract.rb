@@ -2,7 +2,8 @@ module Henshin
 
   class File
 
-    # @abstract You will want to implement {#raw_text}, {#path} and maybe {#text}.
+    # @abstract You will want to implement {#raw_text}, {#path} and maybe
+    #   {#text}.
     #
     # This class implements all the functionality that is required to build or
     # serve a file. {Abstract} instances do not relate to a file in the file
@@ -18,9 +19,9 @@ module Henshin
         @site = site
       end
 
-      # Simple version of text. This is raw in that it has not been run 
-      # through a template. It may still have been passed through an ordinary
-      # rendering engine (for instance a Markdown engine).
+      # Simple version of text. This is raw in that it has not been run through
+      # a template. It may still have been passed through an ordinary rendering
+      # engine (for instance a Markdown engine).
       #
       # @return [String]
       # @see #text
@@ -53,7 +54,7 @@ module Henshin
       def extension
         path.extension
       end
-      
+
       # Allow template to be set, needed for Template to work properly.
       def template
         @template || nil
