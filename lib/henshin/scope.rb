@@ -1,8 +1,10 @@
 module Henshin
 
-  # Add methods here to make them available in slim templates.
+  # Add methods here to make them available in templates.
   module Helpers
-
+    def url_for(path)
+      @site.all_files.find {|i| i.path === path }.url
+    end
   end
 
   # Creates an object that can be passed to a template from a Hash of data. Each
