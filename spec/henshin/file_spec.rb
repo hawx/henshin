@@ -2,7 +2,7 @@ require_relative '../helper'
 
 describe Henshin::File do
 
-  let(:site) { Object.new }
+  let(:site) { test_site }
   subject { Henshin::File }
 
   describe 'registering new file type' do

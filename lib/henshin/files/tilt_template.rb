@@ -15,7 +15,7 @@ module Henshin
                       yajl).map(&:to_sym)
 
       def data
-        self
+        self.safe
       end
 
       def text

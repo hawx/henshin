@@ -37,6 +37,17 @@ EOS
 
       template.template(other).must_equal "<h1>Cool post</h1><p>Hey so here is the text.</p>"
     end
+
+    it 'disallows writing' do
+      path.stubs(:read).returns <<EOS
+p = write(Object.new)
+EOS
+
+      other = Henshin::File::Physical.new(site, Pathname.new('sometest.md'))
+      other.instance_variable_get(:@path).stubs(:read).returns("")
+
+      template.template(other).must_equal "<p></p>"
+    end
   end
 
 end

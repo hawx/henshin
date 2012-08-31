@@ -13,7 +13,7 @@ module Henshin
       # @param site [Site] Site the file is in.
       # @param path [Pathname] Path to the file.
       def initialize(site, path)
-        @site = site
+        @site = site.safe
         @path = path
       end
 

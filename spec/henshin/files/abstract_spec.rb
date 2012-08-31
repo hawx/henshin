@@ -14,6 +14,13 @@ describe Henshin::File::Abstract do
 
   subject { subclass.new(site) }
 
+
+  describe '#site' do
+    it 'can not be written' do
+      subject.site.write(Object.new).must_equal nil
+    end
+  end
+
   it 'returns a String for #text' do
     subject.text.must_be_kind_of String
   end

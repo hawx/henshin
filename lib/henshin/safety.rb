@@ -39,6 +39,10 @@ module Henshin
       self.class.instance_variable_get(:@unsafe_methods)
     end
 
+    def safe?
+      false
+    end
+
     # @return A cloned version of the object with unsafe methods stubbed to
     #   return +nil+.
     #
@@ -59,8 +63,10 @@ module Henshin
 
       @safe_clone = self.clone
       unsafe_methods.each do |sym|
-        (class << @safe_clone; self; end).send(:define_method, sym) {|*| nil }
+        @safe_clone.singleton_class.send(:define_method, sym) {|*| nil }
       end
+      @safe_clone.singleton_class.send(:define_method, :safe?) { true }
+
       @safe_clone
     end
 

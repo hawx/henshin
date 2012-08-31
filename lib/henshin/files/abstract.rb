@@ -10,13 +10,13 @@ module Henshin
     # system, use {Physical} in this case.
     class Abstract
 
-      include  Henshin::Helpers, Comparable
+      include  Henshin::Helpers, Safety, Comparable
       extend   Attributes
 
       attr_reader :site
 
       def initialize(site)
-        @site = site
+        @site = site.safe
       end
 
       # Simple version of text. This is raw in that it has not been run through
@@ -76,6 +76,8 @@ module Henshin
       rescue => e
         Error.prettify("Error writing #{inspect}", e)
       end
+
+      unsafe :write
 
       # Compares the files based on their permalinks.
       #

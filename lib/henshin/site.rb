@@ -6,6 +6,8 @@ module Henshin
   # writing files.
   class Site
 
+    include Safety
+
     # Error for when a path given to {Site#initialize} does not contain a
     # config.yml file.
     class NotSiteError < StandardError
@@ -281,6 +283,8 @@ EOS
       end
       self
     end
+
+    unsafe :write
 
     # Finds the template with the name given. Given a list of names it tries to
     # find a template for a single name working down the list, this allows

@@ -11,7 +11,7 @@ module Henshin
       # @return [String]
       def text
         res  = raw_text
-        data = clone
+        data = safe
 
         return res if data.template == "none"
 
