@@ -46,11 +46,13 @@ module Henshin
     #   Test.new.safe.unsafe_method  #=> nil
     #
     def safe
-      cloned = self.clone
+      return @safe_clone if @safe_clone
+
+      @safe_clone = self.clone
       unsafe_methods.each do |sym|
-        (class << cloned; self; end).send(:define_method, sym) {|*| nil }
+        (class << @safe_clone; self; end).send(:define_method, sym) {|*| nil }
       end
-      cloned
+      @safe_clone
     end
 
   end

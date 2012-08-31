@@ -42,6 +42,15 @@ describe Henshin::Safety do
     it 'unmarked methods still work' do
       safe.safe_method.must_equal "Ok here"
     end
+
+    it 'always returns the same safe clone' do
+      a = unsafe.safe
+      b = unsafe.safe
+      c = unsafe.safe
+
+      a.must_equal b
+      b.must_equal c
+    end
   end
 
 end
