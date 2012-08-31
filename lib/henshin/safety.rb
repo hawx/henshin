@@ -17,10 +17,19 @@ module Henshin
       def unsafe(*syms)
         @unsafe_methods += syms
       end
+
+      # Makes sure that the Safety module, and any unsafe methods that have been
+      # marked, infect any class which inherits the original class.
+      def inherited(klass)
+        super
+        klass.send :include, ::Henshin::Safety
+        klass.instance_variable_set(:@unsafe_methods, @unsafe_methods)
+      end
     end
 
     # Mixes {ClassMethods} into the including class.
     def self.included(base)
+      super
       base.extend ClassMethods
       base.instance_variable_set(:@unsafe_methods, [])
     end

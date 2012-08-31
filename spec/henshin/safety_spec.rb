@@ -2,7 +2,7 @@ require_relative '../helper'
 
 describe Henshin::Safety do
 
-  subject {
+  let(:klass) {
     Class.new {
       include Henshin::Safety
 
@@ -13,8 +13,10 @@ describe Henshin::Safety do
       unsafe :another
 
       def safe_method; "Ok here"; end
-    }.new
+    }
   }
+
+  subject { klass.new }
 
   describe 'a normally created object including Safety' do
     it 'can call marked methods normally' do
@@ -51,6 +53,14 @@ describe Henshin::Safety do
       a.must_equal b
       b.must_equal c
     end
+  end
+
+  it 'infects inherited classes' do
+    subklass = Class.new(klass)
+    subsubject = subklass.new
+
+    subsubject.unsafe_method.must_equal "Hey, I was called!"
+    subsubject.safe.unsafe_method.must_equal nil
   end
 
 end
