@@ -12,6 +12,7 @@ require 'redcarpet'
 Object.send(:remove_const, :RedcarpetCompat) if defined?(::RedcarpetCompat)
 
 require 'henshin/error'
+require 'henshin/safety'
 
 require 'henshin/compressor'
 require 'henshin/compressors/css'
