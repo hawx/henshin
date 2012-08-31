@@ -15,7 +15,6 @@ module Henshin
       #   unsafe :write
       #
       def unsafe(*syms)
-        @unsafe_methods ||= []
         @unsafe_methods += syms
       end
     end
@@ -23,6 +22,7 @@ module Henshin
     # Mixes {ClassMethods} into the including class.
     def self.included(base)
       base.extend ClassMethods
+      base.instance_variable_set(:@unsafe_methods, [])
     end
 
     # @return [Array<Symbol>] List of methods marked unsafe.
