@@ -3,7 +3,12 @@ module Henshin
   # Add methods here to make them available in templates.
   module Helpers
     def url_for(path)
-      @site.all_files.find {|i| i.path === path }.url
+      file = @site.all_files.find {|i| i.path === path }
+      if file
+        file.url
+      else
+        path
+      end
     end
   end
 

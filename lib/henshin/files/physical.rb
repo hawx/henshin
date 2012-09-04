@@ -83,6 +83,8 @@ module Henshin
         else
           ['', contents]
         end
+      rescue
+        ['', contents]
       end
 
       # @return [Hash{Symbol=>Object}] Returns the data loaded from the file's
