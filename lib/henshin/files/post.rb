@@ -46,8 +46,8 @@ module Henshin
         url = data.inject(style) {|res, (tok, val)|
           res.gsub /:#{Regexp.escape(tok)}/, val
         }
-
-        Path @site.root, url
+        
+        Path @site.root, url[1..-1]
       end
 
       # Compares posts on date, then on permalink if dates are the same.

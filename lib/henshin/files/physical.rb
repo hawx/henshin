@@ -44,7 +44,11 @@ module Henshin
       #   that, otherwise uses the path to the file.
       def path
         if yaml.key?(:permalink)
-          Path @site.root, yaml[:permalink]
+          if yaml[:permalink].start_with?('/')
+            Path @site.root, yaml[:permalink][1..-1]
+          else
+            Path @site.root, yaml[:permalink]
+          end
 
         else
           rel = @path
