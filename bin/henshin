@@ -1,0 +1,142 @@
+#!/usr/bin/env ruby
+
+require 'clive'
+
+require_relative '../lib/henshin'
+
+module Henshin
+
+  class CLI < Clive
+
+    config name: 'henshin'
+
+    desc 'Builds the site'
+    command :build, arg: '[<root>]', as: Pathname, default: '.' do
+      action do
+        Henshin.eval_init root
+        Henshin.build root
+      end
+    end
+
+    desc 'Creates a new site'
+    command :new, arg: '[<root>]', as: Pathname, default: '.' do
+      action do
+        Henshin.copy_site root
+      end
+    end
+
+    desc 'Serves the site to view in a web browser'
+    command :view, arg: '[<root>]', as: Pathname, default: '.' do
+
+      desc 'Specify port number'
+      opt :p, :port, arg: '<num>', as: Integer
+
+      desc 'Hostname to run on'
+      opt :host, arg: '<addr>'
+
+      desc 'Handler to use'
+      opt :H, :handler, arg: '<name>'
+
+      desc 'Daemonise process'
+      opt :D, :daemonise
+
+      action do
+        require_relative '../lib/rack/henshin'
+        Henshin.eval_init root
+
+        site = ::Henshin::SETTINGS[:klass].new(root)
+        site.extend ::Henshin::Site::Servable
+        ::Henshin::File::Abstract.send :include, ::Henshin::File::Servable
+
+        Henshin.serve site, @state.to_h
+      end
+    end
+
+    desc 'Publishes the site'
+    command :publish, arg: '[<root>]', as: Pathname, default: '.' do
+      action do
+        Henshin.eval_init root
+        Henshin.publish root
+      end
+    end
+
+    desc 'Only display errors'
+    opt :quiet do
+      Henshin.set :quiet
+    end
+
+    desc 'Shows what a command will do, without writing any files'
+    opt :dry_run do
+      puts "Starting dry run..."
+      Henshin.set :dry_run
+    end
+
+    desc 'Use local links between files'
+    opt :local do
+      Henshin.set :local
+    end
+
+    desc 'Print time taken to generate site'
+    opt :profile do
+      Henshin.set :profile
+    end
+
+    desc 'Do not use colours in output'
+    opt :no_colour do
+      Henshin.unset :colour
+    end
+
+    desc 'Kills any running henshin daemon'
+    opt :kill do
+      if ::File.exist?('henshin.pid')
+        pid = ::File.read('henshin.pid').to_i
+        Process.kill('INT', pid)
+      end
+    end
+
+    desc 'Display the current version'
+    opt :version, tail: true do
+      puts Henshin::VERSION
+      exit 0
+    end
+
+  end
+
+  def self.copy_site(to)
+    from = Pathname.new(__FILE__) + '..' + '..' + 'site'
+    FileUtils.cp_r(from, to) unless Henshin.dry_run?
+
+    Pathname.glob(from + '**' + '*').each do |path|
+      if path.directory?
+        UI.made(to + path.relative_path_from(from))
+      else
+        UI.wrote(to + path.relative_path_from(from))
+      end
+    end
+  end
+
+  def self.serve(site, opts={})
+    if opts[:daemonise]
+      cwd = FileUtils.pwd
+      Process.daemon
+      FileUtils.cd cwd
+      ::File.open('henshin.pid', 'w') {|f| f.write "#{Process.pid}" }
+      at_exit { ::File.delete('henshin.pid') if ::File.exist?('henshin.pid') }
+    end
+
+    config  = site.config.server || Hashie::Mash.new
+    handler = Rack::Handler.get(opts[:handler] || config.handler)
+    handler = Rack::Handler.default unless handler
+
+    app = Rack::Builder.new do
+      use Rack::ShowExceptions
+      run Rack::Henshin.new(nil, site: site)
+    end
+
+    handler.run app,
+                Host: (opts[:host] || config.host),
+                Port: (opts[:port] || config.port)
+  end
+end
+
+Henshin::CLI.run

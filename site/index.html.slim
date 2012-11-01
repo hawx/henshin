@@ -1,0 +1,28 @@
+header
+  h1 = site.title
+
+ul.list
+  h3 Posts
+  - for post in site.posts do
+    - if post.published?
+      li
+        a href=post.url = post.title
+    - else
+      li#draft
+        a href=post.url = post.title
+
+
+- if site.projects
+
+  ul.list
+    h3 Projects
+    - for project in site.projects do
+      li
+        a href=project.url = project.title
+        span  &mdash; #{project.desc}
+
+
+- if site.description
+
+  h3 About
+  = site.description

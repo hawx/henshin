@@ -1,0 +1,19 @@
+---
+template: none
+permalink: /feed.xml
+---
+
+doctype xml
+rss version='2.0' xmlns:atom="http://www.w3.org/2005/Atom"
+  channel
+    atom:link rel='self' type='application/rss+xml' href=(site.url + permalink)
+    title       = site.title
+    link        = site.url
+    description = site.description
+
+    - for post in site.posts.take(10)
+      item
+        title       = post.title
+        description = post.text
+        pubDate     = post.rss_date
+        link        = site.url + post.url.to_s

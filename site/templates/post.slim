@@ -1,0 +1,30 @@
+doctype html
+html lang='en'
+  head
+    meta charset='utf-8'
+    link rel='stylesheet' href=site.style.url
+    title = title
+
+  body onload="window.scrollBy(0,54);"
+
+    nav
+      - if prev_post
+        a.prev href=prev_post.url &larr; #{truncate(prev_post.title, 25)}
+
+      a.home href=site.root Home
+
+      - if next_post
+        a.next href=next_post.url #{truncate(next_post.title, 25)} &rarr;
+
+    header
+      h1 = title
+
+    == yield
+
+    div.meta
+      span.date
+        ' &mdash; #{format_date(date)}
+
+    script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js'
+    script src='http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js'
+    script src=site.script.url
