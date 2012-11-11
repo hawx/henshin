@@ -18,7 +18,7 @@ module Henshin
         self.safe
       end
 
-      def text
+      def text     
         ext = @path.extname[1..-1].to_sym
         scope = data
 

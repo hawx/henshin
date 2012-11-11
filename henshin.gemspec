@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'duvet',    '~> 0.4.0'
   s.add_development_dependency 'minitest', '~> 3.0'
-  s.add_development_dependency 'mocha',    '~> 0.11.4'
+  s.add_development_dependency 'mocha',    '~> 0.12.7'
   s.add_development_dependency 'pelusa',   '~> 0.2.0'
 
   s.files        = %w(README.md LICENCE Rakefile)

@@ -9,7 +9,7 @@ module Henshin
       # default template.
       #
       # @return [String]
-      def text
+      def text     
         res  = raw_text
         data = safe
 

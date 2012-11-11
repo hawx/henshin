@@ -1,18 +1,20 @@
 $: << File.dirname(__FILE__) + '/..'
 
 begin
-  require 'duvet'
-  Duvet.start :filter => 'lib/henshin'
+  # require 'duvet'
+  # Duvet.start :filter => 'lib/henshin'
 rescue LoadError => e
   # Doesn't matter if duvet doesn't run
-  warn 'Problem with duvet?'
-  raise e
+  # warn 'Problem with duvet?'
+  # raise e
 end
 
 gem 'minitest'
 require 'minitest/autorun'
 require 'minitest/pride'
+
 require 'mocha'
+
 require 'lib/henshin'
 
 Henshin.set :dry_run

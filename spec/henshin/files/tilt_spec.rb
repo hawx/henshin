@@ -51,8 +51,8 @@ EOS
       tmpl = subject.new(site, path)
 
       tmpl.stubs(:data).returns(file)
-      tmpl.text.must_equal "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\" /><link href=\"&#47;style.css\" rel=\"stylesheet\" /><title>Some File</title></head><body><p>A <em>lot</em> of markdown is <strong>good</strong> for <code>testing</code>.</p>
-<script src=\"&#47;script.js\"></script></body></html>"
+      tmpl.text.must_equal "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\" /><link href=\"/style.css\" rel=\"stylesheet\" /><title>Some File</title></head><body><p>A <em>lot</em> of markdown is <strong>good</strong> for <code>testing</code>.</p>
+<script src=\"/script.js\"></script></body></html>"
     end
   end
 

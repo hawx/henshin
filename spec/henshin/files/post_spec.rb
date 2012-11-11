@@ -29,9 +29,9 @@ EOS
 
   describe '#text' do
     it 'returns the text, rendered, templated' do
-      post.text.must_equal "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\" /><link href=\"&#47;style.css\" rel=\"stylesheet\" /><title>Hello World</title></head><body onload=\"window.scrollBy(0,54);\"><nav><a class=\"home\" href=\"&#47;\">Home</a></nav><header><h1>Hello World</h1></header>
+      post.text.must_equal "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\" /><link href=\"/style.css\" rel=\"stylesheet\" /><title>Hello World</title></head><body onload=\"window.scrollBy(0,54);\"><nav><a class=\"home\" href=\"/\">Home</a></nav><header><h1>Hello World</h1></header>
 So, a post. Finally?
-<div class=\"meta\"><span class=\"date\">&mdash;  </span></div><script src=\"http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js\"></script><script src=\"http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js\"></script><script src=\"&#47;script.js\"></script></body></html>"
+<div class=\"meta\"><span class=\"date\">&mdash;  </span></div><script src=\"http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js\"></script><script src=\"http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js\"></script><script src=\"/script.js\"></script></body></html>"
     end
   end
 
